@@ -1,0 +1,14 @@
+AVR JTAGICE mkIIDescription:
+
+The JTAGICE mkII is a mid-range development tool for use with 8- and 32- bit AVR devices with On Chip Debug capability. JTAGICE mkII is used for source level debugging, NanoTrace (if supported by the device) and device programming.
+
+JTAGICE mkII supports the following programming modes:
+•SPI
+•JTAG
+•PDI
+•aWire
+It also supports debugging using the following interfaces:
+•debugWIRE
+•JTAG
+•PDI
+•aWire 

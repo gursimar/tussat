@@ -1,0 +1,21 @@
+Enter the AVR Dragon 
+
+Whether it's a marketing lapse or a brilliant design configuration feature, beginners should be aware that Atmel Corporation does not include several vital pieces of equipment in the AVR Dragon box.
+
+Yes, the AVR Dragon is USB-powered and yes, there is a free programming application that can be used with the AVR Dragon; but, you will need to provide your own USB cable and you will have to download the latest version of AVR Studio from the Atmel Web site.
+
+Furthermore, you will be required to solder several components to the AVR Dragon to enable it to work with the widest variety of 8-bit AVR products. These components enable the budding AVR user to program and emulate many of the products in the AVR device family. A properly configured AVR Dragon offers these programming interfaces:
+
+
+•In-System Programming
+•High Voltage Serial Programming
+•Parallel Programming
+•JTAG Programming
+
+
+As well as these emulation interfaces:
+
+
+•JTAG
+•debugWIRE
+
