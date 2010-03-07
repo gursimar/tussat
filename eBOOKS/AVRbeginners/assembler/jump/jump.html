@@ -1,0 +1,55 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html>
+
+	<head>
+                <meta http-equiv="content-type" content="text/html;charset=iso-8859-1">
+		<title>Welcome To AVRbeginners.net!</title>
+		<link href="../../main.css" rel="stylesheet">
+	</head>
+
+	<body class="content_page">
+		<div class="content">
+			<div class="heading">
+				The Different Jumps</div>
+			<p>That variety of jump instructions the AVR has looks a bit frightening for beginners. On this page, they're described in the order they appear in the instruction set summary:</p>
+		</div>
+		<div class="heading_small">
+			<div class="content">
+				<p>rjmp</p>
+			</div>
+		</div>
+		<div class="content">
+			<p>&quot;Relative Jump&quot;. This instruction performs a jump within a range of +/- 2k words. Added together, it can reach 4k words or 8k bytes of program memory, so it's possible to reach the whole program space of the 8515 or mega8 with it, as well as any other 8k-AVR. You can also use it on other AVRs as well, of course! The advantage of rjmp over jmp is that rjmp only needs 1 word of code space, while jmp needs 2 words. Example:</p>
+			<p>rjmp go_here</p>
+			<p></p>
+		</div>
+		<div class="heading_small">
+			<div class="content">
+				<p>ijmp</p>
+			</div>
+		</div>
+		<div class="content">
+			<p>&quot;Indirect Jump&quot; to (Z). This instruction performs a jump to the address pointed to by the Z index register pair. As Z is 16 bits wide, ijmp allows jumps within the lower 64k words range of code space (big enough for a mega128). This instruction is especially cool for jumping to calculated addresses, or addresses from a lookup table. Of course, special care has to be taken when setting up Z. Example:</p>
+			<p>ldi ZL, low(go_there)<br>
+				ldi ZH, high(go_there)<br>
+				ijmp</p>
+			<p></p>
+		</div>
+		<div class="heading_small">
+			<div class="content">
+				<p>jmp</p>
+			</div>
+		</div>
+		<div class="heading_small">
+			<div class="content">
+				
+			</div>
+		</div>
+		<div class="content">
+			<p>&quot;Jump&quot;. While rjmp is limited to +/- 2k words, jmp can be used to jump anywhere within the code space. The address operand of jmp can be as big as 22 bits, resulting in jumps of up to 4M words. The disadvantage over rjmp is that jmp needs 2 words of code space, while rjmp needs just one word. Example:</p>
+			<p>jmp go_far</p>
+		</div>
+	</body>
+
+</html>

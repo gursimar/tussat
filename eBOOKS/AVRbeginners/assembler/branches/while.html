@@ -1,0 +1,56 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html>
+
+	<head>
+		<meta http-equiv="content-type" content="text/html;charset=iso-8859-1">
+		<title>While Loops</title>
+                <link rel="stylesheet" href="../../main.css">
+	</head>
+
+	<body class="content_page">
+		<div class="heading">
+			While Loops
+		</div>
+		<div class="content">
+			<p>Just as for loops, while loops come in different variations. This time, we don't have to care about a counter register.</p>
+			<p>The while()...do{}-loop checks if a certain test result is true and performs the loop instructions.</p>
+			<table class="codebox" width="95%" border="0" cellspacing="0" cellpadding="0">
+				<tr>
+					<td style="border-width: 0px;" valign="top" width="150">while1:<br>
+						in R16, PinD<br>
+						cpi r16, 1<br>
+						brne while1_end<br>
+						rcall port_is_1<br>
+						rjmp while1<br>
+						while1_end:</td>
+					<td style="border-width: 0px;" valign="top">; while(PinD = 1) rcall port_is_1<br>
+						; perform check by reading pin value and<br>
+						; comparing it to 1<br>
+						; if not true, end the loop<br>
+						; rcall port_is_1<br>
+						; and repeat loop</td>
+				</tr>
+			</table>
+			<p>This type of while-loop will only execute the loop instructions if the condition is true, else it will never do that.</p>
+			<p>The do{}...while()-loop executes the loop instruction at least once:</p>
+			<table class="codebox" width="95%" border="0" cellspacing="0" cellpadding="0">
+				<tr>
+					<td style="border-width: 0px;" valign="top" width="150">while2:<br>
+						rcall port_is_1<br>
+						in r16, PinD<br>
+						cpi r16, 1<br>
+						breq while2<br>
+						while2_end:</td>
+					<td style="border-width: 0px;" valign="top">; Do rcall port_is_1 while(PinD = 1)<br>
+						; rcall port_is_1<br>
+						; check, see above<br>
+						<br>
+						; if true, repeat<br>
+						; not true; proceed with following code</td>
+				</tr>
+			</table>
+			<p>These two examples also demonstrate two different branch instructions used for (basically) the same thing. You'll easily find that out by yourself. Little helper: <a href="branch.html">Conditional Branches</a>.</p>
+		
+	</body>
+</html>

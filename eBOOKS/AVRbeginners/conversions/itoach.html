@@ -1,0 +1,231 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html>
+
+	<head>
+                <meta http-equiv="content-type" content="text/html;charset=iso-8859-1">
+		<title>Welcome To AVRbeginners.net!</title>
+		<link href="../main.css" rel="stylesheet">
+	</head>
+
+	<body class="content_page">
+		<div class="content">
+			<div class="heading">Converting Int to ASCII Coded Hex</div>
+			<p>This conversion is a bit more difficult than int to ASCII coded decimal, as you don't only have to display numbers, but characters as well. In the ASCII table, these are not found directly after the numbers.
+			<p>However, the first task is to load the two nibbles that make up to an 8 bit integer into separate registers:</p>
+			<p><img src="img/itoach.gif" alt="" border="0"></p>
+			<p>The reason why you have to swap the nibbles in reg A is that the register holding the high nibble should have a value between 0x00 and 0x0F (15). If we didn't swap the nibbles, their value would be 0x00..0xF0 which we can't convert to ASCII.</p>
+			<p>Now we have two nibbles, each in a separate register, which are between 0x00 (0) and 0x0F (15). These must now be converted into their ASCII representative: For 0 it's '0', for 10 it's 'A' and for 15 it's 'F'. This can be done with a lookup table or by using a case structure.</p>
+			<p>A lookup table for this would have the ASCII values of the possible nibble values at the nibble positions:</p>
+			<table border="1" cellspacing="0" cellpadding="1">
+				<tr>
+					<td width="91">Table Position:</td>
+					<td width="20">
+						<div align="center">
+							1</div>
+					</td>
+					<td width="20">
+						<div align="center">
+							2</div>
+					</td>
+					<td width="20">
+						<div align="center">
+							3</div>
+					</td>
+					<td width="20">
+						<div align="center">
+							4</div>
+					</td>
+					<td width="20">
+						<div align="center">
+							5</div>
+					</td>
+					<td width="20">
+						<div align="center">
+							6</div>
+					</td>
+					<td width="20">
+						<div align="center">
+							7</div>
+					</td>
+					<td width="20">
+						<div align="center">
+							8</div>
+					</td>
+					<td width="20">
+						<div align="center">
+							9</div>
+					</td>
+					<td width="20">
+						<div align="center">
+							10</div>
+					</td>
+					<td width="20">
+						<div align="center">
+							11</div>
+					</td>
+					<td width="20">
+						<div align="center">
+							12</div>
+					</td>
+					<td width="20">
+						<div align="center">
+							13</div>
+					</td>
+					<td width="20">
+						<div align="center">
+							14</div>
+					</td>
+					<td width="20">
+						<div align="center">
+							15</div>
+					</td>
+					<td width="20">
+						<div align="center">
+							16</div>
+					</td>
+				</tr>
+				<tr>
+					<td width="91">Nibble value:</td>
+					<td width="20">
+						<div align="center">
+							0</div>
+					</td>
+					<td width="20">
+						<div align="center">
+							1</div>
+					</td>
+					<td width="20">
+						<div align="center">
+							2</div>
+					</td>
+					<td width="20">
+						<div align="center">
+							3</div>
+					</td>
+					<td width="20">
+						<div align="center">
+							4</div>
+					</td>
+					<td width="20">
+						<div align="center">
+							5</div>
+					</td>
+					<td width="20">
+						<div align="center">
+							6</div>
+					</td>
+					<td width="20">
+						<div align="center">
+							7</div>
+					</td>
+					<td width="20">
+						<div align="center">
+							8</div>
+					</td>
+					<td width="20">
+						<div align="center">
+							9</div>
+					</td>
+					<td width="20">
+						<div align="center">
+							10</div>
+					</td>
+					<td width="20">
+						<div align="center">
+							11</div>
+					</td>
+					<td width="20">
+						<div align="center">
+							12</div>
+					</td>
+					<td width="20">
+						<div align="center">
+							13</div>
+					</td>
+					<td width="20">
+						<div align="center">
+							14</div>
+					</td>
+					<td width="20">
+						<div align="center">
+							15</div>
+					</td>
+				</tr>
+				<tr>
+					<td width="91">ASCII:</td>
+					<td width="20">
+						<div align="center">
+							'0'</div>
+					</td>
+					<td width="20">
+						<div align="center">
+							'1'</div>
+					</td>
+					<td width="20">
+						<div align="center">
+							'2'</div>
+					</td>
+					<td width="20">
+						<div align="center">
+							'3'</div>
+					</td>
+					<td width="20">
+						<div align="center">
+							'4'</div>
+					</td>
+					<td width="20">
+						<div align="center">
+							'5'</div>
+					</td>
+					<td width="20">
+						<div align="center">
+							'6'</div>
+					</td>
+					<td width="20">
+						<div align="center">
+							'7'</div>
+					</td>
+					<td width="20">
+						<div align="center">
+							'8'</div>
+					</td>
+					<td width="20">
+						<div align="center">
+							'9'</div>
+					</td>
+					<td width="20">
+						<div align="center">
+							'A'</div>
+					</td>
+					<td width="20">
+						<div align="center">
+							'B'</div>
+					</td>
+					<td width="20">
+						<div align="center">
+							'C'</div>
+					</td>
+					<td width="20">
+						<div align="center">
+							'D'</div>
+					</td>
+					<td width="20">
+						<div align="center">
+							'E'</div>
+					</td>
+					<td width="20">
+						<div align="center">
+							'F'</div>
+					</td>
+				</tr>
+			</table>
+			<p>The conversion only consists of replacing the register value by a corresponding table value (which is the overall concept of a lookup table).</p>
+			<p>When this is done and the number we had was 128, we now have reg A holding '8' and reg B holding '0' because 128 is 0x80.</p>
+			<p>Converting 16-bit numbers from int to ASCII coded hex is not much harder. The result needs 4 registers and we need to convert two ints without having to use any 16-bit instructions:</p>
+			<p>1024 (hex 0x0400) converts to '0' and '4' for the high byte and '0' and '0' for the low byte.</p>
+			<p></p>
+		</div>
+	</body>
+
+</html>

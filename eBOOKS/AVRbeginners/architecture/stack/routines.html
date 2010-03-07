@@ -1,0 +1,60 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html>
+
+	<head>
+		<meta http-equiv="content-type" content="text/html;charset=iso-8859-1">
+		<title>Subroutines</title>
+                <link rel="stylesheet" href="../../main.css">
+	</head>
+
+	<body class="content_page">
+		<div class="heading">
+			Subroutines
+		</div>
+		<div class="content">
+
+			<p>Subroutines are code segments you can call and return from. That's cool, because you can reuse the code from every point in your 
+			program without wasting program space. For subroutines to work, some preparation is needed.</p>
+
+			<div style="text-align: center"><img src="../../assembler/img/stack.gif" alt="" height="251" width="432" border="0" class="image"></div>
+
+			<p>In order to know where to store and find return addresses (where to go on when returning from a subroutine), we need to setup the Stack Pointer (SP). When a return address is stored, the SP is set to the location before the stored address, so setting the SP to the last SRAM location (RAMEND) for initialisation is (in most cases) best (see upper part of image). In the lower part of the image you can see how the address is stored. If external memory is connected, the SP should be set to the last internal address for speed reasons (accessing external SRAM takes longer).</p>
+			<table width="95%" border="0" cellspacing="0" cellpadding="0" class="codebox">
+                                <tr>
+					<td width="160" style="border-width: 0px;" valign="top">
+						<nobr>
+						ldi r16, low(RAMEND)<br>
+						out SPL, r16<br>
+						ldi r16, high(RAMEND)<br>
+						out SPH, r16
+						</nobr>
+					</td>
+					<td style="border-width: 0px;" valign="top">
+						<nobr>;load r16 with low byte of last sram address<br>;setup SP low byte<br>;same with high byte</nobr>
+					</td>
+				</tr>
+			</table>
+
+			<p>RAMEND is defined in the micros include file you get with AVRStudio and equal to the last available internal SRAM address.</p>
+			<p>A subroutine begins with a label which is the subroutine's name. The follwing example routine writes the value of r16 to PortA and 
+			then returns:</p>
+			<table class="codebox" width="95%" border="0" cellspacing="0" cellpadding="0">
+				<tr>
+					<td width="160" style="border-width: 0px;" valign="top">out_portA:<br>
+						out PortA, r16<br>
+						ret<br>
+						<br>
+						main:<br>
+						rcall out_PortA<br>
+						rjmp main</td>
+					<td style="border-width: 0px;" valign="top">;this the routine's name<br>;output r16 to PortA<br>;return to code where this routine was called from<br>
+						;<br>;again, a label<br>;relative call subroutine<br>;repeat forever</td>
+				</tr>
+			</table>
+			<p>In the example above rcall is used. This instruction jumps to a relative address and is 2 bytes long and needs 3 cycles for execution. The disadvantage is that the subroutine has to be located at +/- 2k words. Another possible instruction is call. This instruction jumps to an absolute address and therefore needs more code space: 4 bytes, 4 cycles. It can reach the whole code space, which is important in devices with more than 8kB of program space. The 8k AVRs only need rjmp and rcall, as all addresses can be reached with +/- 2k word jumps.</p>
+			<p>In the Advanced Assembler section you will find an introduction to icall. It uses an address stored in the Z register pair to call a subroutine.</p>
+		</div>
+	</body>
+
+</html>

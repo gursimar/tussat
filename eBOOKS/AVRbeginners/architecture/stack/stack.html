@@ -1,0 +1,240 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html>
+
+	<head>
+		<meta http-equiv="content-type" content="text/html;charset=iso-8859-1">
+		<title>The Stack</title>
+                <link rel="stylesheet" href="../../main.css">
+	</head>
+
+	<body class="content_page">
+		<div class="heading">
+			The Stack
+		</div>
+		<div class="content">
+			<p>The Stack is used by the ALU to store return addresses from subroutines.</p>
+			<p>Imagine you can't remember where you just left. You'd have to write down where you left and, if you're visiting several locations, put the notes onto a stack. Your stack pointer tells you where that stack is. A microcontroller is just doing that - when a subroutine is called, it leaves the place in flash where it was just working and saves the return address on the stack.</p>
+			<p>The Stack needs a stack pointer (SP) and space in SRAM (the stack pointer must point above the first SRAM address). When a return address is stored, the SP is post-decremented (!!!!!!). In other words: The stack is growing towards smaller SRAM addresses. The biggest stack possible is initialised to RAMEND. It can then grow all the way down to the first SRAM address.</p>
+			<p>Here's a table/diagram/figure/whatever of how the stack is changed by rcall and ret.</p>
+
+			<table>
+				<tr>
+					<td class="codebox" valign="top">
+						<pre>.org 0x00
+ldi SPL low(RAMEND)
+ldi SPH, high(RAMEND)
+</pre>
+						<pre>rcall subrtn_1
+
+.org 0x100
+subrtn_1:
+rcall subrtn_2
+ret
+
+.org 0x140
+subrtn_2:
+ret</pre>
+					</td>
+					<td>
+						<table width="300" border="0" cellspacing="0" cellpadding="0">
+							<tr align="center">
+								<td width="50"></td>
+								<th width="80">Stack value</th>
+								<th width="60">SP value</th>
+								<th>Comment&nbsp;</th>
+							</tr>
+							<tr align="center">
+								<th width="50"><nobr>layer 0:</nobr></th>
+								<td width="80">---</td>
+								<td width="60">SP = ???</td>
+								<td>Stack before init</td>
+							</tr>
+							<tr align="center">
+								<th width="50"><nobr>layer 1:</nobr></th>
+								<td width="80">---</td>
+								<td width="60">&nbsp;</td>
+								<td>&nbsp;</td>
+							</tr>
+							<tr align="center">
+								<th width="50"><nobr>layer 2:</nobr></th>
+								<td width="80">---</td>
+								<td width="60">&nbsp;</td>
+								<td>&nbsp;</td>
+							</tr>
+						</table>
+
+						<p>Then the SP is set to RAMEND:</p>
+
+						<table width="300" border="0" cellspacing="0" cellpadding="0">
+							<tr align="center">
+								<td width="50"></td>
+								<th width="80">Stack value</th>
+								<th width="60">SP value</th>
+								<th>&nbsp;Comment</th>
+							</tr>
+							<tr align="center">
+								<th width="50"><nobr>layer 0:</nobr></th>
+								<td width="80">---</td>
+								<td width="60">&lt;-SP</td>
+								<td>Stack after init</td>
+							</tr>
+							<tr align="center">
+								<th width="50"><nobr>layer 1:</nobr></th>
+								<td width="80">---</td>
+								<td width="60">&nbsp;</td>
+								<td>&nbsp;</td>
+							</tr>
+							<tr align="center">
+								<th width="50"><nobr>layer 2:</nobr></th>
+								<td width="80">---</td>
+								<td width="60">&nbsp;</td>
+								<td>&nbsp;</td>
+							</tr>
+						</table>
+
+						<p>Stack state after rcall subrtn_1:</p>
+
+						<table width="300" border="0" cellspacing="0" cellpadding="0">
+							<tr align="center">
+								<td width="50"></td>
+								<th width="80">Stack value</th>
+								<th width="60">SP value</th>
+								<th>&nbsp;Comment</th>
+							</tr>
+							<tr align="center">
+								<th width="50"><nobr>layer 0:</nobr></th>
+								<td width="80">0x01</td>
+								<td width="60">&nbsp;</td>
+								<td>return address</td>
+							</tr>
+							<tr align="center">
+								<th width="50"><nobr>layer 1:</nobr></th>
+								<td width="80">---</td>
+								<td width="60">&lt;- SP</td>
+								<td>SP=SP-1</td>
+							</tr>
+							<tr align="center">
+								<th width="50"><nobr>layer 2:</nobr></th>
+								<td width="80">---</td>
+								<td width="60">&nbsp;</td>
+								<td>&nbsp;</td>
+							</tr>
+						</table>
+
+						<p>Stack state after rcall subrtn_2:</p>
+
+						<table width="300" border="0" cellspacing="0" cellpadding="0">
+							<tr align="center">
+								<td width="50"></td>
+								<th width="80">Stack value</th>
+								<th width="60">SP value</th>
+								<th>Comment&nbsp;</th>
+							</tr>
+							<tr align="center">
+								<th width="50"><nobr>layer 0:</nobr></th>
+								<td width="80">0x01</td>
+								<td width="60">&nbsp;</td>
+								<td>return address</td>
+							</tr>
+							<tr align="center">
+								<th width="50"><nobr>layer 1:</nobr></th>
+								<td width="80">0x0101</td>
+								<td width="60">&nbsp;</td>
+								<td>return address</td>
+							</tr>
+							<tr align="center">
+								<th width="50"><nobr>layer 2:</nobr></th>
+								<td width="80">---</td>
+								<td width="60">&lt;- SP</td>
+								<td>SP=SP-1</td>
+							</tr>
+						</table>
+					</td>
+					<td width="1" height="93"><spacer type="block" width="1" height="93"></td>
+				</tr>
+				<tr height="1" cntrlrow>
+					<td width="176" height="1"><spacer type="block" width="176" height="1"></td>
+					<td width="336" height="1"><spacer type="block" width="336" height="1"></td>
+					<td width="1" height="1"></td>
+				</tr>
+			</table>
+			<p>When the return is executed, the return address is popped from the stack and the SP is incremented. In the example, when returning from subrtn_2, the micro jumps to 0x101 (the ret instruction in subrtn_1) and the Stack Pointer points to stack layer 1 again. I didn't make a table for that as it should be easy to understand now.</p>
+			<p>The stack can also be used to pass arguments to subroutines using push and pop. If a subroutine has a 16-bit argument, passing it would look like this:</p>
+			<table class="codebox" width="95%" border="0" cellspacing="0" cellpadding="0">
+				<tr>
+					<td width="150">push r16<br>
+						push r17<br>
+						rcall set_TCNT1<br>
+						<br>
+						set_TCNT1:<br>
+						pop r17<br>
+						pop r16<br>
+						out TCNT1H, r17<br>
+						out TCNT1L, r16<br>
+						ret</td>
+					<td>; push 16-but argument r16:r17<br>
+						;<br>
+						; and call the subroutine<br>
+						;<br>
+						; our subroutine writes its 16-but argument to the Timer 1 counter<br>
+						; register. It pops the argument from the stack<br>
+						; (reversed order!)<br>
+						; and uses it<br>
+						;<br>
+						; now it returns.</td>
+				</tr>
+			</table>
+			<p>It's important to keep the push and pop instructions balanced to each other. If a value is pushed on the stack as an argument folowed by a subroutine call, the next ret can result in unexpected behavior if the subroutine popped too many or no argumants at all. One push, one pop. This bug is often hard to find.</p>
+			<p>Why can't the subroutine just use r16:r17 instead of the stack as a base for passing arguments? Good question. By using the stack, you can use any register to push the value on the stack. You're not limited to r16 and r17. You can also push an argument and then use the registers to calculate the next one (file systems for example need lots of registers for calculations). You can also use a heap to pass arguments. This has the advantage that you can't mess up your return addresses.</p>
+			<p>Let's take a closer look at how the return address is stored on the stack by simulating it in AVR Studio. I've not included images of this in order to save space, but it's quite simple. This is the code for finding out how return addresses are pushed on the stack:</p>
+			<table class="codebox" width="95%" border="0" cellspacing="0" cellpadding="0">
+				<tr>
+					<td width="150">;(include 2313def.inc)<br>
+						&nbsp;<br>
+						.org 0x0000<br>
+						rjmp reset<br>
+						&nbsp;<br>
+						reset:<br>
+						ldi r16, low(RAMEND)<br>
+						out SPL, r16<br>
+						rcall dummy<br>
+						&nbsp;<br>
+						.org 0x0123<br>
+						dummy:<br>
+						rcall dummy2<br>
+						ret<br>
+						&nbsp;<br>
+						dummy2:<br>
+						ret</td>
+					<td>;<br>
+						;<br>
+						; reset interrupt vector<br>
+						;<br>
+						;<br>
+						; initialisation:<br>
+						; stack pointer to RAMEND<br>
+						;<br>
+						;this will push 0x0004 on the stack (note 1)<br>
+						;<br>
+						;<br>
+						;first dummy routine<br>
+						; address on stack: 0x0124 [Break Point]<br>
+						; the ret is at address 0x0124<br>
+						;<br>
+						; second dummy routine<br>
+						; [Break point]</td>
+				</tr>
+			</table>
+			<p>note 1:  rcall dummy will push 0x0004 on the stack because there are 3 instructions before it that use one word of code space each (rjmp; ldi; out; + rcall) so the next address after the subroutine call instruction is 0x0004.</p>
+			<p>The simulator is set up as follows: 2313 @ 1MHz, one memory window (Data) for viewing SRAM contents.</p>
+			<p>Now run the code. After the first break the SRAM will hold 0x04 at address 0xDF and 0x00 at address 0xDE. That means that the low byte of the address (which is 0x04) is at the higher address.</p>
+			<p>After the second rcall (second break) the return address to dummy's ret is also pushed on the stack: 0x24 at address 0xDD and 0x01 at address 0xDC.</p>
+			<p>The low address byte is pushed first, as the simulation shows. If you wanted to do calculations on that address, you'd have to pop the high byte first. Beware: Messing with the stack is not easy and should be done with caution!</p>
+		</div>
+	</body>
+
+</html>
+
+
+

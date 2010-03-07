@@ -1,0 +1,114 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html>
+
+	<head>
+		<meta http-equiv="content-type" content="text/html;charset=iso-8859-1">
+		<meta name="generator" content="Adobe GoLive 6">
+		<title>Basic Mathematical Operations</title>
+		<link rel="stylesheet" href="../../main.css">
+	</head>
+
+	<body class="content_page">
+		<div class="heading">
+			Basic Mathematical Operations
+		</div>
+		<div class="content">
+			<p>Adding/subtracting, multiplying, shifting, rotating and bit manipulation of registers are essential steps when calculating 
+			addresses, offsets or other values at runtime and when converting strings to data we want to work on or data to values we can 
+			display.</p>
+
+			<p>Most of these instructions rely on specific bits in the Status Register (SREG), so you should have a look at Assembler Basics 
+			-&gt; MCU Status first.</p>
+
+			<div class="heading_small">Shifting and Rotating</div>
+			<p>Shifting and rotating registers is good for handling serial data. The following example shows rotating in a bit into r16 if a 
+			serial data stream is present at PinD, 0:</p>
+			<table class="codebox" width="95%" border="0" cellspacing="0" cellpadding="0">
+				<tr>
+					<td style="border-width: 0px;" valign="top" width="150">shift_in:<br>
+						clc<br>
+						sbic PinD, 0<br>
+						sec<br>
+						rol r16</td>
+					<td style="border-width: 0px;" valign="top">;when datastream bit is valid, go here<br>;clear carry flag<br>i;f PinD, 0 is cleared skip next<br>;set carry flag<br>;shift in carry flag</td>
+				</tr>
+			</table>
+			<p>When a register is rotated left (rol), the MSB is shifted into the Carry Bit, bit 6 goes to bit 7, bit 5 to bit 6 and so on and bit 0 is replaced by the old Carry Bit.</p>
+			<p>C &lt;- b7 &lt;------ b0 &lt;- C (Rotate left, rol)<br>
+				C -&gt; b7 ------&gt; b0 -&gt; C (Rotate right,ror)</p>
+			<p>When a register is shifted, the bit shifted out replaces the Carry Bit, the bit shifted in is 0.</p>
+			<p>C &lt;- b7 &lt;------ b0 &lt;- 0 (Shift left, lsl)<br>
+				0 -&gt; b7 ------&gt; b0 -&gt; C (Shift right, lsr)</p>
+			<p>Another shift operation is asr (arithmetic shift right), which works like lsr, but bit 7 remains unchanged. The rest is shifted right and the Carry bit is replaced by bit 0. This effectively divides a signed number by 2 (bit 7 holds the sign) and the Carry Bit can be used to round the result.</p>
+			<p></p>
+			<div class="heading_small">
+				Bit Manipulation</div>
+			<p>cbr and sbr clear or set one multiple bit(s) in a register. These instructions only work on registers r16 to r31. They do not use single bits as an argument, but masks which can contain multiple bits:</p>
+			<table class="codebox" width="95%" border="0" cellspacing="0" cellpadding="0">
+				<tr>
+					<td style="border-width: 0px;" valign="top" width="150">sbr r16, (1&lt;&lt;5)+(1&lt;&lt;3)<br>
+						cbr r16, 0x03</td>
+					<td style="border-width: 0px;" valign="top">;set bits 5 and 3 in register 16<br>;clear bits 1 and 0 in register 16</td>
+				</tr>
+			</table>
+			<p>See the instruction set summary or AVRStudio assembler help for details on Status Register flags changed by this instruction. You can for example use breq after this instruction when the result is zero.</p>
+			<p>See instruction set for logical instructions like and, andi, or, ori, eor, com and so on. These are pretty simple to understand.</p>
+			<p></p>
+			<div class="heading_small">
+				Adding and Subtracting</div>
+			<p>There is a whole bunch of add/subtract instructions available in AVRs which all have advantages and disadvantages. Some can be used with all registers, others only with r16 to r31. I'll first list the add instructions:</p>
+			<table class="codebox" width="95%" border="0" cellspacing="0" cellpadding="0">
+				<tr>
+					<td style="border-width: 0px;" valign="top" width="150">add r16, r17<br>
+						adc r16, r2<br>
+						adiw YL, 3</td>
+					<td style="border-width: 0px;" valign="top">;r16 = r16 + r17<br>;r16 = r16 + r2 + C<br>;YL:YH = YL:YH + 3</td>
+				</tr>
+			</table>
+			<p>add is easy to understand. The registers are added to the first register and appropriate flags in the Status register are set.<br>
+				adc is a bit fancier. It also uses the Carry flag of the previous operation to increase the result if it is set. Good for multiple-byte operations (see Advanced Assembler section).<br>
+				adiw is the only add instruction which takes a constant as an argument. It only works on the low bytes of register pairs (24, 26, 28, 30) and adds the constant to the pair.</p>
+			<p>Subtracting can be done with some more instructions:</p>
+			<table class="codebox" width="95%" border="0" cellspacing="0" cellpadding="0">
+				<tr>
+					<td style="border-width: 0px;" valign="top" width="150">sub r16, r17<br>
+						sbc r16, r2<br>
+						sbiw ZL, 5<br>
+						subi r16, 30<br>
+						sbci r16, 4</td>
+					<td style="border-width: 0px;" valign="top">;r16 = r16 - r17<br>;r16 = r16 - r2 - C<br>;ZL:ZH = ZL:ZH - 5<br>;r16 = r16 - 30<br>;r16 = r16 - 4 - C</td>
+				</tr>
+			</table>
+			<p>The subtract instructions work like the add instructions, so I won't explain them in detail. The &quot;subtract immediate&quot; (sbi) instruction can be used to make up an &quot;addi&quot; instruction:</p>
+			<p>(This can also be used to make an &quot;addi&quot; macro)</p>
+			<div class="codebox">
+				subi r16, -5&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;; r16 = r16 + 5</div>
+			<p></p>
+			<div class="heading_small">
+				Multiplying</div>
+			<p>Multiplication is a bit more difficult than adding or subtracting. Classic AVRs (AT90S Series) don't support the mul instruction, ATmegas have 6 different multiply instructions (multiply, multiply signed with unsigned, multiply signed, fractional mul, fractional mul signed, fractional mul signed with unsigned).</p>
+			<p>Classic AVRs need some extra coding to perform multiplications, here is some pseudo-code:</p>
+			<div class="codebox">
+				for r16 = 1 to multiplier do<br>
+				result = result + multiplicand<br>
+				r16 = r16 + 1<br>
+				repeat<br>
+			</div>
+			<p>This is more a loop adding than a multiplication, but it will do the job. In most cases the result will be 16-bits wide, so have a look at the Advanced Assembler Section as well if you're not familiar with 16-bit operations.</p>
+			<p>As ATmegas have the mul instruction, they don't need 16-bit operations and loops to perform a multiplication. The result of mul instructions is always returned in r0:r1.</p>
+			<table class="codebox" width="95%" border="0" cellspacing="0" cellpadding="0">
+				<tr>
+					<td style="border-width: 0px;" valign="top" width="150">mul r16, r17<br>
+						muls r16, r17<br>
+						mulsu r16, r17</td>
+					<td style="border-width: 0px;" valign="top">;r0:r1 = r16 * r17<br>
+						;r0:r1 = r16(signed) * r17(signed)<br>
+						;r0:r1 = r16(signed) * r17(unsigned)</td>
+				</tr>
+			</table>
+			<p>As I mentioned above the megas also have fractional multiply instructions, but these are more advanced and I never used them. So I can't tell you how they work. And I won't.</p>
+		</div>
+	</body>
+
+</html>

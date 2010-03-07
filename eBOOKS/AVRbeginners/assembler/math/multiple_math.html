@@ -1,0 +1,84 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html>
+
+	<head>
+		<meta http-equiv="content-type" content="text/html;charset=iso-8859-1">
+		<title>Multiple Byte Maths</title>
+		<link href="../../main.css" rel="stylesheet" media="screen">
+	</head>
+
+	<body class="content_page">
+		<div class="heading">
+			Multiple byte maths
+		</div>
+		<div class="content">
+			<p>When the 8 bit range is not enough, multiple bytes are needed to hold a value. Performing mathematical operations on them requires 
+			more work than maths on single bytes. Most of these operations can written as a macro and then be used just like normal instructions. 
+			The Carry Bit (SREG) is the reason for all this to work - if an add instruction resulted in a number that is greater 
+			than 255, the carry bit is set. It can then be used by adc (add with carry) to increment the high byte (16-bit 
+			example):</p>
+			<table class="codebox" width="480" border="0" cellspacing="0" cellpadding="0">
+				<tr>
+					<td style="border-width: 0px;" valign="top" width="150">ldi r16, 1<br>
+						ldi r17, 0<br>
+						ldi r18, 255<br>
+						ldi r19, 0<br>
+						add r16, r18<br>
+						add r17, r19</td>
+					<td style="border-width: 0px;" valign="top">; load r16 with 1<br>
+						; load r17 with 0 (r16:r17 = 1)<br>
+						; load r18 with 255<br>
+						; load r19 with 0 (r18:r19 = 255)<br>
+						; add low bytes (= 256 =&gt; r16 = 0)<br>
+						; add high bytes (= 0)</td>
+				</tr>
+			</table>
+			<p>The result of the operation above is 0 because the carry of the low byte add was not used when adding the high bytes.</p>
+			<table class="codebox" width="480" border="0" cellspacing="0" cellpadding="0">
+				<tr>
+					<td style="border-width: 0px;" valign="top" width="150">add r16, r18<br>
+						adc r17, r19</td>
+					<td style="border-width: 0px;" valign="top">; r16:r17 = 1<br>
+						; r18:r19 = 255<br>
+						; add low bytes (= 256 =&gt; r16 = 0)<br>
+						; add high byte with carry<br>
+						; (= 0 + 1 (from carry) = 1)<br>
+						; =&gt; r16:r17 = 256</td>
+				</tr>
+			</table>
+			<p>Subtracting words from each other works just like adding: Subtract (sub) the low bytes from each other, then subtract the high bytes with carry (sbc). This also works with subi (subtract immediate) and sbci (subtract with carry immediate). A close look at the instruction set reveals some usefule compare instructions as well! If a normal compare instruction (cp) returns &quot;not equal&quot; the carry bit is set as well. This can them be taken into account by cpc (compare with carry) to compare the high bytes of two words. So what about 32 bit values? It's the same, but with 4 bytes:</p>
+			<table class="codebox" width="480" border="0" cellspacing="0" cellpadding="0">
+				<tr>
+					<td style="border-width: 0px;" valign="top" width="150">; r16..r19 = 0x00000100<br>
+						; r20..r23 = 0x002000FF</td>
+				</tr>
+				<tr>
+					<td style="border-width: 0px;" valign="top" width="150">add r16, r20<br>
+						adc r17, r21<br>
+						adc r18, r22<br>
+						adc r19, r23<br>
+						&nbsp;<br>
+						&nbsp;<br>
+						cp r16, r20<br>
+						cpc r17, r21<br>
+						cpc r18, r22<br>
+						cpc r19, r23<br>
+						brne not_eq</td>
+					<td style="border-width: 0px;" valign="top">; add bytes0<br>
+						; add bytes1 with carry<br>
+						; add bytes2 with carry<br>
+						; add bytes3 with carry<br>
+						; result:<br>
+						; r16..r19 = 0x00200200<br>
+						; perform 32-bit compare<br>
+						&nbsp;<br>
+						; (result: greater than)<br>
+						; jump to &quot;not equal&quot;-code</td>
+				</tr>
+			</table>
+			<p>Multiply and divide operations are not as easy as adding and subtracting. The bigger AVRs have a hardware multiplier, but dividing values still has to be done in software. For those AVRs without a HW mul, you'll have to write a software multiply routine (which is not difficult, I will add one here). If you need multiply and divide operations, see <a href="http://www.atmel.com/dyn/products/app_notes.asp?family_id=607" target="_blank">The Atmel Appnote page</a> and look for AVR200, AVR201 and AVR202. </p>
+		</div>
+	</body>
+
+</html>

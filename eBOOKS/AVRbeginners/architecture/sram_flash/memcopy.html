@@ -1,0 +1,164 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html>
+
+	<head>
+                <meta http-equiv="content-type" content="text/html;charset=iso-8859-1">
+		<title>Welcome To AVRbeginners.net!</title>
+		<link href="../../main.css" rel="stylesheet">
+	</head>
+
+	<body class="content_page">
+		<div class="content">
+			<div class="heading">Memory Copy Routines</div>
+			<p>Copying data from one memory location to the other can cause serious headaches. When only one byte is copied, that's no problem. Assuming the source pointer is X and the destiation pointer is Y, we can just load a register from X and save it to Y:</p>
+			<table class="codebox" width="95%" border="0" cellspacing="0" cellpadding="0">
+				<tr>
+					<td width="150">ld r16, X<br>
+						
+					st Y, r16</td>
+					<td></td>
+				</tr>
+			</table>
+			<p>When more than one byte (e.g. a string) has to be copied/moved, things can get more difficult. If the source and destination memory areas don't overlap, the copy routine is still fairly simple. The following routine copies from X to Y, while the number of bytes to be copied are in r16. To ensure that even 0 bytes can copied, the loop first checks for r16=0, then copies and post-decrements. When everything is finished, the number of bytes copied is subtracted from both pointers so that they each point to the first byte of the data block again:</p>
+			<table class="codebox" width="95%" border="0" cellspacing="0" cellpadding="0">
+				<tr>
+					<td width="150">copy_mem:<br>
+						mov r17, r16<br>
+						copy_mem_loop:<br>tst r17<br>breq end_copy_mem<br>
+						&nbsp;<br>
+						ld r18, X+<br>
+						st Y+, r18<br>
+						dec r17<br>rjmp copy_mem_loop<br>
+						
+						&nbsp;<br>
+						end_copy_mem:<br>
+						
+						sub XL, r16<br>
+						sbci XH, 0<br>
+						sub YL, r16<br>
+						sbci YH, 0<br>
+						
+						ret</td>
+					<td>; routine to call, X=source, Y=destination, r16=length<br>
+						; save number of bytes to be copied<br>
+						; the loop label<br>
+						; if no data to be copied/left, end the routine<br>
+						; <br>
+						; <br>
+						; load data from X and post-inc<br>
+						; store at Y and post-inc<br>
+						; decrement number of bytes left<br>
+						; and loop<br>
+						;<br>
+						; this is what we do when we've finished<br>
+						; subtract number of bytes copied from X<br>
+						;<br>
+						; and Y<br>
+						;<br>
+						; and then return.</td>
+				</tr>
+			</table>
+			<p>A disadvantage of the above is that a zero-copy call needs more cycles than actually needed, because it subtracts 0 from both pointers. With an extra label just before the return instruction and an extra test before copy_mem_loop this can be improved at the cost of code space.</p>
+		</div>
+		<div class="heading_small">
+			<div class="content">
+				<p>The Problem...</p>
+			</div>
+		</div>
+		<div class="content">
+			<p>...is that during runtime it can happen that the source space and the destination space overlap. Assuming that an array of 10 bytes has to be moved, the source being at 0x65 and the destination being at 0x60. That's no problem:</p>
+			<p><img src="../../advanced_code/img/mem_copy_down.gif" alt="" height="109" width="525" border="0"></p>
+			<p>&quot;A&quot; is copied to 0x60 and so on without problems because only the addresses from 0x65 upwards overlap. Where we before had &quot;A&quot; the routine will now copy the &quot;F&quot; from address 0x6A and &quot;A&quot; will be overwritten. That's not bad because we already copied it to it's destination.</p>
+			<p>Now swap source and destination: The array has to be copied from 0x60 to 0x65. What happens? The result is &quot;ABCDEABCDE&quot; - why?</p>
+			<p>Remember that the copy routine uses load - post-increment(source) - store - post-increment(destination). Here's a diagram of the memory contents before copying the block:</p>
+			<p><img src="../../advanced_code/img/mem_copy_up.gif" alt="" height="109" width="525" border="0"></p>
+			<p>When &quot;A&quot; is copied from 0x60 to 0x65, &quot;F&quot; (which we want to copy later) will be overwritten. The result is that at the address where the &quot;F&quot; was, an &quot;A&quot; will be read and stored at the &quot;F&quot; destination address.</p>
+			<p>I've made up an <a href="../../advanced_code/mem_copy.asm" target="_blank">example asm file</a> which can be simulated in AVR Studio. Before running it please put a 10-byte array into sram beginning at address 0x65. The code will copy it to 0x60 and then back to 0x65 which will result in the error described above.</p>
+			<p>A mem copy routine that is supposed to correctly copy the data has to be able to handle the two cases above: First, it has to use post-increment addressing if the two blocks overlap and the source is at a higher address than the destination (first diagram). Second, it can happen that they overlap and the source is at a lower address. Then, pre-decrement addressing has to be used (second diagram).</p>
+			<p>Testing for all these cases requires more code and time than necessary - the only information required is if the source address is higher or lower than the destination address: If the source address is lower, pre-decrement addressing has to be used. If the two blocks overlap we're on the safe side then. Otherwise (source address &gt; destination address; first diagram) post increment addressing can be used. Here's the complete one:</p>
+			<table class="codebox" width="95%" border="0" cellspacing="0" cellpadding="0">
+				<tr>
+					<td width="165">copy_mem:<br>
+						ldi r18, 0<br>
+						mov r17, r16<br>
+						cp XL, YL<br>
+						cpc XH, YH<br>
+						brsh copy_mem_inc_loop<br>
+						&nbsp;<br>
+						add XL, r17<br>
+						adc XH, r18<br>
+						add YL, r17<br>
+						adc YH, r18<br>
+						copy_mem_dec_loop:<br>
+						tst r17<br>
+						breq end_copy_mem_dec<br>
+						&nbsp;<br>
+						ld r18, -X<br>
+						st -Y, r18<br>
+						dec r17<br>
+						rjmp copy_mem_dec_loop<br>
+						&nbsp;<br>
+						end_copy_mem_dec:<br>
+						ret<br>
+						&nbsp;<br>
+						copy_mem_inc_loop:<br>
+						tst r17<br>
+						breq end_copy_mem_inc<br>
+						&nbsp;<br>
+						ld r18, X+<br>
+						st Y+, r18<br>
+						dec r17<br>
+						rjmp copy_mem_inc_loop<br>
+						&nbsp;<br>
+						end_copy_mem_inc:<br>
+						sub XL, r16<br>
+						sbci XH, 0<br>
+						sub YL, r16<br>
+						sbci YH, 0<br>
+						ret</td>
+					<td>;<br>
+						; create zero register<br>
+						; save block size<br>
+						; source &gt;= destination?<br>
+						;<br>
+						; if so, use incrementing addressing<br>
+						;<br>
+						; for pre-decrement addressing, we have to copy from top to bottom<br>
+						; so we have to add the blocksize to the two pointers<br>
+						;<br>
+						;<br>
+						; here's the loop:<br>
+						; first, check if the copy is done<br>
+						; if so, return<br>
+						;<br>
+						; load from source<br>
+						; store at destination<br>
+						; and decrement the to-be-done counter<br>
+						; loop<br>
+						;<br>
+						; when the whole thing is finished, we can just return, because the pointers<br>
+						; were pre-decremented to their original value<br>
+						;<br>
+						; in case the source address is smaller than the destination address,<br>
+						; we can use post-inc<br>
+						; again: the copy-done-check<br>
+						;<br>
+						; get data...<br>
+						; ...store it again<br>
+						; and decrement the counter<br>
+						; loop<br>
+						; <br>
+						; when the copy has been finished, we have to subtract the block size<br>
+						; from the two pointers again, because this time we used post-inc<br>
+						;<br>
+						;<br>
+						;<br>
+						; return.</td>
+				</tr>
+			</table>
+			<p>As always, there's ways to make this routine faster. A 2313 for example only has 128 bytes of SRAM which only have 8-bit addresses, so all 16-bit calculations can be converted to 8-bit. If only even numbers of bytes have to copied, two can be subtracted from the loop counter in every run if two bytes are copied (load-store-load-store -&gt; loop).</p>
+		</div>
+	</body>
+
+</html>

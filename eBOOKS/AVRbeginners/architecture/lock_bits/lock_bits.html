@@ -1,0 +1,49 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html>
+
+	<head>
+                <meta http-equiv="content-type" content="text/html;charset=iso-8859-1">
+		<title>Welcome To AVRbeginners.net!</title>
+		<link href="../../main.css" rel="stylesheet">
+	</head>
+
+	<body class="content_page">
+		<div class="content">
+			<div class="heading">Lock Bits			</div>
+			<p>Lock Bits are similar to <a href="../fuses.html">fuse bits</a>. You program them through a programmer, and you can't change them at run time. Lock Bits are used to set different access levels to Flash and EEPROM memory from an external programmer.			<p>All AVRs have at least two Lock Bits, LB1 and LB2, which allow you to configure three different Lock Bits modes, as shown in the following table :</p>
+			<table width="95%" border="0" cellspacing="0" cellpadding="0">
+				<tr>
+					<th width="40">Mode</th>
+					<th width="40">LB1</th>
+					<th width="40">LB2</th>
+					<th>Description</th>
+				</tr>
+				<tr>
+					<td align="center" width="40">1</td>
+					<td align="center" width="40">1</td>
+					<td align="center" width="40">1</td>
+					<td>You can read from and write to Flash and EEPROM with a programmer</td>
+				</tr>
+				<tr>
+					<td align="center" width="40">2</td>
+					<td align="center" width="40">0</td>
+					<td align="center" width="40">1</td>
+					<td>You can only read from Flash/EEPROM. Writing is disabled. The Fuse Bits can't be changed either.</td>
+				</tr>
+				<tr>
+					<td align="center" width="40">3</td>
+					<td align="center" width="40">0</td>
+					<td align="center" width="40">0</td>
+					<td>Both reading and writing are disabled on Flash, EEPROM and Fuse Bits.</td>
+				</tr>
+			</table>
+			<p>May be you are wondering why these different acces level are needed. Let say that you finished a prototype, and don't want to accidentally erase your AVR, but you want in the future to read the program memory to know the software version used. Then you use Lock Bit Mode 2. Or may by you are selling a product and don't want that sombody copy your program. Then you use Lock Bit Mode 3.</p>
+			<p>If you are suspicious, you may wonder how secure AVRs really are. In my opinion, they are pretty good in that respect. However, they are not bulletproof. There are companies, like <a href="http://www.chipworks.com" target="_blank">www.chipworks.com</a> that specialize in reverse engineering. Their services are VERY expensive, and so it's unlikely that someone pays them to copy your program. If your work is top secret, or if you are just paranoid, then you need to use a microcontroller specifically designed with high security in mind, like <a href="http://www.atmel.com/dyn/products/devices.asp?family_id=662" target="_blank">Atmels AVR based Secure Microcontrollers</a>. For more information about this issue, look at <a href="http://www.cl.cam.ac.uk/%7esps32/mcu_lock.html" target="_blank">this</a> as well.</p>
+			<p>The only way to unprogramm a Lock Bit (change it from 0 to 1) is the Chip Erase command. Also notice that if you use Lock Bits Mode 2 or 3, you can't change the Fuse Bits anymore. So, if you mess up things with Lock Bits, don't worry, just erase the chip and start again.</p>
+			<p>The AVRs with bootloading capabilities (ATmega series), have four additional Lock Bits, which configure in which section of FLASH the LPM and SPM instructions can be used. For the details, look at the particular datasheet.</p>
+			<p>The details of how to program the Lock Bits in your AVR depend on the particular programmer you are using. Read the manual for details. For instance, if you are using a STK500 with AVR Studio, the STK500 window has a tab labeled Lock Bits, where you set the different modes, and where you can program, verify or read the Lock Bits.</p>
+		</div>
+	</body>
+
+</html>

@@ -1,0 +1,62 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html>
+
+	<head>
+		<meta http-equiv="content-type" content="text/html;charset=iso-8859-1">
+		<title>Assembler Basics</title>
+                <link rel="stylesheet" href="../main.css">
+	</head>
+
+	<body class="content_page">
+		<div class="heading">
+			Assembler Basics
+		</div>
+
+		<div class="content">
+			<p>Assembler is a low-level language which does not know any C-like commands like for{;;} or while{}.</p>
+
+			<p>Assembler instructions are small, for example out PortD, r15 writes the contents of register 15 (which in an AVR can 
+			hold one byte) to PortD (which is 8 I/O lines handled as one I/O register).</p>
+
+			<p>Other assembler instructions only work on the register rather than on registers AND I/O registers or SRAM. &quot;inc 
+			r15&quot; is one of them. It increments the value register 15 holds by one. This is useful for loops (like 
+			for{;;}).</p>
+
+			<p>Almost every instruction leaves certain bits in the Status Register set or cleared based on the instruction's result. These bits 
+			can be used by branch instructions or arithmetic instructions in order to perform correctly (branch/don't branch, increment result 
+			etc).</p>
+
+			<p>Branch instructions jump to a specific code address (or code line) if  the microcontroller is in a specific state or just go on 
+			with the next code line if this state is not present. If the counting variable in a loop has not reached the desired value, they can 
+			let the mcu repeat the loop.</p>
+
+			<p>Here is a small example code snippet showing how arithmetic, I/O and branch instructions work together:</p>
+			<table class="codebox" width="95%" border="0" cellspacing="0" cellpadding="0">
+				<tr>
+					<td width="150">ldi r16, 0<br>
+						for_loop:<br>
+						inc r16<br>
+						out PortD, r16<br>
+						cpi r16, 10<br>
+						brlo for_loop</td>
+					<td>; load register 16 with zero<br>
+						; this is a label we can jump or branch to<br>
+						; increment register 16<br>
+						; write contents of r16 to PortD<br>
+						; compare value in r16 with 10 (this leaves a status for breq)<br>
+						; if value 10 not reached, repeat loop</td>
+				</tr>
+			</table>
+			<p>In the loop the counter (r16) is increased in every iteration and written to PortD. When it reaches 10, breq will not 
+			jump to the beginning of the loop, but to the next instruction. This small example gives a good impression of how small the steps 
+			you can take in assembler are. It can't get smaller, as this is what the mcu does. None of the instructions will be split into 
+			smaller ones by the assembler. With the comments in mind have a look at the AVR instruction set and also have a look at other 
+			instructions of the same type.</p>
+			<p>Assembler is very sensitive to programming errors. Try the above example with the increase instruction and the compare 
+			instruction swapped. What happens? The first value on PortD is 0, the last one is 9.</p>
+			<p>Now have a look at the &quot;Flow Charts&quot; section and try to write a flow chart of the code above. You'll see that flow charts make code less &quot;cryptic&quot; and readable. And keep them up to date every time you make a big enhancement to your code so that you can still read it after two weeks. Comments are also very important, especially if you can't make a flow chart every time your code changes. In assembler, a cooent can be written for almost every line of code, especially when tricks are used.</p>
+		</div>
+	</body>
+
+</html>

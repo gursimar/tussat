@@ -1,0 +1,53 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html>
+
+	<head>
+                <meta http-equiv="content-type" content="text/html;charset=iso-8859-1">
+		<title>Welcome To AVRbeginners.net!</title>
+		<link href="../../main.css" rel="stylesheet">
+	</head>
+
+	<body class="content_page">
+		<div class="content">
+			<div class="heading">Comparing Strings</div>
+			<p>When, for example, command strings are received via the UART, the AVR has compare the recevied command string with the commands it supports and act as required. To do this, you need a string compare routine. It would also be very good to be able to use the usual conditional branch instructions after calling that routine.</p>
+			<p>1) the routine shall return valid SREG flags</p>
+			<p>The user shall be allowed to type in the command in upper case, lower case and mixed. No problem, we just need to convert the characters to lower case if needed. '!' doesn't have any lower case, while 'A' does. </p>
+			<p>2) The routine shall not be case-sensitive.</p>
+			<p>3) The routine shall use X and Y as pointers to the strings and act like &quot;cp X, Y&quot;. This is important for the brlo and brsh relationship. If the other case is needed (like &quot;cp Y, X) the contents of the index register pairs have to be swapped first. If you want, you can write a macro for this as well, but that's not out intention now.</p>
+			<p>The first thing to prepare is the lower case conversion. Have a look at the ascii table (quick link bar in banner frame!). The upper case characters start with 'A' (0x41) and end with 'Z' (0x5A). The lower case characters just have an offset of 0x20: 'a' is 0x61, 'z' is 0x7A. So by adding 0x20 to the upper case characters, we can convert upper case to lower case. Here is a routine that has r16 as the argumet character and returns the converted one on r16 too:</p>
+			<table class="codebox" width="95%" border="0" cellspacing="0" cellpadding="0">
+				<tr>
+					<td width="165">char_conv_lowercase:<br>
+						cpi r16, 'A'<br>
+						brsh check_upper_boundary<br>
+						ret<br>
+						check_upper_boundary:<br>
+						cpi r16, 'Z' + 1<br>
+						brlo char_lowercase<br>
+						ret<br>
+						char_lowercase:<br>
+						subi r16, -0x20<br>
+						ret</td>
+					<td>;<br>
+						; check for lower boundary ('A' = 0x41)<br>
+						; if above lower boundary, check upper one as well<br>
+						; else return<br>
+						;<br>
+						; check for upper boundary; if lower than 'Z' + 1 <br>
+						; then the character is in upper case range<br>
+						; if out of upper case range, return<br>
+						;<br>
+						; convert (see above) to lower case<br>
+						; return</td>
+				</tr>
+			</table>
+			<p>Now, as we can convert the characters from upper to lower case, it's time to think of the different &quot;properties&quot; a string has:</p>
+			<p>The characters of course are most important. Another thing we can check quite easily and without much code is the length of the string. These two things will be discussed here in detail. Another interesting one would be the word count.</p>
+			<p>The actual string compare is a fast thing and works without any tricks. More interesting is the &quot;side data&quot; we can fetch on the fly: The string length for example. The word count could also be determined by counting the number of spaces in a string. These could of course be realised as seperate routines as well.</p>
+			<p>The routine arguments are X, which points at the first routine, and Y, which points at the second one. Both are in SRAM! For a flash/sram compare we'd need to use Z and lpm. Rewriting the code for that won't be hard if necessary.</p>
+		</div>
+	</body>
+
+</html>

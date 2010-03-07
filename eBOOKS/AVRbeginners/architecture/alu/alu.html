@@ -1,0 +1,39 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html>
+
+	<head>
+		<meta http-equiv="content-type" content="text/html;charset=iso-8859-1">
+		<title>AVR ALU</title>
+                <link rel="stylesheet" href="../../main.css">
+	</head>
+
+	<body class="content_page">
+		<div align="center" class="heading">
+			The Arithmetic Logic Unit (ALU)
+		</div>
+		<div class="content">
+			The ALU is what you might also know as CPU on a normal computer. It is connected to the registers, program memory (FLASH), SRAM, and 
+			internal peripherals. That's not completely correct (external peripherals can also be connected to the ALU, such as external SRAM), 
+			but it's enough for now. Take a look at your AVR's datasheet to get a more complete view of things.You can only write effective code 
+			if you know how the peripherals work and which instructions can be performed by the ALU.
+
+			<img src="../img/alu.gif" alt="" height="193" width="449" align="left" class="left_image">
+
+			The Alu is what you basically write your code for. Loading a register with an immediate value is done by the ALU, writing that value 
+			to an I/O Port is done by the ALU as well, just as any other code.</div>
+
+		<div class="content" align="left">
+			<p>The program counter is the ALU's connection to the program memory. It's basically just the address of the instruction to be 
+			executed and is changed by jump or subroutine call instructions and other instructions that work on the program memory, like <code>
+			lpm</code> (load program memory).</p>
+			<p>The lower registers (0..15) can not be loaded by <code>ldi</code> and also don't support <code>andi</code> and some other 
+			instructions. More information on this can be found in the AVRStudio help. But still the AVR&nbsp;ALU is very powerful: Some other 
+			microcontrollers only have a few registers (often referred to as accumulators), 
+			which slows down calculations if multiple byte values are handled and have to be stored in SRAM between calculations. With the 32 
+			registers provided by AVRs, this is no problem if the registers are used well.</p>
+			<p>The registers are connected to the SRAM of the AVR. All registers can be stored in SRAM and some can also be used as pointers (registers 26..31) to handle indirect addresses, arrays and so on.</p>
+			<p>The internal peripherals are function blocks such as the UART (Universal asynchronous receiver and transmitter), Timers, SPI (Serial Peripheral Interface), EEPROM and so on. These are described in their own AVR Architecture section. Not all AVRs have all internal peripherals described here, and some have even more of them. Refer to the datasheet of your AVR to get an overview.</p>
+		</div>
+	</body>
+</html>

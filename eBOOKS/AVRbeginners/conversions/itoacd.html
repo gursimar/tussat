@@ -1,0 +1,86 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html>
+
+	<head>
+                <meta http-equiv="content-type" content="text/html;charset=iso-8859-1">
+		<title>Welcome To AVRbeginners.net!</title>
+		<link href="../main.css" rel="stylesheet">
+	</head>
+
+	<body class="content_page">
+		<div class="content">
+			<div class="heading">Converting Int to ASCII Coded Decimal		</div>
+			<p>Converting integers to ASCII coded decimal is pretty simple. To understand how it is done, you first have to think about how the numbers we're using in written documents are built up:			<p>Let's take the number 233 and rip it apart:</p>
+			<table border="1" cellspacing="0" cellpadding="2">
+				<tr>
+					<td width="114">
+						<div align="right">
+							Multiply number with</div>
+					</td>
+					<td width="30">
+						<div align="center">
+							100</div>
+					</td>
+					<td width="30">
+						<div align="center">
+							10</div>
+					</td>
+					<td width="30">
+						<div align="center">
+							1</div>
+					</td>
+				</tr>
+				<tr>
+					<td width="114">
+						<div align="right">
+							decimal</div>
+					</td>
+					<td width="30">
+						<div align="center">
+							2</div>
+					</td>
+					<td width="30">
+						<div align="center">
+							3</div>
+					</td>
+					<td width="30">
+						<div align="center">
+							3</div>
+					</td>
+				</tr>
+				<tr>
+					<td width="114">
+						<div align="right">
+							result</div>
+					</td>
+					<td width="30">
+						<div align="center">
+							200</div>
+					</td>
+					<td width="30">
+						<div align="center">
+							30</div>
+					</td>
+					<td width="30">
+						<div align="center">
+							3</div>
+					</td>
+				</tr>
+			</table>
+			<p>These add up to 233. The number consists of single digits which specifiy the number of hundreds, tens, and ones we add together.</p>
+			<p>To get these results, we need to divide the number; first by 100, then by 10 and then by 1. As the AVR doesn't have a divide instruction, this has to be done manually:</p>
+			<p>Divide by 100:</p>
+			<p>- copy the number into a temporary register<br>- compare the number with 100<br>- if greater or equal, increase the hundreds count and subtract 100 from the temporary register<br>
+				- go to the compare again</p>
+			<p>When this is done, the number in the temporary register is lower than 100. Now we can proceed with 10s and 1s. Instead of dividing it by 1 we can just copy the remaining number to the register that holds the ones.</p>
+			<p>Unfortunately, this is not enough to convert a number to decimal coded ASCII. In an ASCII table we can see that '0' is 0x30. So we add 0x30 to the single digits (hundreds, tens, ones) and can now print it on the screen (via UART, USB, LCD interface, whatever).</p>
+			<p>It's now also possible to reformat the number, delete characters we don't need (print a space instead of 0 hundreds if the number was lower than 100) or add additional characters in between.</p>
+			<p>Here's a flow chart of how the conversion can be done:</p>
+			<p><img src="img/itoacd.gif" alt="" height="335" width="424" border="0"></p>
+			<p>It should be pretty easy for you to write the code for this yourself.</p>
+			<p>Doing this with a 16-bit number is just the same, but with 5 digits and 16-bit compares. The code space needed (as well as cpu time) is 40% bigger. If you have a lot of free program space, you can build up a case-like structure to do the conversion: If the number is greater than 200, the hundreds counter is loaded with 2 and 200 is subtracted from the original number. This is faster but requires more space. It's up to you.</p>
+		</div>
+	</body>
+
+</html>

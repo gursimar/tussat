@@ -1,0 +1,53 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html>
+
+	<head>
+                <meta http-equiv="content-type" content="text/html;charset=iso-8859-1">
+		<title>Welcome To AVRbeginners.net!</title>
+		<link href="../main.css" rel="stylesheet">
+	</head>
+
+	<body class="content_page">
+		<div class="content">
+			<div class="heading">Converting Int to ASCII Coded Binary		</div>
+			<p>This is the only conversion that needs byte shifting and doesn't destroy the original value. As one byte has 8 bits, you might want to reuse the register used for printing the character instead of using 8 individual registers.
+			<p>The shift direction depends on how the number is to be displayed (which bit first - most significant or least significant?). We do 8 shifts, load the register with the corresponding value (0 or 1) and add ASCII '0' to it. It's also possible to load the register with '0' and then increase it if the bit shifted out is 1. This is what I'd do. Here's an example code snippet:</p>
+			<table class="codebox" width="100%" border="0" cellspacing="0" cellpadding="0">
+				<tr>
+					<td style="border-width: 0px;" width="130">
+						ldi r16, 8<br>
+						&nbsp;<br>
+						itoacb_loop:<br>
+						ldi result, '0'<br>
+						&nbsp;<br>
+						ror value<br>
+						brcc is_0<br>
+						inc result<br>
+						is_0:<br>
+						rcall print_result<br>&nbsp;<br>
+						dec r16<br>
+						brne itoacb_loop<br>
+					</td>
+					<td style="border-width: 0px;">
+						; load a counter with 8<br>
+						&nbsp;<br>
+						; a label for looping 8 times<br>
+						; load '0' into result<br>
+						&nbsp;<br>
+						; get next bit by rotating right, new bit is in carry<br>
+						; check if carry bit is 0<br>
+						; if carry was set, increase result (0x30 + 1 = 0x31)<br>
+						&nbsp;<br>
+						; call the print routine (for UART, LCD or whatever)<br>
+						&nbsp; <br>
+						; decrease the counter<br>
+						; and, if necessary, loop<br>
+					</td>
+				</tr>
+			</table>
+			<p></p>
+		</div>
+	</body>
+
+</html>

@@ -1,0 +1,314 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html>
+
+	<head>
+                <meta http-equiv="content-type" content="text/html;charset=iso-8859-1">
+		<title>Welcome To AVRbeginners.net!</title>
+		<link href="../main.css" rel="stylesheet">
+	</head>
+
+	<body class="content_page">
+		<div class="content">
+			<div class="heading">AVR Assembler Directives and Expressions			</div>
+		</div>
+		<div class="content" align="center">
+			<p>[ Directives ] [ <a href="#expressions">Expressions</a> ]		</div>
+		<div class="heading_small">
+			<div class="content">
+				<p>Assembler Directives</p>
+			</div>
+		</div>
+		<div class="content">
+			<p>Assembler Directives change or adjust the way the assembler works with your code. For example, you can change the location of your code in program memory, assign labels to SRAM addresses or define constant values. &quot;.macro&quot; is also an assembler directive. Assembler directives can be divided into the following groups:</p>
+			<p>[ Program Memory ] [ <a href="#dir_sram">SRAM</a> ] [ <a href="#dir_eeprom">EEPROM</a> ] [ <a href="#dir_regs_consts">Registers and Constants</a> ] [ <a href="#dir_coding">Coding</a> ] [ <a href="#dir_output">Assembler Output</a> ]</p>
+			<p>You will see that some directives can be used in more than one context, but that makes sense as soon as you understand them. They always do basically the same thing.</p>
+		</div>
+		<div class="heading_small">
+			<div class="content">
+				<p>Program Memory Directives<a name="dir_progmem"></a></p>
+			</div>
+		</div>
+		<div class="content_bold">
+			<div class="content">
+				<p>.cseg</p>
+			</div>
+		</div>
+		<div class="content">
+			<p>&quot;Code Segment&quot;; This directive tells the assembler that the following code/expressions/whatever is to be put into program memory. This is necessary when the .dseg directive was used before.</p>
+			<p>Syntax:</p>
+			<p>.cseg</p>
+		</div>
+		<div class="content_bold">
+			<div class="content">
+				<p>.db</p>
+			</div>
+		</div>
+		<div class="content">
+			<p>&quot;Data Byte&quot;; With this directive you can place constant values in program memory at a known address, for example serial numbers, strings for a menu, lookup tables. They are treated byte-wise and therefore have to be within the 8-bit range. Almost any expression can be used with the .db directive.</p>
+			<p>CAUTION!</p>
+			<p>Every .db directive will place it's expressions starting at a new word in program memory! So two .db directives each with a single byte as an argument will use two words, while one .db with two bytes as arguments will use only one word. See example below</p>
+			<p>Syntax:</p>
+			<p>.db expression1, expression2, expression3, ...</p>
+			<p>Examples:</p>
+			<table class="codebox" width="95%" border="0" cellspacing="0" cellpadding="0">
+				<tr>
+					<td width="118">
+						<p>.org 0x0100<br>
+							.db 128<br>
+							.db low(1000)<br>
+							.db 128, low(1000)<br>
+							&nbsp;
+						</p>
+					</td>
+					<td>;set program memory address counter to 0x0100<br>
+						;place the number 128 at low byte of address 0x0100 in program memory<br>
+						;place the low byte of 1000 at low byte of address 0x0101<br>
+						;place 128 at the low byte and the low byte of 1000 at the high byte of<br>
+						;address 0x0102 in program memory</td>
+				</tr>
+			</table>
+			<p>Strings can of course be placd in program memory with only one .db directive:</p>
+			<p>.db &quot;Hello World&quot;</p>
+			<p>This will fill 6 words and a 0 will be added by the assembler. If your string processing routine looks for 0 terminated strings, this is no problem, as the 0 is already there. If the string is</p>
+			<p>.db &quot;Hello World!&quot;</p>
+			<p>no 0 will be added, so </p>
+			<p>.db &quot;Hello World!&quot;, 0</p>
+			<p>is better. </p>
+		</div>
+		<div class="content_bold">
+			<div class="content">
+				<p>.dw</p>
+			</div>
+		</div>
+		<div class="content">
+			<p>&quot;Data Word&quot;; .dw works just like .db, but will use one word for every value.</p>
+		</div>
+		<div class="content_bold">
+			<div class="content">
+				<p>.org</p>
+			</div>
+		</div>
+		<div class="content">
+			<p>.org can be used to set the program counter to a specific value.</p>
+			<p>.org 0x01 is the Interrupt Vector for external interrupt 0 in devices with 1-word interrupt tables. The mega128 has two words for each interrupt, so for setting the program counter to the external interrupt 0 you have to use .org 0x02 in this case.</p>
+			<p>Syntax:</p>
+			<p>.org location (location is the word address of where the following instructions/data tables are to be placed)</p>
+		</div>
+		<div class="heading_small">
+			<div class="content">
+				<p>SRAM Directives<a name="dir_sram"></a></p>
+			</div>
+		</div>
+		<div class="content_bold">
+			<div class="content">
+				<p>.byte</p>
+			</div>
+		</div>
+		<div class="content">
+			<p>Reserves a given number of bytes of SRAM space for a label. This might sound a bit complicated, but the syntax example will make it clear... This directive is only allowed in data segments (see .dseg).</p>
+			<p>Syntax:</p>
+			<p>.byte size</p>
+			<table class="codebox" width="95%" border="0" cellspacing="0" cellpadding="0">
+				<tr>
+					<td width="120">array_5: .byte 5<br>
+						my_word: .byte 2</td>
+					<td>; array_5 is a 5-byte SRAM segment<br>
+						;and is followed by my_word</td>
+				</tr>
+			</table>
+		</div>
+		<div class="content_bold">
+			<div class="content">
+				<p>.dseg</p>
+			</div>
+		</div>
+		<div class="content">
+			<p>&quot;Data Segment&quot;; Tells the assembler that the following text is meant to used for setting up the SRAM. To switch to code again, use .cseg.</p>
+		</div>
+		<div class="content_bold">
+			<div class="content">
+				<p>.org</p>
+			</div>
+		</div>
+		<div class="content">
+			<p>Use this directive to set the SRAM location counter to a specific value within a .dseg. (see .org in &quot;<a href="#dir_progmem">Program Memory Directives</a>&quot;). Together with .byte you can define SRAM locations at a specific address with a specific size.</p>
+		</div>
+		<div class="heading_small">
+			<div class="content">
+				<p>EEPROM Directives<a name="dir_eeprom"></a></p>
+			</div>
+		</div>
+		<div class="content">
+			<p>The EEPROM Directives work just like the directives for program memory and SRAM. I won't go into detail here. As EEPROM values can be downloaded to EEPROM to be stored there, the .db and .dw directives can be used for storing calibration values in EEPROM during programming.</p>
+		</div>
+		<div class="content_bold">
+			<div class="content">
+				<p>.db</p>
+				<p>.dw</p>
+				<p>.eseg</p>
+				<p>.org</p>
+			</div>
+		</div>
+		<div class="heading_small">
+			<div class="content">
+				<p>Register and Constant Directives<a name="dir_regs_consts"></a></p>
+			</div>
+		</div>
+		<div class="content_bold">
+			<div class="content">
+				<p>.def</p>
+			</div>
+		</div>
+		<div class="content">
+			<p>&quot;Define (register)&quot;; With this directive you can assign names to registers.</p>
+			<p>Syntax:</p>
+			<p>.def name = register</p>
+			<p>Example:</p>
+			<p>.def temp = r16</p>
+		</div>
+		<div class="content_bold">
+			<div class="content">
+				<p>.equ</p>
+			</div>
+		</div>
+		<div class="content">
+			<p>This directive assigns a name to a constant value which can't be changed later:</p>
+			<p>.equ max_byte = 255</p>
+		</div>
+		<div class="content_bold">
+			<div class="content">
+				<p>.set</p>
+			</div>
+		</div>
+		<div class="content">
+			<p>This work similarly to .def, but the value of the label can be changed later:</p>
+			<p>.set counter = 1</p>
+			<p>.set counter = 2</p>
+			<p>can occur in the same piece of code and they're each valid until a new .set is found, so .set counter = 1 is overridden by .set counter = 2.</p>
+		</div>
+		<div class="heading_small">
+			<div class="content">
+				<p>Coding Directives<a name="dir_coding"></a></p>
+			</div>
+		</div>
+		<div class="content_bold">
+			<div class="content">
+				<p>.endm / .endmacro</p>
+			</div>
+		</div>
+		<div class="content">
+			<p>&quot;End Macro&quot;; This tells the assembler that a macro previously started ends here. Only use after you've also started a macro with .macro :-) </p>
+		</div>
+		<div class="content_bold">
+			<div class="content">
+				<p>.macro</p>
+			</div>
+		</div>
+		<div class="content">
+			<p>This will start a piece of macro code.  See <a href="macros.html">Assembler -&gt; Macros</a> for examples and usage suggestions.</p>
+		</div>
+		<div class="content_bold">
+			<div class="content">
+				<p>.include</p>
+			</div>
+		</div>
+		<div class="content">
+			<p>Including files (for examples the part specific definition files for each AVR) makes code more readable and gives you the possibility to split code into sperate files.</p>
+			<p>Syntax:</p>
+			<p>.include path</p>
+			<p>Example:</p>
+			<p>.include c:\program files\avr studio\assembler\8515def.inc&quot;<br>
+				.include &quot;\drv_routines\lcd.inc&quot;</p>
+		</div>
+		<div class="heading_small">
+			<div class="content">
+				<p>Assembler Output Directives<a name="dir_output"></a></p>
+			</div>
+		</div>
+		<div class="content_bold">
+			<div class="content">
+				<p>.device</p>
+			</div>
+		</div>
+		<div class="content">
+			<p>This directive tells the assembler which AVR this code is for and only has effect on the AVR Studio Simulator settings and does not affect the way your code will run on the actual device. Possible arguments (device codes) are (list not complete, but you'll get the picture....):</p>
+			<p>AT90S1200<br>
+				AT90S2313<br>
+				ATmega8535<br>
+				ATmega128<br>
+				ATtiny11<br>
+				ATtiny26</p>
+			<p>Syntax:</p>
+			<p>.device devicecode</p>
+		</div>
+		<div class="content_bold">
+			<div class="content">
+				<p>.exit</p>
+			</div>
+		</div>
+		<div class="content">
+			<p>Tells the ssembler to stop assembling the current file. WHAT&nbsp;FOR????? Well, if include files contain text at the end (explanations of routines, constants and so on), the .exit directive can be used to let the assembler proceed with the file in which the .include directive occured without any warnings or errors caused by the text.</p>
+			<p>Example:</p>
+		</div>
+		<div class="codebox">
+			<div class="content">
+				<p>.def byte_max = 255<br>
+					.def clock = 8000000<br>
+					.exit</p>
+				<p>The maximum value a byte can hold is 255 and the device is clocked at 8 MHz</p>
+			</div>
+		</div>
+		<div class="content_bold">
+			<div class="content">
+				<p>.list</p>
+			</div>
+		</div>
+		<div class="content">
+			<p>The assembler by default creates a listfile (a combination of source code, opcodes, constants and so on). Together with .nolist you can secify which parts of your file are to be shown in the listfile.</p>
+		</div>
+		<div class="content_bold">
+			<div class="content">
+				<p>.listmac</p>
+			</div>
+		</div>
+		<div class="content">
+			<p>This directive will turn macro expansion in the listfile on. By default, you'll only see which macro is called and which arguments are used. As it can be useful to see what's going on (for debugging pruposes), it's possible to get expanded macros.</p>
+		</div>
+		<div class="content_bold">
+			<div class="content">
+				<p>.nolist</p>
+			</div>
+		</div>
+		<div class="content">
+			<p>Turns listfile generation off (see .list)</p>
+			<p></p>
+		</div>
+		<div class="heading_small">
+			<div class="content">
+				<p>Assembler Expressions<a name="expressions"></a></p>
+			</div>
+		</div>
+		<div class="content">
+			<p>The AVR assembler supports many expressions for calculating constants or manipulating other values to suit your needs. I don't want to cut n paste the AVR Studio assembler help file (as I did with the directives part.......), so I'll just give you some pointers.</p>
+			<p>The possible operators are labels (addresses in Flash, SRAM or EEPROM), variables defined by the .SET directive (see above), constants defined by the .EQU directive (also see above), integer constants (decimal, Hexadecimal, Binary or Octal) and the program counter (PC).</p>
+			<p>How to use the labels, variables, constants and and integer values should be clear. The PC is interesting and can be quite handy. Many loops only constist of one instruction and thinking of a label for all those little things can be nasty, especially if the label you just want to use is already in use in some include file. The code ends up seperated by ugly labels nobody can understand. Using the program counter is much better (That's my opinion and this has been subject to heavy discussions...) for those loops (add a comment to be on the safe side). Here's an example:</p>
+			<table class="codebox" width="95%" border="0" cellspacing="0" cellpadding="0">
+				<tr>
+					<td width="150">ldi r6, 0<br>
+						inc r16<br>
+						out PortD, r16<br>
+						cpi r16, 10<br>
+						brne PC - 3</td>
+					<td>; load r16 with zero<br>
+						; increment r16<br>
+						; write value of r16 to PortD<br>
+						; compare r16 with 10<br>
+						; branch to inc r16 if not euqal</td>
+				</tr>
+			</table>
+			<p>When the PC is used for calculations, the current PC value is used. That means that in the example above the location of the branch instruction is used for the calculation (not the loaction afterwards). The instructions we want to include in the loop are inc, out and cpi and each occupy one word of program memory. So we need to skip those three words: PC - 3. Always verify your code by simulating it! </p>
+		</div>
+	</body>
+
+</html>

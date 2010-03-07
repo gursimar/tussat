@@ -1,0 +1,171 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html>
+
+	<head>
+                <meta http-equiv="content-type" content="text/html;charset=iso-8859-1">
+		<title>Welcome To AVRbeginners.net!</title>
+		<link href="../main.css" rel="stylesheet">
+	</head>
+
+	<body class="content_page">
+		<div class="content">
+			<div class="heading">
+				Commonly Used Number Formats</div>
+			<p>The ALU of an AVR only knows the integer number, unsigned as well as signed, and only 8 bits wide. The 8 bit limit is not as bad, as we can still use the carry bit to make 16-, 24- and 32 bit operations possible.
+			<p>Converting numbers from one format to another is not as easy and requires the person writing the code to understand the number formats first.</p>
+			<p>All conversions explained on these pages have the integer as one &quot;end&quot; (source or result). This is the number the AVR actually deals with.</p>
+			<p>Other formats use ASCII characters or the fact that a digit (which has a range of 0 to 9) only uses one nibble of a byte.</p>
+			<p>HEX format:</p>
+			<p>In AVR Assembler (and on this site) HEX numbers are written with the &quot;$&quot;-sign or &quot;0x&quot; at the beginning:</p>
+			<p>$10 is equal to 16 and 0x20 is equal to 32. </p>
+			<p>The Hex format splits the 8 bits of a byte into &quot;nibbles&quot; of 4 bits (the high nibble and the low nibble) and displays them with a number or character:<br>
+			</p>
+			<table border="1" cellspacing="0" cellpadding="1">
+				<tr>
+					<td width="91">Nibble value:</td>
+					<td width="20">
+						<div align="center">
+							0</div>
+					</td>
+					<td width="20">
+						<div align="center">
+							1</div>
+					</td>
+					<td width="20">
+						<div align="center">
+							2</div>
+					</td>
+					<td width="20">
+						<div align="center">
+							3</div>
+					</td>
+					<td width="20">
+						<div align="center">
+							4</div>
+					</td>
+					<td width="20">
+						<div align="center">
+							5</div>
+					</td>
+					<td width="20">
+						<div align="center">
+							6</div>
+					</td>
+					<td width="20">
+						<div align="center">
+							7</div>
+					</td>
+					<td width="20">
+						<div align="center">
+							8</div>
+					</td>
+					<td width="20">
+						<div align="center">
+							9</div>
+					</td>
+					<td width="20">
+						<div align="center">
+							10</div>
+					</td>
+					<td width="20">
+						<div align="center">
+							11</div>
+					</td>
+					<td width="20">
+						<div align="center">
+							12</div>
+					</td>
+					<td width="20">
+						<div align="center">
+							13</div>
+					</td>
+					<td width="20">
+						<div align="center">
+							14</div>
+					</td>
+					<td width="20">
+						<div align="center">
+							15</div>
+					</td>
+				</tr>
+				<tr>
+					<td width="91">Hex:</td>
+					<td width="20">
+						<div align="center">
+							0</div>
+					</td>
+					<td width="20">
+						<div align="center">
+							1</div>
+					</td>
+					<td width="20">
+						<div align="center">
+							2</div>
+					</td>
+					<td width="20">
+						<div align="center">
+							3</div>
+					</td>
+					<td width="20">
+						<div align="center">
+							4</div>
+					</td>
+					<td width="20">
+						<div align="center">
+							5</div>
+					</td>
+					<td width="20">
+						<div align="center">
+							6</div>
+					</td>
+					<td width="20">
+						<div align="center">
+							7</div>
+					</td>
+					<td width="20">
+						<div align="center">
+							8</div>
+					</td>
+					<td width="20">
+						<div align="center">
+							9</div>
+					</td>
+					<td width="20">
+						<div align="center">
+							A</div>
+					</td>
+					<td width="20">
+						<div align="center">
+							B</div>
+					</td>
+					<td width="20">
+						<div align="center">
+							C</div>
+					</td>
+					<td width="20">
+						<div align="center">
+							D</div>
+					</td>
+					<td width="20">
+						<div align="center">
+							E</div>
+					</td>
+					<td width="20">
+						<div align="center">
+							F</div>
+					</td>
+				</tr>
+			</table>
+			<p>If an 8-bit number is sent or printed as ASCII Coded Hex, the number is split into high nibble and low nibble (in the case of ox20 these are 2 and 0). Then the nibbles are converted to their ASCII representative: 0x32 for 2 and 0x30 for 0. These values can be printed on screen. The values from the table above can not be preinted on the screen: In the ASCII table these are either not defined or control characters. A won't be displayed as 'A'.</p>
+			<p>Binary format:</p>
+			<p>The binary format should be quite clear: 0b00001000 is equal to 8, 0b00011000 is equal to 24. Easy. When a number comes as ASCII coded binary, the 1s and 0s are sent as their ASCII representative, 0x30 and 0x31, and thus have to be converted before they are &quot;real&quot; bits. The binary format also requires bit shifting for the conversion.</p>
+			<p>Binary Coded Decimal (BCD) format:</p>
+			<p>Binary coded decimal is very handy for storing two digits (0..9) in one byte without much coding. The digits are directly written to a byte nibble.</p>
+			<p>0x22 means that the low nibble contains the number 2 and the high nibble contains the number 2 as well. A consequence of this is that a byte can only hold value in the range of 0 to 99: The values 10 to 15 (A to F in Hex format) are not allowed in BCD format.<br>
+				This format can for example be written to a port which has a 7447 connected to it. This IC is a 7-segment LED driver which converts this format so that the segments of the LED display show the number of the nibble.</p>
+			<p></p>
+		</div>
+	</body>
+
+</html>

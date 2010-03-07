@@ -1,0 +1,104 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html>
+
+	<head>
+		<meta http-equiv="content-type" content="text/html;charset=iso-8859-1">
+		<title>The AVR Stack</title>
+                <link rel="stylesheet" href="../../main.css">
+	</head>
+
+	<body class="content_page">
+		<div class="heading">
+			Interrupts
+		</div>
+		<div class="content">
+			<p>Interrupts, as the name suggests, interrupt the normal program flow. When an interrupt occurs, the ALU calls the correspoding interrupt vector and executes the code at that address. As the interrupt vectors each are only one word long (classics AVR, two words for some megas), you'd usually put a jump instruction there which goes to an Interrupt Service Routine. </p>
+			<p>The Interrupt vectors start at address 0x0000. The very first one (at 0x0000) is the reset vector. When a reset (internal or external) occurs, this is where the program counter will be set to. That's why almost all programs begin with</p>
+			<table class="codebox" width="95%" border="0" cellspacing="0" cellpadding="0">
+				<tr>
+					<td width="150">.org 0x0000<br>
+						rjmp reset<br>
+						<br>
+						;(maybe something<br>
+						;in between...)<br>
+						<br>
+						reset:<br>
+						...</td>
+					<td>; tell the assembler that the following is supposed to start at address<br>
+						; 0x0000. At 0x0000, jump to &quot;reset&quot;<br>
+						;<br>
+						; other interrupt vectors can be put here, as well as any other code<br>
+						;<br>
+						;<br>
+						; do this after a reset occurs<br>
+						;</td>
+				</tr>
+			</table>
+			<p>Other interrupt vectors will follow the reset interrupt vector. The first ones are the external interrupt lines (INT0, INT1 and so on), then there's timers, UART and other periphrals. Every AVR datasheet has an &quot;Interrupts&quot; section somewhere which will include a list of the available interrupts and their vector addresses. If the table is not entirely filled, you can use single .org statements to set the program counter of the assembler to the right interrupt vector address instead of filling up the table with other useless code. Here are two examples for the 8515 doing the same thing:</p>
+			<table class="codebox" width="95%" border="0" cellspacing="0" cellpadding="0">
+				<tr>
+					<td width="150">.org 0x0000<br>
+						rjmp reset<br>
+						rjmp Ext_Int0<br>
+						rjmp Ext_Int1<br>
+						reti<br>
+						reti<br>
+						reti<br>
+						reti<br>
+						reti<br>
+						reti<br>
+						rjmp UART_RxC</td>
+					<td>; reset vector address (0x0000)<br>
+						; upon reset, jump to &quot;reset&quot;<br>
+						; external interrupt 0 vector address (0x0001)<br>
+						; external interrupt 1 vector address (0x0002)<br>
+						; (timer 1 capture event)<br>
+						; (timer 1 compare match A)<br>
+						; (timer 1 compare match B)<br>
+						; (timer 1 overflow)<br>
+						; (timer 0 overflow)<br>
+						; SPI transfer complete<br>
+						; UART Receive Complete vector address (0x0009)<br>
+					</td>
+				</tr>
+			</table>
+			<p><br>
+			</p>
+			<table class="codebox" width="95%" border="0" cellspacing="0" cellpadding="0">
+				<tr>
+					<td width="150">.org 0x0000<br>
+						rjmp reset<br>
+						rjmp Ext_Int0<br>
+						rjmp Ext_Int1<br>
+						.org 0x0009<br>
+						rjmp UART_RxC</td>
+					<td>; reset vector address (0x0000)<br>
+						; upon reset, jump to &quot;reset&quot;<br>
+						;<br>
+						;<br>
+						;<br>
+						;</td>
+				</tr>
+			</table>
+			<p>So why do some people use the first version? The second one is shorter and, if many interrupt sources are available (have a look ata the mega128!) better to look at if only a few are used.</p>
+			<p>The first one is safer. If an interrupt occurs (by error) that has no instruction at the reset vector address, the next valid one will be called. So if in the second table the SPI transfer complete interrupt occurs for some unknown reason, the UART_RxC ISR is called. Not good.</p>
+			<p>Interrupts can occur at any time (unless the Interrupt Enable Bit in the SREG is cleared). Consequently they can also occur if the code is just doing some calculations. These calculations change flags in the status register and are used for the next step of the calculation, or some branch. If the ISR is also changing flags in SREG (for example by testing a register for zero) it can corrupt the calculation that is taking place in the normal application. That's why ISRs should take some precautional steps:</p>
+			<p>- Preserve the status register (calculation flags might be corrupted in ISR)</p>
+			<p>- Preserve any registers it uses (as long as they're used in main code as well)</p>
+
+			<p>Of course you can also skip all that, given that the following is ensured:</p>
+
+			<p>- The ISR doesn't change any status flags</p>
+
+			<p>- The ISRs are given dedicated working registers which are not used in the main code.</p>
+
+			<p>An ISR wil only be called if it's corresponding interrupt enable bit is set AND if the global interrupt enable bit is set. This gives you the possibility to select the interrupts you allow. The following flow chart might clarify things a bit more:</p>
+			<p><img src="../img/int.gif" alt="" height="394" width="347" class="left_image"></p>
+			<p>If interrupts are not wanted during a particular code segment (when doing time critical stuff or calculations), just disable the 
+			Global Interrupt Enable Bit (GIE bit) in SREG.</p>
+			<p>When an ISR is called, the GIE bit is cleared, so that no int can interrupt the ISR. ISRs should return with reti instead of ret, as reti reenables the GIE bit automatically.</p>
+		</div>
+	</body>
+
+</html>

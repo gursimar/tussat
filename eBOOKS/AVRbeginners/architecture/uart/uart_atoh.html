@@ -1,0 +1,186 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html>
+
+	<head>
+                <meta http-equiv="content-type" content="text/html;charset=iso-8859-1">
+		<title>Welcome To AVRbeginners.net!</title>
+		<link href="../../main.css" rel="stylesheet">
+	</head>
+
+	<body class="content_page">
+		<div class="content">
+			<div class="heading">UART Ascii to Hex converter			</div>
+			<p>Maybe I should explain what that means.... Any character you type in your terminal will be converted to ascii coded hex and sent back to the terminal. What you need for this is basic knowledge about the UART (<a href="../../simple_code/uart.html">Setting up The UART</a>) and about the ascii to hex conversion (see the conversions section). As ascii to ascii coded hex is not one the conversions described in the conversions section we'll need to either combine them or think about something else.
+			<p>But first things first. Before we can convert any data, we need to receive it. This time, we'll use a 2313 at 4 MHz. At 19200 baud with an UBRR value of 12 that gives an error of 0.2% (see 2313 datasheet for this or calculate it yourself with the formulas from <a href="../uart.html#baud_gerator">AVR architecture -&gt; UART</a> &quot;Baud Rate Generator&quot;). We'll use an interrupt driven UART for this.</p>
+			<p>The RxC ISR will convert the data to ascii coded hex and send the first (high) nibble character. The UDRE interrupt will now be enabled. The second (low) nibble character will be stored and then sent by the UDRE interrupt, which then disables itself. The main loop can still do some other stuff (add the flashing LED driven by a delay loop!)</p>
+			<p>Using the UART should be no problem for you once you've read the &quot;<a href="../../simple_code/uart.html">Setting up The UART</a>&quot; page. I'll now concentrate on the conversion:</p>
+			<p>The data that is received needs to be split into two nibbles we then convert to ascii hex characters. 0xB6 should be sent as &quot;B&quot; &quot;6&quot;. How do we do this? We'll use a lookup table. This table contains the ascii character &quot;0&quot; at address 0 and &quot;F&quot; at address 0x0F, or 15. The single nibbles are added to the base address of the table and the resulting address is used to read the right character from the table. Example:</p>
+			<p>0x4F is coming in (r16).</p>
+			<p>r17 = r16 (get a copy of the data into r17)<br>
+				r16 AND 0x0F (clear high bits of r16; r16 = low nibble = 0x0F)</p>
+			<p>swap nibbles in r17 (high nibble = low nibble; low nibble = high nibble; r17 = 0xF4)<br>
+				r17 AND 0x0F (clear high bits of r17; r17 = high nibble = 0x04)</p>
+			<p>Z = base address of table + r17<br>
+				send character Z is pointing at</p>
+			<p>Z = base address of table + r16<br>
+				send character Z is pointing at</p>
+			<p>The lookup table looks like this:</p>
+			<p>.db &quot;0123456789ABCDEF&quot;</p>
+			<p>The base address of the table plus 4 is the address where &quot;4&quot; is stored at.</p>
+			<p>Here's the complete code (without includes!):</p>
+			<table class="codebox" width="95%" border="0" cellspacing="0" cellpadding="0">
+				<tr>
+					<td width="165">.equ baud19200 = 12<br>
+						&nbsp;<br>
+						.dseg<br>
+						low_nibble: .byte 1<br>
+						.cseg<br>
+						&nbsp;<br>
+						.org 0x0000<br>
+						rjmp reset<br>
+						.org 0x0007<br>
+						rjmp UART_RXC<br>
+						rjmp UART_UDRE<br>
+						&nbsp;<br>
+						reset:<br>
+						ldi r16, low(RAMEND)<br>
+						out SPL, r16<br>
+						&nbsp;<br>ldi r16, baud19200<br>
+						out UBRR, r16<br>
+						ldi r16, 0b10011000<br>
+						out UCR, r16<br>
+						&nbsp;<br>
+						sei<br>
+						&nbsp;<br>
+						loop: rjmp loop<br>
+						&nbsp;<br>
+						UART_RXC:<br>
+						push r16<br>
+						in r16, SREG<br>
+						push r16<br>
+						&nbsp;<br>
+						in r16, UDR<br>mov r17, r16<br>
+						andi r16, 0x0F<br>
+						swap r17<br>
+						andi r17, 0x0F<br>
+						&nbsp;<br>
+						ldi ZL, low(2*hex_table)<br>
+						ldi ZH, high(2*hex_table)<br>
+						add ZL, r17<br>
+						lpm<br>
+						out UDR, r0<br>
+						&nbsp;<br>
+						ldi ZL, low(2*hex_table)<br>
+						ldi ZH, high(2*hex_table)<br>
+						add ZL, r16<br>
+						lpm<br>
+						sts low_nibble, r0<br>
+						&nbsp;<br>
+						ldi r16, 0b10111000<br>
+						out UCR, r16<br>
+						&nbsp;<br>
+						pop r16<br>
+						out SREG, r16<br>
+						pop r16<br>
+						reti<br>
+						&nbsp;<br>
+						UART_UDRE:<br>
+						push r16<br>
+						in r16, SREG<br>
+						push r16<br>
+						&nbsp;<br>
+						lds r16, low_nibble<br>
+						out UDR, r16<br>
+						&nbsp;<br>
+						ldi r16, 0b10011000<br>
+						out UCR, r16<br>
+						&nbsp;<br>
+						pop r16<br>
+						out SREG, r16<br>
+						pop r16<br>
+						reti<br>
+						<br>
+						hex_table:<br>
+						.db &quot;0123456789ABCDEF&quot;</td>
+					<td>; define the UBRR value for 19200 baud @ 4 MHz<br>
+						;<br>
+						; reserve one byte in SRAM for the low nibble character<br>
+						;<br>
+						;<br>
+						;<br>
+						; reset vector address<br>
+						; jump to &quot;reset&quot; on reset interrupt<br>
+						; Rx Complete interrupt vector address<br>
+						; jump to &quot;UART_RXC&quot; when Rx complete int occurs<br>
+						; jump to &quot;UART_UDRE&quot; when data register is emtpy<br>
+						;<br>
+						; reset code:<br>
+						; stack setup<br>
+						;<br>
+						;<br>
+						; UART setup:<br>
+						; set baud rate<br>
+						; enable receiver, transmitter and Rx Complete Interrupt<br>
+						; <br>
+						;<br>
+						; enable interrupts;<br>
+						;<br>
+						; loop forever<br>
+						;<br>
+						; Rx Complete Interrupt Service Routine:<br>
+						; save r16<br>
+						; use r16 to save SREG<br>
+						;<br>
+						;<br>
+						; get received data<br>
+						; and copy to r17<br>
+						; clear high nibble of r16 (r16 = low nibble)<br>
+						; swap r17<br>
+						; clear high nibble of r17 (r17 = high nibble)<br>
+						;<br>
+						; load Z with table address; As the table label returns the word<br>
+						; address, we need to multiply it with 2 to get the byte address<br>
+						; add high nibble offset<br>
+						; load from table to r0 (lpm loads to r0!!!)<br>
+						; and send the data<br>
+						;<br>
+						; again load Z with table address<br>
+						;<br>
+						; but this time add low nibble offset<br>
+						; load from table to r0<br>
+						; and store r0 at low_nibble<br>
+						;<br>
+						; enable UDRE interrupt<br>
+						;<br>
+						;<br>
+						; restore r16<br>
+						; and restore SREG<br>
+						;<br>
+						;return from interrupt<br>
+						;<br>
+						; UART Data Register Empty ISR:<br>
+						; same as above, store r16<br>
+						; and r16<br>
+						;<br>
+						;<br>
+						; load r16 with data from low_nibble<br>
+						; and send it<br>
+						;<br>
+						;disable UDRE interrupt<br>
+						;<br>
+						;<br>
+						; restore r16<br>
+						; and SREG<br>
+						;<br>
+						;and return from interrupt<br>
+						;<br>
+						; This is the hex table label<br>
+						; and this is the hex -&gt; ascii table</td>
+				</tr>
+			</table>
+			<p>Just add the include file for the 2313 and simulate the code now. You'll see that &quot;A&quot; typed in at the terminal returns &quot;41&quot;, which correspond to &quot;A&quot;'s ascii value. A backspace returns 0x08, return is 0x0D.</p>
+		</div>
+	</body>
+
+</html>

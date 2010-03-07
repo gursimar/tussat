@@ -1,0 +1,59 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html>
+
+	<head>
+                <meta http-equiv="content-type" content="text/html;charset=iso-8859-1">
+		<title>Welcome To AVRbeginners.net!</title>
+		<link href="../../main.css" rel="stylesheet">
+	</head>
+
+	<body class="content_page">
+		<div class="content">
+			<div class="heading">Subroutine Calls</div>
+			<p>The AVR also has various subroutine call instructions. These are now described in the order they appear in the instruction set summary. IMPORTANT: Subroutine calls require a proper stack setup and use of the return instructions (which are described at the end of this page). For more about the stack, read <a href="../../architecture/stack/stack.html">Architecture -&gt; The Stack</a>. That section also provides some more information on subroutines.</p>
+		</div>
+		<div class="heading_small">
+			<div class="content">
+				<p>rcall</p>
+			</div>
+		</div>
+		<div class="content">
+			<p>&quot;Relative Call Subroutine&quot;. Just as rjmp, rcall can reach addresses within +/- 2k words. When rcall is executed, the return address is pushed onto the stack. It needs 1 word of program space. Example:</p>
+			<p>rcall my_subroutine</p>
+			<p></p>
+		</div>
+		<div class="heading_small">
+			<div class="content">
+				<p>icall</p>
+			</div>
+		</div>
+		<div class="content">
+			<p>&quot;Indirect Call to (Z)&quot;. This instruction works similar to ijmp, but as a subroutine call. The subroutine pointed to by the Z index register pair is called. As Z is 16 bits wide, the lower 64k words of code space can be addressed. The return address is pushed onto the stack. icall needs two words of code space. Example:</p>
+			<p>ldi ZL, low(my_subroutine)<br>
+				ldi ZH, high(my_subroutine)<br>
+				icall</p>
+			<p></p>
+		</div>
+		<div class="heading_small">
+			<div class="content">
+				<p>call</p>
+			</div>
+		</div>
+		<div class="content">
+			<p>&quot;Call Subroutine&quot;. This instruction can reach the lower 64k words of code space (enough for the biggest AVR, the mega128). It works just like rcall (regarding the stack) and needs 2 words of code space. Example:</p>
+			<p>call my_subroutine</p>
+			<p></p>
+		</div>
+		<div class="heading_small">
+			<div class="content">
+				<p>The Return Instructions ret And reti</p>
+			</div>
+		</div>
+		<div class="content">
+			<p>These instructions have to placed at the end of any subroutine or <a href="../../architecture/int/int.html">interrupt service routine (ISR)</a>. The return address is popped from the stack and program execution goes on from there. This is what ret does.</p>
+			<p>reti is used after ISRs. Basically it works like ret, but it also sets the I Flag (Global Interrupt Enable Flag) in the status register. When an ISR is entered, this bit is cleared by hardware.</p>
+		</div>
+	</body>
+
+</html>

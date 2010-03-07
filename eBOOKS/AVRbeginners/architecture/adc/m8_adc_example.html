@@ -1,0 +1,146 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html>
+
+	<head>
+                <meta http-equiv="content-type" content="text/html;charset=iso-8859-1">
+		<title>Welcome To AVRbeginners.net!</title>
+		<link href="../../main.css" rel="stylesheet">
+	</head>
+
+	<body class="content_page">
+		<div class="content">
+			<div class="heading">ATmega8 ADC Example</div>
+			<p>This is a very simple example you probably won't see in any serious design, but it's straight forward and not hard to troubleshoot. We want to read the voltage output of a pot and show the most significant 8 bits of the conversion result on port D (the ADC has a resolution of 10 bits!).</p>
+		</div>
+		<div class="heading_small">
+			<div class="content">
+				<p>Choosing ADC Mode And Clock</p>
+			</div>
+		</div>
+		<div class="content">
+			<p>The mega8 ADC offers 2 modes of operation, the Single Conversion Mode and the Free-Running Mode. Both have advantages and disadvantages and I will try to discuss them both well enough now.</p>
+			<p>In Free-Running Mode, a new conversion is started when a conversion finishes. The new conversion is done for the ADC channel set in ADMUX. If a new channel has to be converted, it's number has to be set *before* the new conversion starts. If an ISR is used to process the ADC results and update ADMUX, care has to be taken, as a change of ADMUX just after the conversion start can have unpredictable results (read pages 196/197 of the mega8 datasheet for more). As we only want to work with one ADC channel, this is no problem for us. Only the very first conversion has to be started by setting the ADSC bit!</p>
+			<p>In Single Conversion Mode, every conversion has to be started by setting the ADSC (ADC Start Conversion) bit in ADCSR. The advantage of this is that a new channel can be selected before the conversion is started without watching out for timing problems or unpredictable results. If the ADC Conversion Complete ISR is used for this, the loss in speed is quite small.</p>
+			<p>In this case we can use the Free-Running Mode - we don't need to change ADMUX (just one channel is used).</p>
+			<p>The recommended ADC clock range is 50 kHz to 200 kHz. If a faster ADC clock is used, the resolution will go down. The ADC clock is prescaled from the main clock by a seperate ADC prescaler. The division factor is selected with the ADPS2..0 bits in ADCSR (see pages 203/204 of the datasheet). At 4 MHz, appropriate values are 32 (resulting ADC clock is 125 kHz) and 64 (resulting ADC clock is 62.5 kHz). We'll use 32.</p>
+		</div>
+		<div class="heading_small">
+			<div class="content">
+				<p>What The ISR Does...</p>
+			</div>
+		</div>
+		<div class="content">
+			<p>The mega8 interrupt vector for the ADC Conversion Complete ISR doesn't have to do much. When it is called, a fresh ADC result is available in ADCL and ADCH. It is converted to 8 bits (the two LSBs aren't used) and written to PortD. On the STK500 the LEDs are active low, so inverting the result before writing it to PortD is a good idea.</p>
+			<p>The ISR is, of course, only called if the ADIE (ADC Interrupt Enble) bit in ADCSR is set and if global interrupts are enabled.</p>
+		</div>
+		<div class="heading_small">
+			<div class="content">
+				<p>The Example Code!</p>
+			</div>
+		</div>
+		<div class="content">
+			<table class="codebox" width="95%" border="0" cellspacing="0" cellpadding="0">
+				<tr>
+					<td width="150">.org 0x0000<br>
+						rjmp reset<br>
+						&nbsp;<br>
+						.org 0x000E<br>
+						rjmp ADC_ISR<br>
+						&nbsp;<br>
+						reset:<br>
+						ldi r16, low(RAMEND)<br>
+						out SPL, r16<br>
+						ldi r16, high(RAMEND)<br>
+						out  SPH, r16<br>
+						&nbsp;<br>
+						ldi r16, 0xFF<br>
+						out DDRD, r16<br>
+						&nbsp;<br>
+						ldi r16, 0<br>
+						out ADMUX, r16<br>
+						
+						ldi r16, 0b11101101<br>
+						out ADCSR, r16<br>
+						&nbsp;<br>
+						sei<br>
+						&nbsp;<br>
+						loop:<br>
+						rjmp loop<br>
+						&nbsp;<br>
+						ADC_ISR:<br>
+						push r16<br>
+						in r16, SREG<br>
+						push r16<br>
+						push r17<br>
+						&nbsp;<br>
+						in r16, ADCL<br>
+						in r17, ADCH<br>
+						lsr r17<br>
+						ror r16<br>
+						lsr r17<br>
+						ror r16<br>
+						<br>
+						com r16<br>
+						out PortD, r16<br>
+						<br>
+						pop r17<br>
+						pop r16<br>
+						out SREG, r16<br>
+						pop r16<br>
+						reti</td>
+					<td>; reset vector<br>
+						; jump to &quot;reset&quot;<br>
+						;<br>
+						; ADC Conversion Complete Interrupt vector:<br>
+						; jump the &quot;ADC_ISR&quot;<br>
+						;<br>
+						; the reset code:<br>
+						; stack setup; set SPH:SPL to<br>
+						; RAMEND<br>
+						;<br>
+						;<br>
+						;<br>
+						; set all PortD pins to output<br>
+						;<br>
+						;<br>
+						; write zero<br>
+						; to ADMUX (select channel 0)<br>
+						
+						; from left to right: ADC Enable, Start Conversion, Free-Running Mode, write<br>
+						; zero to ADC Int flag, enable int, prescaler: 101 for XTAL/32<br>
+						;<br>
+						; enable interrupts<br>
+						;<br>
+						; and loop<br>
+						; forever<br>
+						;<br>
+						; Here it is, our ISR!<br>
+						; save r16<br>
+						; use r16 16 to save SREG<br>
+						; (push both on stack)<br>
+						; also save r17<br>
+						
+						;<br>
+						; get the last ADC result, low byte first,<br>
+						; then high byte<br>
+						; shift ADC result right (2 bits)<br>
+						; by first shifting out bit 0 of r16, then shifting it into r17<br>
+						;<br>
+						; (twice)<br>
+						;<br>
+						; now invert result<br>
+						; and write to PortD<br>
+						;<br>
+						; restore r17,<br>
+						; SREG<br>
+						;<br>
+						; and r16<br>
+						; and return</td>
+				</tr>
+			</table>
+			<p></p>
+		</div>
+	</body>
+
+</html>

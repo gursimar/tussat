@@ -1,0 +1,631 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html>
+
+	<head>
+		<meta http-equiv="content-type" content="text/html;charset=iso-8859-1">
+		<title>Timers</title>
+		<link href="../../main.css" rel="stylesheet" media="screen">
+		<style type="text/css" media="screen"><!--
+td { border: solid 1px #808080 }
+--></style>
+	</head>
+
+	<body class="content_page">
+		<div class="heading">
+			Timers</div>
+		<div class="content" style="text-align: center">
+			[<a href="#8bit_timer">8-bit</a>] [<a href="#16bit_timer">16-bit</a>] [<a href="#timer_regs">Register Overview</a>] [<a href="#timer_modes">Modes</a>] [<a href="#examples">Examples</a>]</div>
+		<div class="content">
+			<p>The AVR has different Timer types. Not all AVRs have all Timers, so look at the datasheet of your AVR before trying to use a timer it doesn't have...This description is based on the AT90S2313.</p>
+			<p>I will only describe the &quot;simple&quot; timer modes all timers have. Some AVRs have special timers which support many more modes than the ones described here, but they are also a bit more difficult to handle, and as this is a beginners' site, I will not explain them here.</p>
+			<p>The timers basically only count clock cycles. The timer clock can be equal to the system clock (from the crystal or whatever clocking option is used) or it can be slowed down by the prescaler first. When using the prescaler you can achieve greater timer values, while precision goes down.</p>
+			<p>The prescaler can be set to 8, 64, 256 or 1024 compared to the system clock. An AVR at 8 MHz and a timer prescaler can count (when using a 16-bit timer) (0xFFFF + 1) * 1024 clock cycles = 67108864 clock cycles which is 8.388608 seconds. As the prescaler increments the timer every 1024 clock cycles, the resolution is 1024 clock cycles as well: 1024 clock cycles = 0.000128 seconds compared to 0.125&micro;s resolution and a range of 0.008192 seconds without prescaler. It's also possible to use an external pin for the timer clock or stop the timer via the prescaler.</p>
+			<p>The timers are realized as up-counters. Here's a diagram of the basic timer hardware. Don't panic, I'll explain the registers below.</p>
+			<div class="heading_small">
+				The 8-bit Timer:<a name="8bit_timer"></a></div>
+			<img class="image" src="../img/timer8.gif" alt="" height="318" width="661" border="0">
+			<p>The 8-bit timer is pretty simple: The timer clock (from System Clock, prescaled System Clock or External Pin T0) counts up the Timer/Counter Register (TCNT0). When it rolls over (0xFF -&gt; 0x00) the Overflow Flag is set and the Timer/Counter 1 Overflow Interrupt Flag is set. If the corresponding bit in TIMSK (Timer Interrupt Mask Register) is set (in this case the bit is named &quot;TOIE0&quot;) and global Interrupts are enabled, the micro will jump to the corresponding interrupt vector (in the 2313 this is vector number 7).</p>
+			<div class="heading_small">
+				<nobr>The 16-bit Timer<a name="16bit_timer"></a></nobr></div>
+			is a little more complex, as it has more modes of operation:<br>
+			<img class="image" src="../img/timer16.gif" alt="" height="436" width="737" border="0">
+			<p></p>
+			<div class="heading_small">
+				Register Overview:<a name="timer_regs"></a></div>
+			<p>[<a href="#tcnt">TCNT1</a>] [<a href="#tccra">TCCR1A</a> / <a href="#tccrb">TCCR1B</a>] [<a href="#ocr">OCR1A</a>] [<a href="#icr">ICR1</a>] [<a href="#timsk_tifr">TIMSK and TIFR</a>]</p>
+			<p>The register names vary from timer to timer and from AVR to AVR! Have a look at the datasheet of the AVR you're using first.</p>
+			<p>Important note: All 16-bit registers have can only be accessed one byte at a time. To ensure precise timing, a 16-bit temporary register is used when accessing the timer registers.</p>
+			<p>Write:<br>
+				When writing the high byte (e.g. TCNT1H), the data is placed in the TEMP register. When the low byte is written, the data is transferred to the actual registers simultaneously. So the high byte must be written first to perform a true 16-bit write.</p>
+			<p>Read:<br>
+				When reading the low byte, the high byte is read from TCNT1 simultaneously and can be read afterwards. So when reading, access the low byte first for a true 16-bit read.</p>
+			<div class="heading_small">
+				TCNT<a name="tcnt"></a></div>
+			<p>Most important is the Timer/Counter Register (TCNT1) itself. This is what all timer modes base on. It counts System Clock ticks, prescaled system clock or from the external pin.</p>
+			<div class="heading_small">
+				TCCR</div>
+			<p>The Timer/Counter Control register is used to set the timer mode, prescaler and other options.</p>
+			<p>TCCR1A:<a name="tccra"></a></p>
+			<table class="content" border="1" cellspacing="0" cellpadding="0" bgcolor="white">
+				<tr>
+					<td width="50">
+						<div align="center">
+							Bit 7</div>
+					</td>
+					<td width="50">
+						&nbsp;<div align="center">
+							
+						</div>
+					</td>
+					<td width="50">
+						&nbsp;<div align="center">
+							
+						</div>
+					</td>
+					<td width="50">
+						&nbsp;<div align="center">
+							
+						</div>
+					</td>
+					<td width="50">
+						&nbsp;<div align="center">
+							
+						</div>
+					</td>
+					<td width="50">		
+						&nbsp;<div align="center">
+							
+						</div>
+					</td>
+					<td width="50">
+						&nbsp;<div align="center">
+							
+						</div>
+					</td>
+					<td width="50">
+						<div align="center">
+							Bit 0</div>
+					</td>
+				</tr>
+				<tr>
+					<td width="50">
+						<div align="center">
+							COM1A1</div>
+					</td>
+					<td width="50">
+						<div align="center">
+							COM1A0</div>
+					</td>
+					<td width="50">
+						<div align="center">
+							---</div>
+					</td>
+					<td width="50">
+						<div align="center">
+							---</div>
+					</td>
+					<td width="50">
+						<div align="center">
+							---</div>
+					</td>
+					<td width="50">
+						<div align="center">
+							---</div>
+					</td>
+					<td width="50">
+						<div align="center">
+							PWM11</div>
+					</td>
+					<td width="50">
+						<div align="center">
+							PWM10</div>
+					</td>
+				</tr>
+			</table>
+			<p>Here's what the individual bits do:</p>
+			<p>COM1A1/COM1A0: Compare Output Mode bits 1/0; These bits control if and how the Compare Output pin is connected to Timer1.</p>
+			<table class="content" width="408" border="1" cellspacing="0" cellpadding="0">
+				<tr>
+					<td>COM1A1</td>
+					<td>COM1A0</td>
+					<td>Compare Output Mode</td>
+				</tr>
+				<tr>
+					<td>
+						<div align="center">
+							0</div>
+					</td>
+					<td>
+						<div align="center">
+							0</div>
+					</td>
+					<td>Disconnect Pin OC1 from Timer/Counter 1</td>
+				</tr>
+				<tr>
+					<td>
+						<div align="center">
+							0</div>
+					</td>
+					<td>
+						<div align="center">
+							1</div>
+					</td>
+					<td>Toggle OC1 on compare match</td>
+				</tr>
+				<tr>
+					<td>
+						<div align="center">
+							1</div>
+					</td>
+					<td>
+						<div align="center">
+							0</div>
+					</td>
+					<td>Clear OC1 on compare match</td>
+				</tr>
+				<tr>
+					<td>
+						<div align="center">
+							1</div>
+					</td>
+					<td>
+						<div align="center">
+							1</div>
+					</td>
+					<td>Set OC1 on compare match</td>
+				</tr>
+			</table>
+			<p>With these bit you can connect the OC1 Pin to the Timer and generate pulses based on the timer. It's further described below.</p>
+			<p>PWM11/PWM10: Pulse Width Modulator select bits; These bits select if Timer1 is a PWM and it's resolution from 8 to 10 bits:</p>
+			<table class="content" width="406" border="1" cellspacing="0" cellpadding="0">
+				<tr>
+					<td>PWM11</td>
+					<td>PWM10</td>
+					<td>PWM Mode</td>
+				</tr>
+				<tr>
+					<td>
+						<div align="center">
+							0</div>
+					</td>
+					<td>
+						<div align="center">
+							0</div>
+					</td>
+					<td>PWM operation disabled</td>
+				</tr>
+				<tr>
+					<td>
+						<div align="center">
+							0</div>
+					</td>
+					<td>
+						<div align="center">
+							1</div>
+					</td>
+					<td>Timer/Counter 1 is an 8-bit PWM</td>
+				</tr>
+				<tr>
+					<td>
+						<div align="center">
+							1</div>
+					</td>
+					<td>
+						<div align="center">
+							0</div>
+					</td>
+					<td>Timer/Counter 1 is a 9-bit PWM</td>
+				</tr>
+				<tr>
+					<td>
+						<div align="center">
+							1</div>
+					</td>
+					<td>
+						<div align="center">
+							1</div>
+					</td>
+					<td>Timer/Counter 1 is a 10-bit PWM</td>
+				</tr>
+			</table>
+			<p>The PWM mode of Timer1 is dsecribed below.</p>
+			<p>TCCR1B:<a name="tccrb"></a></p>
+			<table class="content" border="1" cellspacing="0" cellpadding="0">
+				<tr>
+					<td width="50">
+						<div align="center">
+							Bit 7</div>
+					</td>
+					<td width="50">&nbsp;
+						<div align="center"></div>
+					</td>
+					<td width="50">&nbsp;
+						<div align="center"></div>
+					</td>
+					<td width="50">&nbsp;
+						<div align="center"></div>
+					</td>
+					<td width="50">&nbsp;
+						<div align="center"></div>
+					</td>
+					<td width="50">&nbsp;
+						<div align="center"></div>
+					</td>
+					<td width="50">&nbsp;
+						<div align="center"></div>
+					</td>
+					<td width="50">
+						<div align="center">
+							Bit 0</div>
+					</td>
+				</tr>
+				<tr>
+					<td width="50">
+						<div align="center">
+							ICNC1</div>
+					</td>
+					<td width="50">
+						<div align="center">
+							ICES1</div>
+					</td>
+					<td width="50">
+						<div align="center">
+							---</div>
+					</td>
+					<td width="50">
+						<div align="center">
+							---</div>
+					</td>
+					<td width="50">
+						<div align="center">
+							CTC1</div>
+					</td>
+					<td width="50">
+						<div align="center">
+							CS12</div>
+					</td>
+					<td width="50">
+						<div align="center">
+							CS11</div>
+					</td>
+					<td width="50">
+						<div align="center">
+							CS10</div>
+					</td>
+				</tr>
+			</table>
+			<p>ICNC1: Input Capture Noise Canceler; If set, the Noise Canceler on the ICP pin is activated. It will trigger the input capture after 4 equal samples. The edge to be triggered on is selected by the ICES1 bit.</p>
+			<p>ICES1: Input Capture Edge Select;</p>
+			<p>When cleared, the contents of TCNT1 are transferred to ICR (Input Capture Register) on the falling edge of the ICP pin.</p>
+			<p>If set, the contents of TCNT1 are transferred on the rising edge of the ICP pin.</p>
+			<p>CTC1: Clear Timer/Counter 1 on Compare Match; If set, the TCNT1 register is cleared on compare match. Use this bit to create repeated Interrupts after a certain time, e.g. to handle button debouncing or other frequently occuring events. Timer 1 is also used in normal mode, remember to clear this bit when leaving compare match mode if it was set. Otherwise the timer will never overflow and the timing is corrupted.</p>
+			<p>CS12..10: Clock Select bits; These three bits control the prescaler of timer/counter 1 and the connection to an external clock on Pin T1.</p>
+			<table class="content" width="409" border="1" cellspacing="0" cellpadding="2">
+				<tr>
+					<td>CS12</td>
+					<td>CS11</td>
+					<td>CS10</td>
+					<td>Mode Description</td>
+				</tr>
+				<tr>
+					<td>
+						<div align="center">
+							0</div>
+					</td>
+					<td>
+						<div align="center">
+							0</div>
+					</td>
+					<td>
+						<div align="center">
+							0</div>
+					</td>
+					<td>Stop Timer/Counter 1</td>
+				</tr>
+				<tr>
+					<td>
+						<div align="center">
+							0</div>
+					</td>
+					<td>
+						<div align="center">
+							0</div>
+					</td>
+					<td>
+						<div align="center">
+							1</div>
+					</td>
+					<td>No Prescaler (Timer Clock = System Clock)</td>
+				</tr>
+				<tr>
+					<td>
+						<div align="center">
+							0</div>
+					</td>
+					<td>
+						<div align="center">
+							1</div>
+					</td>
+					<td>
+						<div align="center">
+							0</div>
+					</td>
+					<td>divide clock by 8</td>
+				</tr>
+				<tr>
+					<td>
+						<div align="center">
+							0</div>
+					</td>
+					<td>
+						<div align="center">
+							1</div>
+					</td>
+					<td>
+						<div align="center">
+							1</div>
+					</td>
+					<td>divide clock by 64</td>
+				</tr>
+				<tr>
+					<td>
+						<div align="center">
+							1</div>
+					</td>
+					<td>
+						<div align="center">
+							0</div>
+					</td>
+					<td>
+						<div align="center">
+							0</div>
+					</td>
+					<td>divide clock by 256</td>
+				</tr>
+				<tr>
+					<td>
+						<div align="center">
+							1</div>
+					</td>
+					<td>
+						<div align="center">
+							0</div>
+					</td>
+					<td>
+						<div align="center">
+							1</div>
+					</td>
+					<td>divide clock by 1024</td>
+				</tr>
+				<tr>
+					<td>
+						<div align="center">
+							1</div>
+					</td>
+					<td>
+						<div align="center">
+							1</div>
+					</td>
+					<td>
+						<div align="center">
+							0</div>
+					</td>
+					<td>increment timer 1 on T1 Pin falling edge</td>
+				</tr>
+				<tr>
+					<td>
+						<div align="center">
+							1</div>
+					</td>
+					<td>
+						<div align="center">
+							1</div>
+					</td>
+					<td>
+						<div align="center">
+							1</div>
+					</td>
+					<td>increment timer 1 on T1 Pin rising edge</td>
+				</tr>
+			</table>
+			<br>
+			<div class="heading_small">
+				OCR1<a name="ocr"></a></div>
+			<p>The Output Compare register can be used to generate an Interrupt after the number of clock ticks written to it. It is permanently compared to TCNT1. When both match, the compare match interrupt is triggered. If the time between interrupts is supposed to be equal every time, the CTC bit has to be set (TCCR1B). It is a 16-bit register (see note at the beginning of the register section).</p>
+			<div class="heading_small">
+				ICR1<a name="icr"></a></div>
+			<p>The Input Capture register can be used to measure the time between pulses on the external ICP pin (Input Capture Pin). How this pin is connected to ICR is set with the ICNC and ICES bits in TCCR1A. When the edge selected is detected on the ICP, the contents of TCNT1 are transferred to the ICR and an interrupt is triggered.</p>
+			<div class="heading_small">
+				TIMSK and TIFR<a name="timsk_tifr"></a></div>
+			<p>The Timer Interrupt Mask Register (TIMSK) and Timer Interrupt Flag (TIFR) Register are used to control which interrupts are &quot;valid&quot; by setting their bits in TIMSK and to determine which interrupts are currently pending (TIFR).</p>
+			<table class="content" border="1" cellspacing="0" cellpadding="0">
+				<tr>
+					<td width="50">
+						<div align="center">
+							Bit 7</div>
+					</td>
+					<td width="50">&nbsp;
+						<div align="center"></div>
+					</td>
+					<td width="50">&nbsp;
+						<div align="center"></div>
+					</td>
+					<td width="50">&nbsp;
+						<div align="center"></div>
+					</td>
+					<td width="50">&nbsp;
+						<div align="center"></div>
+					</td>
+					<td width="50">&nbsp;
+						<div align="center"></div>
+					</td>
+					<td width="50">&nbsp;
+						<div align="center"></div>
+					</td>
+					<td width="50">
+						<div align="center">
+							Bit 0</div>
+					</td>
+				</tr>
+				<tr>
+					<td width="50">
+						<div align="center">
+							TOIE1</div>
+					</td>
+					<td width="50">
+						<div align="center">
+							OCIE1A</div>
+					</td>
+					<td width="50">
+						<div align="center">
+							---</div>
+					</td>
+					<td width="50">
+						<div align="center">
+							---</div>
+					</td>
+					<td width="50">
+						<div align="center">
+							TICIE1</div>
+					</td>
+					<td width="50">
+						<div align="center">
+							---</div>
+					</td>
+					<td width="50">
+						<div align="center">
+							TOIE0</div>
+					</td>
+					<td width="50">
+						<div align="center">
+							---</div>
+					</td>
+				</tr>
+			</table>
+			<p>TOIE1: Timer Overflow Interrupt Enable (Timer 1); If this bit is set and if global interrupts are enabled, the micro will jump to the Timer Overflow 1 interrupt vector upon Timer 1 Overflow.</p>
+			<p>OCIE1A: Output Compare Interrupt Enable 1 A; If set and if global Interrupts are enabled, the micro will jump to the Output Compare A Interrupt vetor upon compare match.</p>
+			<p>TICIE1: Timer 1 Input Capture Interrupt Enable; If set and if global Interrupts are enabled, the micro will jump to the Input Capture Interrupt vector upon an Input Capture event.</p>
+			<p>TOIE0: Timer Overflow Interrupt Enable (Timer 0); Same as TOIE1, but for the 8-bit Timer 0.</p>
+			<p>TIFR is not really necessary for controlling and using the timers. It holds the Timer Interrupt Flags corresponding to their enable bits in TIMSK. If an Interrupt is not enabled your code can check TIFR to deternime whether an interrupt has occured and clear the interrupt flags. Clearing the interrupt flags is usually done by writing a logical 1 to them (see datasheet).</p>
+			<div class="heading_small">
+				Timer Modes<a name="timer_modes"></a></div>
+			<p>[Normal Mode] [<a href="#output_compare_mode">Output Compare Mode</a>] [<a href="#input_capture_mode">Input Capture Mode</a>] [<a href="#pwm_mode">PWM Mode</a>]</p>
+			<div class="heading_small">
+				Normal Mode:</div>
+			<p>In normal mode, TCNT1 counts up and triggers the Timer/Counter 1 Overflow interrupt when it rolls over from 0xFFFF to 0x0000. Quite often, beginners assume that they can just load the desired number of clock ticks into TCNT1 and wait for the interrupt (that's what I did...). This would be true if the timer counted downwards, but as it counts upwards, you have to load 0x0000 - (timer value) into TCNT1. Assuming a system clock of 8 MHz and a desired timer of 1 second, you need 8 Million System clock cycles. As this is too big for the 16-bit range of the timer, set the prescaler to 1024 (256 is possible as well).</p>
+			<p>8,000,000/1024 = 7812.5 ~ 7813<br>
+				0x0000 - 7813 = 57723 &lt;- Value for TCNT1 which will result in an overflow after 1 second (1.000064 seconds as we rounded up before)</p>
+			<p>So we now know the value we have to write to the TCNT1 register. So? What else? This is not enough to trigger the interrupt after one second. We also have to enable the corresponding interrupt and the global interrupt enable bit. Here's a flow chart of what happens:</p>
+			<img class="image" src="../img/timer_ovf_int.gif" alt="" height="444" width="432" border="0">
+			<p>The only steps you have to do are:</p>
+			<p>- set prescaler to 1024 (set bits CS12 and CS10 in TCCR1B)<br>
+				- write 57723 to TCNT1<br>
+				- enable TOIE1 in TIMSK<br>
+				- enable global interrupt bit in SREG<br>
+				- wait. Or do anything else. All the counting and checking flags is done in hardware.</p>
+			<div class="heading_small">
+				Output Compare Mode<a name="output_compare_mode"></a></div>
+			<p>The Output Compare mode is used to perform repeated timing. The value in TCNT1 (which is counting up if not stopped by the prescaler select bits) is permanently compared to the value in OCR1A. When these values are equal to each other, the Output Compare Interrupt Flag (OCF in TIFR) is set and an ISR can be called. By setting the CTC1 bit in TCCR1B, the timer can be automatically cleared upon compare match.</p>
+			<p><img class="image" src="../img/timer_comp.gif" alt="" border="0"></p>
+			<p>The flow chart should show an arrow from CTC1 set? &quot;Yes&quot; to set OCF instead of a line, but somehow the Flow Charting Program didn't think that was a good idea. Bad luck.</p>
+			<p>Let's discuss a small example:We want the Timer to fire an int every 10ms. At 8 MHz that's 80,000 clock cycles, so we need a prescaler (out of 16-bit range).</p>
+			<p>In this case, 8 is enough. Don't use more, as that would just pull down accuracy. With a prescaler of 8, we need to count up to 10,000.As the value of TCNT1 is permanently compared to OCR1 and TCNT1 is up-counting, the value we need to write to OCR is acutally 10,000 and not 0x0000-10,000, as it would be when using the timer in normal mode.</p>
+			<p>Also, we need to set CTC1: If we didn't, the timer would keep on counting after reaching 10,000, roll over and then fire the next int when reaching 10,000, which would then occur after 0xFFFF*8 clock cycles. That's after 0.065536 seconds. Not after 10ms. If CTC1 is set, TCNT1 is cleared after compare match, so it will count from 0 to 10,000 again with out rolling over first.</p>
+			<p>What is to be done when those 10ms Interrupts occur? That depends on the application. If code is to be executed, the corresponding interrupt enable bit has to be set, in this case it is OCIE1A in TIMSK. Also check that global interrupts are enabled.</p>
+			<p>If the OC1 (Output Compare 1) pin is to be used, specify the mode in TCCR1A. You can set, clear or toggle the pin. If you decide that you want to toggle it, think about your timing twice: If you want a normal pulse which occurs every 10ms, the timer cycle must be 5ms: 5ms -&gt; toggle on -&gt; 5ms -&gt; toggle off. With the 10ms example above and OC1 set up to be toggled, the pulse would have a cycle time of 20ms.</p>
+			<div class="heading_small">
+				Input Capture Mode<a name="input_capture_mode"></a></div>
+			<p>The Input Capture Mode can be used to measure the time between two edges on the ICP pin (Input Capture Pin). Some external circuits make pulses which can be used in just that way. Or you can measure the rpm of a motor with it. You can either set it up to measure time between rising or falling edges on the pin. So if you change this setting within the ISR you can measure the length of a pulse. Combine these two methods and you have completely analysed a pulse. How it works?</p>
+			<p>Here's a flow chart of its basic functionality:</p>
+			<img class="image" src="../img/timer_capt.gif" alt="" height="302" width="525">
+			<p>You see that it's actually pretty simple. I left out the low level stuff such as Interrupt validation (enabled/global enable), as you should understand that by now. The contents of TCNT1 are transferred to ICR1 when the selected edge occurs on the Input Capture Pin and an ISR can be called in order to clear TCNT1 or set it to a specific value. The ISR can also change the egde which is used to generate the next interrupt.</p>
+			<p>You can measure the length of a pulse if you change the edge select bit from within the ISR. This can be done the following way:</p>
+			<p>Set the ICES (Input Capture Edge Select) bit to 1 (detect rising edge)</p>
+			<p>When the ISR occurs, set TCNT1 to zero and set ICES to 1 to detect negative egde</p>
+			<p>When the next ISR is called, the pin changed from high to low. The ICR1 now contains the number of (prescaled) cycles the pin was high. If the ISR again sets the edge to be detected to rising (ICES=1), the low pulse time is measured. Now we have the high time AND the low time: We can calculate the total cycle time and the duty cycle.</p>
+			<p>It's also possible to connect the Analog Comparator to the input capture trigger line. That means that you can use the Analog Comparator output to measure analog signal frequencys or other data sources which need an analog comparator for timing analysis. See the <a href="../ana_comp.html">Analog Comparator page</a> for more.</p>
+			<div class="heading_small">
+				PWM Mode<a name="pwm_mode"></a></div>
+			<p>The Pulse Width Modulator (PWM) Mode of the 16-bit timer is the most complex one of the timer modes available. That's why it's down here.</p>
+			<p>The PWM can be set up to have a resolution of either 8, 9 or 10 bits. The resolution has a direct effect on the PWM frequency (The time between two PWM cycles) and is selected via the PWM11 and PWM10 bits in <a href="#tccra">TCCR1A</a>. Here's a table showing how the resolution select bits act. Right now the TOP value might disturb you but you'll see what it's there for. The PWM frequency show the PWM frequency in relation to the timer clock (which can be prescaled) and NOT the system clock.</p>
+			<table class="content" width="325" border="1" cellspacing="0" cellpadding="0">
+				<tr>
+					<td>PWM11</td>
+					<td>PWM10</td>
+					<td>Resolution</td>
+					<td>TOP-value</td>
+					<td>PWM Frequency</td>
+				</tr>
+				<tr>
+					<td>0</td>
+					<td>0</td>
+					<td colspan="3">PWM function disabled</td>
+				</tr>
+				<tr>
+					<td>0</td>
+					<td>1</td>
+					<td>8 bits</td>
+					<td>$00FF</td>
+					<td>fclock/510</td>
+				</tr>
+				<tr>
+					<td>1</td>
+					<td>0</td>
+					<td>9 bits</td>
+					<td>$01FF</td>
+					<td>fclock/1022</td>
+				</tr>
+				<tr>
+					<td>1</td>
+					<td>1</td>
+					<td>10 bits</td>
+					<td>$03FF</td>
+					<td>fclock/2046</td>
+				</tr>
+			</table>
+			<p>To understand the next possible PWM settings, I should explain how the PWM mode works. The PWM is an enhanced Output Compare Mode. In this mode, the timer can also count down, as opposed to the other modes which only use an up-counting timer. In PWM mode, the timer counts up until it reaches the TOP value (which is also the resolution of the timer and has effect on the frequency).</p>
+			<p>When the TCNT1 contents are equal to the OCR1 value, the corresponding output pin is set or cleared, depending on the selected PWM mode: You can select a normal and an inverted PWM. This is selected with the COM1A1 and COM1A0 bits (TCCR1A register). The possible settings are:</p>
+			<table class="content" width="246" border="1" cellspacing="0" cellpadding="0">
+				<tr>
+					<td>COM1A1</td>
+					<td>COM1A0</td>
+					<td>Effect:</td>
+				</tr>
+				<tr>
+					<td>0</td>
+					<td>0</td>
+					<td>PWM disabled</td>
+				</tr>
+				<tr>
+					<td>0</td>
+					<td>1</td>
+					<td>PWM disabled</td>
+				</tr>
+				<tr>
+					<td>1</td>
+					<td>0</td>
+					<td>Non-inverting PWM</td>
+				</tr>
+				<tr>
+					<td>1</td>
+					<td>1</td>
+					<td>inverting PWM</td>
+				</tr>
+			</table>
+			<p>Non-inverted PWM means that the Output Compare Pin is CLEARED when the timer is up-counting and reaches the OCR1 value. When the timer reaches the TOP value, it switches to down-counting and the Output Compare Pin is SET when the timer value matches the OCR1 value.</p>
+			<p>Inverted PWM is, of course, the opposite: The Output Compare Pin is set upon an up-counting match and cleared when the down-couting timer matches the OCR1 value. Here are two diagrams showing what this looks like:</p>
+			<img class="image" src="../img/timer_pwm.gif" alt="" height="394" width="525">
+			<p>The reason why you can select between inverting and non-inverting pwm is that some external hardware might need an active-low pwm signal. Having the option to invert the PWM signal in hardware saves code space and processing time.</p>
+			<p>The PWM is also glitch-free. A glitch can occur when the OCR1 value is changed: Imagine the PWM counting down to 0. After the pin was set, the OCR1 value is changed to some other value. The next pulse has an undefined length because only the second half of the pulse had the specified new length. That's why the PWM automatically writes the new value of OCR1 upon reaching the TOP value and therefore prevents glitches.</p>
+			<p><img src="../img/timer_glitch.gif" alt="" height="431" width="550" border="0"></p>
+			<p>Typical applications for the PWM are motor speed controlling, driving LEDs at variable brightness and so on. Make sure you have appropriate drivers and protection circuitry if you're using motors!</p>
+			<p class="heading_small">Some Examples...<a name="examples"></a></p>
+			<p>Some simple examples can also be found here...</p>
+			<p>- <a href="../../simple_code/timer.html">Setting up a timer</a></p>
+			<p>- <a href="../../simple_code/LED_timer.html">Flashing LED</a> using the Timer Overflow Interrupt and the Output compare mode</p>
+			<p>- Pulse Width Modulated LED demo with two timers</p>
+		</div>
+	</body>
+
+</html>

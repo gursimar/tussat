@@ -1,0 +1,118 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html>
+
+	<head>
+                <meta http-equiv="content-type" content="text/html;charset=iso-8859-1">
+		<title>Welcome To AVRbeginners.net!</title>
+		<link href="../../main.css" rel="stylesheet">
+	</head>
+
+	<body class="content_page">
+		<div class="content">
+			<div class="heading">Indirect Calls/Jumps			</div>
+			<p>Indirect calls or jumps are needed when a computed value determines where the ALU has to proceed executing code. They are fairly easy to understand.			<p>Indirect calls/jumps don't use a constant address as a target, but have the Z index register pair as an argument instead. As the program memory is organized in 16-bit words, they also don't need an extension for 128kbyte devices such as the mega128. For lpm, it has elpm to reach the whole program space, but lpm uses addresses for 8-bit organisation. So no eijmp or eicall is available. While the label for setting up Z for lpm needs to be multiplied by two (to have byte addresses), this doesn't have to be done for ijmp/icall.</p>
+			<p>Example:</p>
+			<table class="codebox" width="95%" border="0" cellspacing="0" cellpadding="0">
+				<tr>
+					<td width="150">ldi ZL, low(led_on)<br>
+						ldi ZH, high(led_on)<br>
+						icall<br>
+						&nbsp;<br>
+						led_on:<br>
+						ldi r16, 0b11111110<br>
+						out PortA, r16<br>
+						
+						ret<br>
+					</td>
+					<td>; load Z with address to call<br>
+						;<br>
+						; call led_on<br>
+						;<br>
+						;this is where Z points at and therefore the address to call<br>
+						&nbsp;<br>
+						&nbsp;<br>
+						&nbsp;</td>
+				</tr>
+			</table>
+			<p>Indirect jumps/calls can also be used to make big case structures faster: If 20 different cases can occur and the case we have is determined at the end of all checks, it takes longer to be precessed than the first one, as 19 checks have already been done before.</p>
+			<p>If the value to be checked for different case values is used to perform an indirect jump or call, life is easier, faster and more effective regarding code space usage:</p>
+			<p>The value we want to process is multiplied by the number of words a jmp needs (which is two) and then added to the base address of our table. The following interrupt routine loads r16 with the current UDR data and calls the appropriate subroutine:</p>
+			<table class="codebox" width="95%" border="0" cellspacing="0" cellpadding="0">
+				<tr>
+					<td width="150">in r16, UDR<br>
+						lsl r16<br>
+						clr r17<br>
+						ldi ZL, low(case_table)<br>
+						ldi ZH, high(case_table)<br>
+						add ZL, r16<br>
+						adc ZH, r17<br>
+						icall<br>
+						reti<br>
+						&nbsp;<br>
+						case_table:<br>
+						jmp UDR_is_one<br>
+						jmp UDR_is_two<br>
+						jmp UDR_is_three</td>
+					<td>; get data from UDR<br>
+						; multiply by two<br>
+						; zero reg for 16-bit addition<br>
+						;load jump tabe base address<br>
+						;<br>
+						; add UDR*(jmp size) to Z<br>
+						;<br>
+						; call table cell<br>
+						; and return<br>
+						;<br>
+						; these are jumps to subroutines which in turn handle the<br>
+						; case that occured.<br>
+						; when returning, the ALU will jump to the reti of the ISR above again.<br>
+						; </td>
+				</tr>
+			</table>
+			<p>One fundamental thing is not shown here: The ISR has to check for values not handled by the table before the icall is done. The table as it is above does not have entries for the values zero and 4 to 255, so these can result in an error! Also watch out for the table cell size: A jump needs two words and is slower than a rjmp, but using an rjmp (which needs one word only) must only be done together with a nop so that things stay correct: An rjmp without a nop (the nop should follow the rjmp for speed reasons) would result in an error (two jmp instructions are combined to one garbage word).</p>
+			<p>Indirect addressing is also used by operating system to let tasks install themselves into interrupt jump tables: The operating system cares for the interrupt being serviced, the tasks leave their own ISR address in a table and the operating system can call each routine. Such a table could be an array of addresses in SRAM at an address known when the code is written:</p>
+			<table class="codebox" width="95%" border="0" cellspacing="0" cellpadding="0">
+				<tr>
+					<td width="159">.org 0x0000<br>
+						rjmp reset<br>
+						&nbsp;<br>
+						reset:<br>
+						lds ZL, reset_table<br>
+						lds ZH, reset_table + 1<br>
+						icall<br>
+						
+						&nbsp;<br>
+						.dseg<br>
+						
+						reset_table: .byte 8<br>.cseg<br>
+						&nbsp;<br>
+						ldi XL, low(my_reset_ISR)<br>
+						ldi XH, high(my_reset_ISR)<br>
+						sts reset_table, XL<br>
+						sts reset_table + 1, XH<br>
+					</td>
+					<td>; setup reset interrupt vector<br>
+						; <br>
+						; <br>
+						; the reset vector (in this case) calls the first routine installed in the<br>
+						; reset vector table:<br>
+						; load Z with first address<br>
+						; call the routine<br>
+						; <br>
+						; <br>
+						; make a table for 4 addresses which can be filled at runtime<br>
+						;&nbsp;<br>
+						; <br>
+						; this is what the task does for installing itself in the reset table:<br>
+						; load X with my_reset_ISR address<br>
+						; store the address at reset_table[0]<br>
+						
+						;</td>
+				</tr>
+			</table>
+			<p>Of course, the task needs some more information: Which table position is free (not used by other tasks) and what information is provided by the OS and so on, but that's not the problem now, this page is just meant to illustrate how indirect jumps and calls work.</p>
+		</div>
+	</body>
+
+</html>

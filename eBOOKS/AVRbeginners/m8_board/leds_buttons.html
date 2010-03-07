@@ -1,0 +1,21 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html>
+
+	<head>
+                <meta http-equiv="content-type" content="text/html;charset=iso-8859-1">
+		<title>Welcome To AVRbeginners.net!</title>
+		<link href="../main.css" rel="stylesheet">
+	</head>
+
+	<body class="content_page">
+		<div class="content">
+			<div class="heading">The LEDs And Buttons</div>
+			<p>The mega8 board has 8 buttons and 8 LEDs. First I'll explain the LEDs. These are connected to Vcc via a current limiting resistor (330R). This results in an active low operation: When the LED's header pin is held low by the micro, the LED is ON. When the pin is high, the LED is off. Here's a schematic of one LED and one button:</p>
+			<p><img src="img/m8_leds_buttons.gif" alt="" height="241" width="288" border="0"></p>
+			<p>The Buttons are just connected to ground and will thus generate a low level when pressed. They are NOT equipped with a pull-up resistor, so the internal pull-ups of the AVR have to be used.</p>
+			<p>Both headers provide Vcc and Gnd (just as the port headers) and have a decoupling cap (not shown here).</p>
+		</div>
+	</body>
+
+</html>

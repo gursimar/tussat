@@ -1,0 +1,85 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html>
+
+	<head>
+                <meta http-equiv="content-type" content="text/html;charset=iso-8859-1">
+		<title>Welcome To AVRbeginners.net!</title>
+		<link href="../main.css" rel="stylesheet">
+	</head>
+
+	<body class="content_page">
+		<div class="content">
+			<div class="heading">Buffers And Queues in Assembler			</div>
+		</div>
+		<div class="content" align="center">
+			<p>[How it Works] [<a href="#fifo_usage">Memory Usage</a>] [<a href="#fifo_hints">Coding Hints</a>]</p>
+		</div>
+		<div class="heading_small">
+			<div class="content">
+				<p>How it works</p>
+			</div>
+		</div>
+		<div class="content">
+			<p>Buffers and queues are basically the same. The term buffer is mainly used for queues holding I/O data, like from the UART or other peripherals.
+</p>
+			<p>The buffer type I'm describing here is the FIFO (First-In-First-Out) buffer. That means that the data written first is also read first. Another buffer type is the LIFO (Last-In-First-Out) buffer. The Stack is a LIFO buffer, as it always reads the data that was written last. The LIFO buffer can be explained as a stack of sheets on your desk: When something has to be done, you write it on a piece of paper and put it on top of the stack. When you've got time to accomplish one of these tasks, you take the sheet that's at the top. The problem is that if many tasks are coming in it can happen that the oldest sheet will never be looked at. If it's a FIFO buffer, you'd take the sheet that's at the bottom.</p>
+			<p>When writing code for a FIFO in software, a slightly different approach is taken: We add data to the buffer's memory space, increment the number of bytes in the buffer and have the pointer we used for writing the data point to the next buffer memory location. When the last location of buffer memory is reached, we roll over to the first location again. That's why the FIFO is also called a &quot;ring buffer&quot;. When reading from the buffer, the same is done, but the number of bytes in the buffer is decremented.</p>
+			<p><img src="img/fifo_overview.gif" alt="" border="0"></p>
+			<p>This is a simple diagram of how a FIFO buffer works. In this case, a post-incrementing scheme is used (as the AVR supports post-incrementing of the index register pairs in hardware): When a location is read or written, the pointer is incremented and points at the next FIFO location. The numbers in the boxes (each representing one byte in memory) represent the order the bytes were written in. The first byte is already read (number in brackets), that's why the read pointer points at the second byte. Four bytes have already been written and the write pointer points at the fifth location (which is not written: &quot;n&quot;). So three bytes are still in the buffer. When the write pointer is post-incremented and points at the location following the buffer memory (grayed out), it rolls over to the first location again:</p>
+			<p><img src="img/fifo_rollover.gif" alt="" border="0"></p>
+			<p>In this image, 7 bytes are in the buffer. The first byte has already been read (it's in brackets). One more byte can be written until the buffer is full. The pointers would then both point at location 2.</p>
+			<p>To make life easier, a counter is added that holds the number of bytes in the buffer. It's also possible to compare the pointers to each other in order to determine if the buffer is full or empty, but that also comes with some problems. Just trust me: The counter solution is better...</p>
+		</div>
+		<div class="heading_small">
+			<div class="content">
+				<p>Memory Usage<a name="fifo_usage"></a></p>
+			</div>
+		</div>
+		<div class="content">
+			<p>The FIFO buffer decribed above uses the following memory resources:<br>
+				- FIFO Data Memory (8 bytes)<br>
+				- Write pointer (2 bytes)<br>
+				- Read pointer (2 bytes)<br>
+				- Counter (1 byte)</p>
+			<p>This adds up to 13 bytes for a fuly functional 8-byte FIFO. If the FIFO size has to be greater than 256 bytes, a second counter byte has to be added, but I don't believe that such a size will ever be needed...</p>
+		</div>
+		<div class="heading_small">
+			<div class="content">
+				<p>Coding Hints<a name="fifo_hints"></a></p>
+			</div>
+		</div>
+		<div class="content">
+			<p>It's possible to reduce the amount of program space needed for the FIFO operation if the FIFO size is equal to a power of 2 (4, 8, 16, 32, ...). Then the pointer can be masked with the buffer's greatest index (not really; explanation below). Example:</p>
+			<p>Base address: 0x0010<br>
+				Size: 16 bytes<br>
+				Write pointer is at index 15 (0x001F), which is the 16th byte of the buffer.</p>
+			<p>Now the write pointer is used to write data to the buffer (at base address + 0x0F = 0x001F) and post- incremented (0x0020). That means that it now doesn't point at the FIFO memory space any more and has to roll over. The write pointer is now masked with the greatest index (0x000F): write pointer &amp;= 0x000F = 0x0000 and the high bytes are updated: Write pointer OR 0x0010 = 0x0010. This is the address we want (the base address).</p>
+			<p>Here's the code example:</p>
+			<table class="codebox" width="355" border="0" cellspacing="0" cellpadding="0">
+				<tr>
+					<td colspan="2">;write from r16 to buffer using X as write pointer<br>
+						;size: 16 bytes<br>
+						;base address: 0x0010</td>
+				</tr>
+				<tr>
+					<td width="140">write_fifo:<br>
+						st X+, r16<br>
+						ldi r16, 0x0F<br>
+						and XL, r16<br>
+						sbr XL, 0x10<br>
+						ret</td>
+					<td>;<br>
+						;store data<br>
+						;load r16 with mask for 16-byte size<br>
+						;mask pointer with r16<br>
+						;update high bits<br>
+						;done!!!</td>
+				</tr>
+			</table>
+			<p>Try to write code that's uses a compare and then loads the pointer with the base address again. You'll see that it's impossible to do that without using more code space and cpu time. It can be necessary to do that though, because the conditions that make masking possible can't always be met. That depends on your application and memory usage. For testing this buffer type it might be better to do a compare and than change the code to masking operation.</p>
+			<p></p>
+		</div>
+	</body>
+
+</html>

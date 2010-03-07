@@ -1,0 +1,48 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html>
+
+	<head>
+                <meta http-equiv="content-type" content="text/html;charset=iso-8859-1">
+		<title>Welcome To AVRbeginners.net!</title>
+		<link href="../main.css" rel="stylesheet">
+	</head>
+
+	<body class="content_page">
+		<div class="content">
+			<div class="heading">Converting Binary Coded Decimal to Int			</div>
+			<p>The BCD format can be easily convertd to integer.			<p>A byte formatted as binary coded decimal contains two digits, which can be directly taken from one nibble each:</p>
+			<p>0x22 means 22. So the conversion is clear just by looking at this example: Multiply the high nibble with 10 and then add the low nibble! If a BCD word is to be converted to int, just do the same: Take the high nibble of the high byte, multiply with 1000, low nibble of high byte with 100, high nibble of low byte with 10 and then add the low nibble of the low byte.</p>
+			<p>Here is an example code snippet that converts a BCD byte to int:</p>
+			<p>r16: BCD byte<br>
+				r17: int result<br>
+				r18: temporary register<br>
+				r19: another temporary register<br>An AVR that supports the mul instruction has to be used for this example! If your AVR doesn't support it, you have to either write a mul macro or multiply the high nibble by 10 another way.</p>
+			<table class="codebox" width="90%" border="0" cellspacing="0" cellpadding="0">
+				<tr>
+					<td width="173">mov r18, r16<br>
+						cbr r18, 0b00001111<br>
+						swap r18<br>
+						ldi r19, 10<br>
+						mul r18, r19<br>mov r17, r0<br>
+						&nbsp;<br>
+						mov r18, r16<br>
+						cbr r18, 0b11110000<br>
+						add r16, r18</td>
+					<td>; copy BCD byte into temp register<br>
+						; clear low nibble of temp register<br>
+						; swap nibbles<br>
+						; load r19 with 10 (for multiplication)<br>
+						; r1 = r18 * r19<br>
+						; copy result of multiplication into r17<br>
+						<br>
+						; again copy BCD byte into temp register<br>
+						; clear high nibble (no swap needed this time)<br>
+						; and add the low nibble to the result</td>
+				</tr>
+			</table>
+			<p></p>
+		</div>
+	</body>
+
+</html>

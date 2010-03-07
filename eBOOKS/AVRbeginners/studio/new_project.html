@@ -1,0 +1,27 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html>
+
+	<head>
+                <meta http-equiv="content-type" content="text/html;charset=iso-8859-1">
+		<title>Welcome To AVRbeginners.net!</title>
+		<link href="../main.css" rel="stylesheet">
+	</head>
+
+	<body class="content_page">
+		<div class="content">
+			<div class="heading">
+				Creating a New Project in AVR Studio</div>
+			<p>Here's how to create a new project in AVR Studio. It's fairly simple and straight forward, but I thought it might be worth explaining. In the menu, click on &quot;Project -&gt; New&quot;. Select a project name and directory (I suggest placing each project and its files into an own project directory). Also choose &quot;AVR Assembler&quot; as the Project Type; then hit OK.</p>
+			<p><img src="img/dialog_newproject.gif" alt="" height="306" width="285" align="left" border="0"><img src="img/project_newfile.gif" alt="" height="299" width="290" border="0"></p>
+			<p>You will see the &quot;Project Manager&quot; (right image). It is used to add files to the project, create new ones and keeping track of the files associated with the project. Add a file to the project byy clicking right on the &quot;Assembler Files&quot; folder and select &quot;Create New File...&quot;. In the Dialog, check that the directory is correct, choose a file name and make sure you add a valid extension (.asm), otherwise it won't work. The new file will show up underneath the &quot;Other Files&quot; folder. Drag it into the &quot;Assembler Files&quot; folder.</p>
+			<p>You can include files in your assembler project using the .include directive. The definition files for the AVR types for example have to be included for names like &quot;PortB&quot; to work. The top file, from which all other files are included is the &quot;Assembler Entry File&quot; which the assember starts with when it try to translate your code. You can set the assembler entry file (if your project contains more than one file) by right clicking in it and checking the &quot;Assembler Entry File&quot; option in the drop-down menu. For the first file this will be checked by default (what else should the assembler start with?).</p>
+			<p><img src="img/project_entry_file.gif" alt="" height="166" width="216" border="0"></p>
+			<p>This is it. You can now open the new file and add code to it. You can also add an already existing file and choose that one to  be the entry file of course.</p>
+			<p>The &quot;Project Settings&quot; box is quite important as well.</p>
+			<p><img src="img/project_settings.gif" alt="" height="284" width="464" border="0"></p>
+			<p>If you want to simulate your code in AVR Studio, choose &quot;Object format for AVR Studio&quot; in the &quot;Output file format&quot; box. The assember will the create files that can be simulated by AVR Studio. If you want to download your code to a target system such as the STK500 or some other board/projaect hardware, you'll have to choose &quot;Intel Hex&quot; as output format. The assembler will then generate a hex file you can download. Quite often I wonder why my code doesn't work because I already had an old hex file with the right file name, but simulated newer code. If I then didn't change the output file format, old code is stored in Flash. Of course there's more you can do with your projects in the menus, but this will be enough for the project to work.</p>
+		</div>
+	</body>
+
+</html>

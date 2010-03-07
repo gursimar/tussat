@@ -1,0 +1,62 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html>
+
+	<head>
+		<meta http-equiv="content-type" content="text/html;charset=iso-8859-1">
+		<title>Case Structures</title>
+                <link rel="stylesheet" href="../../main.css">
+	</head>
+
+	<body class="content_page">
+		<div class="heading">
+			Case Structures
+		</div>
+		<div class="content">
+			<p>Quite often, for example when receiving command values via the UART, it is necessary to build up a case structure to deternime 
+			which function needs to be called. The case structure compares a value to various case values. As the branch instructions don't 
+			change any flags, this can be implemented straight forward:</p>
+			<table class="codebox" width="95%" border="0" cellspacing="0" cellpadding="0">
+				<tr>
+					<td style="border-width: 0px;" valign="top" width="150">in r16, UDR<br>
+						cpi r16, 0<br>
+						breq case_0<br>
+						cpi r16, 1<br>
+						breq case_1<br>
+						cpi r16, 2<br>
+						breq case_2</td>
+					<td style="border-width: 0px;" valign="top">; get UART data<br>
+						; compare with case_0 value (0)<br>
+						; if case_0, jump there<br>
+						; compare with case_1 value (1)<br>
+						; if case_1, jump there<br>
+						; ...and so on</td>
+				</tr>
+			</table>
+			<p>After all the case tests you can write the &quot;default&quot; code that will be executed if none of the tests results equal. Case structures don't necessarily test for single values, but can also test for values within a specific range, or compare strings to each other. Here is value range example:</p>
+			<table class="codebox" width="95%" border="0" cellspacing="0" cellpadding="0">
+				<tr>
+					<td style="border-width: 0px;" valign="top" width="150">in r16, UDR<br>
+						chk_case_03:<br>
+						cpi r16, 4<br>
+						brlo case_03<br>
+						cpi r16, 20<br>
+						brlo case_419<br>
+						default:<br>
+						; (default code)</td>
+					<td style="border-width: 0px;" valign="top">; get UART data<br>
+						<br>
+						; compare with 4<br>
+						; if lower (0, 1, 2, 3) jump to case_03<br>
+						; compare with 20<br>
+						; if lower (4 to 19), jump to case_419<br>
+						<br>
+						; if none of the tests was successful,<br>
+						; execute default code</td>
+				</tr>
+			</table>
+			<p>The second example could also use <code>brlt</code> (branch if less than) if signed numbers are used. Advanced users can write compare routines for any data structure they want. If these return usable flags in SREG, conditional branch instructions can of course be used then.</p>
+		
+	</body>
+
+</html>

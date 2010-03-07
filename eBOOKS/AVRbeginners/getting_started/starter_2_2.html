@@ -1,0 +1,179 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html>
+
+	<head>
+                <meta http-equiv="content-type" content="text/html;charset=iso-8859-1">
+		<title>Welcome To AVRbeginners.net!</title>
+		<link href="../main.css" rel="stylesheet">
+	</head>
+
+	<body class="content_page">
+		<div class="content">
+			On the first page I told you how a simple program works, how to create a project and some details about the AVR. Now it's time to have a look at what we want to do and how it can be done.
+			<p>We want to make an LED flash. Basically we want to switch it on and off in a loop. The LED is connected to PortB.3, one of the AVRs I/O pins we configured as an output. </p>
+			<p>Single bits in the I/O space can be cleared and set with the cbi (clear bit in I/O) and sbi (set bit in I/O) instructions. Unfortunately, these don't work for all I/O registers. Open the AVR instruction set (the complete one, not just the 7 pages you printed out) and look for cbi: It can only clear bits in registers 0-31 (Hex: 0x00...0x1F). PortB is in this range (0x18), so we can use cbi (same for sbi).</p>
+			<p>As the LED is ON when PortB.3 is low, the LED can be switched on with cbi and off with sbi. Let's add that to the loop:</p>
+			<table class="codebox" width="95%" border="0" cellspacing="0" cellpadding="0">
+				<tr>
+					<td width="150">.org 0x0000<br>
+						rjmp main<br>
+						&nbsp;<br>
+						main:<br>
+						ldi r16, 0xFF<br>
+						out DDRB, r16<br>
+						loop:<br>
+						sbi PortB, 3<br>
+						cbi PortB, 3<br>
+						rjmp loop</td>
+					<td>; the next instruction has to be written to address 0x0000<br>
+						; the reset vector: jump to &quot;main&quot;<br>
+						;<br>
+						; this is the label &quot;main&quot;<br>
+						; load register 16 with 0xFF (all bits are 1)<br>
+						; write the value in r16 (0xFF) to Data Direction Register B<br>
+						; <br>
+						; switch off the LED<br>
+						; switch it on<br>
+						; jump to loop</td>
+				</tr>
+			</table>
+			<p>The reason why we first switch it off is that it was already on when entering the loop for the first time: After reset, all port data bits are zero. By setting bit 3 in DDRB we configured portB.3 as an output and switched the LED on.</p>
+			<p>You could now program your mega8 with this code, but you would only see the LED being on all the time. The loop switches the LED off (sbi PortB, 3), which takes 1 clock cycle. Then, after 0.00000025 (again 1 clock cycle) seconds, the LED is on again (cbi PortB, 3). The rjmp takes 2 clock cycles (0.0000005 seconds). That's a bit too fast for the eye. We need to waste some time between switching the LED on and off (let's say 0.5 seconds)</p>
+			<p>0.5 seconds at 4 MHz equals 2,000,000 clock cycles. Generating such a long delay requires either a timer (which would use interrupts) or delay code that just takes lots of time for execution while occupying only small space. This example will use a delay loop.</p>
+			<p>Keeping track of how many times the loop has been executed is done with a counter. As the AVR is an 8-bit microcontroller, the registers con only hold the values 0 to 255. That's less than the 2 Million clock cycles we need to wait between toggling the LED output, but we'll see how far we can get with that and some tricks... The delay loop will be in a seperate subroutine we can call in order to wait for half a second. <a href="../assembler/routines.html">Assembler Basics -&gt; Subroutines</a> might be worth looking at now.</p>
+			<p>Registers can be used in pairs as well, allowing to work with values from 0 to 65535. The following piece of code clears registers 24 and 25 and increments them in a loop until they overflow to zero again. When that condition occurs, the loop doesn't go around again:</p>
+			<table class="codebox" width="95%" border="0" cellspacing="0" cellpadding="0">
+				<tr>
+					<td width="150">clr r24<br>
+						clr r25<br>
+						delay_loop:<br>
+						adiw r24, 1<br>
+						brne delay_loop</td>
+					<td>; clear register 24<br>
+						; clear register 25<br>
+						; the loop label<br>
+						; &quot;add immediate to word&quot;: r24:r25 are incremented<br>
+						; if no overflow (&quot;branch if not equal&quot;), go back to &quot;delay_loop&quot;</td>
+				</tr>
+			</table>
+			<p>This little loop takes a lot of time: clr needs 1 cycle, adiw needs two cycles and brne needs 2 cycles if the branch is done and 1 otherwise. Every time the registers don't overflow the loop takes adiw(2) + brne(2) = 4 cycles. This is done 0xFFFF times before the overflow occurs. The next time the loop only needs 3 cycles, because no branch is done. This adds up to 4*0xFFFF(looping) + 3(overflow) + 2(clr) = 262145 cycles. This is still not enough: 2,000,000/262,145 ~ 7.63</p>
+			<p>We need to tweak the loop a bit and also crete a loop &quot;around&quot; it which will contain our 262,145 cycle loop. For fine-tuning the inner loop we need to change the clr instructions to ldi so that we can use a different start value than 0. The &quot;outer&quot; loop will be down-counting from 8 to zero using r16. This is how the delay code looks now:</p>
+			<table class="codebox" width="95%" border="0" cellspacing="0" cellpadding="0">
+				<tr>
+					<td width="150">ldi r16, 8<br>
+						outer_loop:<br>
+						&nbsp;<br>
+						ldi r24, 0<br>
+						ldi r25, 0<br>
+						delay_loop:<br>
+						adiw r24, 1<br>
+						brne delay_loop<br>
+						&nbsp;<br>
+						dec r16<br>
+						brne outer_loop</td>
+					<td>; load r16 with 8<br>
+						; outer loop label<br>
+						; <br>
+						; clear register 24<br>
+						; clear register 25<br>
+						; the loop label<br>
+						; &quot;add immediate to word&quot;: r24:r25 are incremented<br>
+						; if no overflow (&quot;branch if not equal&quot;), go back to &quot;delay_loop&quot;<br>
+						;<br>
+						; decrement r16<br>
+						; and loop if outer loop not finished</td>
+				</tr>
+			</table>
+			<p>Again, some calculations: The inner loop is now treated like one BIG instruction needing 262,145 clock cycles. ldi needs 1 clock cycle, dec also needs 1 clock cycle and brne needs 1 or 2 cycles (see above). The overall loop needs:  262,145 (inner loop) + 1 (dec) + 2 (brne) = 262148 * 8 = 2097184 cycles plus the initial ldi = 2097185. Wait. Subtract one because the last brne didn't result in a branch, so it needs 2097184 cycles. This is more like what we want, but 97184 cycles too long. This is where the fine-tuning comes in - we need to change the initial value of r24:r25.</p>
+			<p>The outer loop is executed 8 times and includes the &quot;big-inner-loop-instruction&quot;. We have to subtract some cycles from the inner loop: 97184 / 8 =12148 cycles per inner loop. This is what the inner loop has to be shorter. Every iteration of the inner loop takes 4 cycles (the last one takes 3 but that's not so important), so let's divide those 12148 by 4. That's 3036.5 or 3037 less iterations. This is our new initialisation value for r24:r25!</p>
+			<p>Now, if you want, do all those calculations again: The result is 2,000,000 clock cycles! Now just put this into a seperate routine and call it from the main LED flashing loop:</p>
+			<table class="codebox" width="95%" border="0" cellspacing="0" cellpadding="0">
+				<tr>
+					<td width="150">.org 0x0000<br>
+						rjmp main<br>
+						&nbsp;<br>
+						main:<br>
+						ldi r16, low(RAMEND)<br>
+						out SPL, r16<br>
+						ldi r16, high(RAMEND)<br>
+						out SPH, r16<br>
+						&nbsp;<br>
+						ldi r16, 0xFF<br>
+						out DDRB, r16<br>
+						loop:<br>
+						sbi PortB, 3<br>
+						rcall delay_05<br>
+						cbi PortB, 3<br>
+						rcall delay_05<br>
+						rjmp loop<br>
+						<br>
+						delay_05:<br>
+						ldi r16, 8<br>
+						
+						outer_loop:<br>
+						
+						&nbsp;<br>
+						ldi r24, low(3037)<br>
+						ldi r25, high(3037)<br>
+						
+						delay_loop:<br>
+						
+						adiw r24, 1<br>
+						
+						brne delay_loop<br>
+						
+						&nbsp;<br>
+						
+						dec r16<br>
+						
+						brne outer_loop<br>
+						ret</td>
+					<td>; the next instruction has to be written to address 0x0000<br>
+						; the reset vector: jump to &quot;main&quot;<br>
+						;<br>
+						;<br>
+						; set up the stack<br>
+						;<br>
+						;<br>
+						;<br>
+						;<br>
+						; load register 16 with 0xFF (all bits are 1)<br>
+						; write the value in r16 (0xFF) to Data Direction Register B<br>
+						;<br>
+						; switch off the LED<br>
+						; wait for half a second<br>
+						; switch it on<br>
+						; wait for half a second<br>
+						; jump to loop<br>
+						;<br>
+						; the subroutine:<br>
+						; load r16 with 8<br>
+						
+						; outer loop label<br>
+						
+						; <br>
+						; load registers r24:r25 with 3037, our new init value<br>
+						;<br>
+						
+						; the loop label<br>
+						
+						; &quot;add immediate to word&quot;: r24:r25 are incremented<br>
+						
+						; if no overflow (&quot;branch if not equal&quot;), go back to &quot;delay_loop&quot;<br>
+						
+						;<br>
+						
+						; decrement r16<br>
+						
+						; and loop if outer loop not finished<br>
+						; return from subroutine</td>
+				</tr>
+			</table>
+			<p>For trying this in the simulator or assembling it, also add this line at the beginning of the text:</p>
+			<p>.include &quot;c:\avr_studio_working_directory\appnotes\m8def.inc&quot;</p>
+			<p>This will include the ATmega8 def file from Atmel which includes things like the PortB address definition. Without this file the assembler will spit out error warnings!</p>
+		</div>
+	</body>
+
+</html>

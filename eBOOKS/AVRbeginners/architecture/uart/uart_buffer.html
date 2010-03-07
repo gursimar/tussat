@@ -1,0 +1,282 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html>
+
+	<head>
+                <meta http-equiv="content-type" content="text/html;charset=iso-8859-1">
+		<title>Welcome To AVRbeginners.net!</title>
+		<link href="../../main.css" rel="stylesheet">
+	</head>
+
+	<body class="content_page">
+		<div class="content">
+			<div class="heading">Software UART FIFO Buffer			</div>
+			<p>The UART can only send and receive one byte at a time. I'm not talking about the simultaneous transmission and reception of data now, but the ability to receive data blocks, like strings or commands with arguments. Wouldn't it be nice to have the ability to read a whole string from UART and then process it? That's where a FIFO buffer comes in.
+			<p>A FIFO buffer for the UART can make life easier and doesn't slow things down if it's properly programmed. While <a href="../../advanced_asm/buffers.html">Advanced Assembler -&gt; Buffers and Queues</a> only gives a general overview of this topic, here's a complete and working example.</p>
+			<p>To make things faster, interrupts are used for both directions. The Rx FIFO and the Tx FIFO each need their own space in SRAM. Each need the space for received data / data to be sent, one pointer for writing (rx_in or tx_in), one pointer for consuming (rx_out or tx_out) and one byte for holding the number of bytes currently held in the FIFO (rx_n or tx_n).</p>
+			<p>When a byte is to be stored in the FIFO, the following is done:</p>
+			<p>The byte is stored at the write pointer address, which is then post-incremented. If needed, the pointer will have to roll over to the base address of the FIFO data space again. Then the number of bytes in the FIFO is incremented. As the pointers and the amount of data are stored in sram, we need to take care of re-storing them again. To make things safer, the routines have to check if storing/reading is actually possible. No data is allowed to be stored if the FIFO is full. Similarly, no data can be read if it is empty.</p>
+			<p>The FIFOs have to be initialised in order to work. The pointers have to point at the FIFOs base address (where the first byte will be stored) and rx_n or tx_n have to be set to zero before any FIFO operation is done. This can be placed at the location where the UART is initialised as well.</p>
+			<p>The initialisation looks like this:</p>
+			<table class="codebox" width="95%" border="0" cellspacing="0" cellpadding="0">
+				<tr>
+					<td width="165">.equ rx_size = 16<br>
+						.equ tx_size = 16<br>
+						<br>
+						.dseg<br>
+						rx_fifo: .byte rx_size<br>
+						rx_in: .byte 2<br>
+						rx_out: .byte 2<br>
+						rx_n: .byte 1<br>
+						<br>
+						tx_fifo: .byte tx_size<br>
+						tx_in: .byte 2<br>
+						tx_out: .byte 2<br>
+						tx_n: .byte 1<br>
+						.cseg<br>
+						<br>
+						init_FIFOs:<br>
+						ldi r16, low(rx_fifo)<br>
+						ldi r17, high(rx_fifo)<br>
+						sts rx_in, r16<br>
+						sts rx_in + 1, r17<br>
+						sts rx_out, r16<br>
+						sts rx_out + 1, r16<br>
+						clr r16<br>
+						sts rx_n, r16<br>
+						<br>
+						ldi r16, low(tx_fifo)<br>
+						ldi r17, high(tx_fifo)<br>
+						sts tx_in, r16<br>
+						sts tx_in + 1, r17<br>
+						sts tx_out, r16<br>
+						sts tx_out + 1, r16<br>
+						clr r16<br>
+						sts tx_n, r16<br>
+						ret</td>
+					<td>; first set the size of the receiver<br>
+						; and the transmitter FIFO<br>
+						;<br>
+						;<br>
+						; then reserve sram space for the rx FIFO<br>
+						; and its pointers<br>
+						;<br>
+						; and the counter<br>
+						;<br>
+						; same for the transmitter side;<br>
+						;<br>
+						;<br>
+						;<br>
+						;<br>
+						;<br>
+						; this is a routine we can call during init:<br>
+						; load address of the rx FIFO space to r16:r17<br>
+						;<br>
+						; and store it as the in and<br>
+						;<br>
+						; out pointer<br>
+						;<br>
+						; clear the counter<br>
+						; and store it as well.<br>
+						;<br>
+						; same for the transmitter<br>
+						;<br>
+						;<br>
+						;<br>
+						;<br>
+						;<br>
+						;<br>
+						;<br>
+						; return from the routine</td>
+				</tr>
+			</table>
+			<p class="content_bold">Receiver FIFO:</p>
+			<p>As the UART receiver only has one interrupt source, we don't need to choose one (this will be needed for the transmitter). The UART Rx interrupt occurs whenever a byte has been received. This byte is then added to the Rx FIFO by the ISR. Another routine is needed to consume a byte from the buffer again during normal operation, for example when we need to process some received data.</p>
+			<p>That makes 2 routines for the Rx side. First, the ISR:</p>
+			<table class="codebox" width="95%" border="0" cellspacing="0" cellpadding="0">
+				<tr>
+					<td width="165">UART_RXC:<br>
+						push r16<br>
+						<br>
+						lds r16, rx_n<br>
+						cpi r16, rx_size<br>
+						brlo rx_fifo_store<br>
+						pop r16<br>in r16, UDR<br>
+						reti<br>
+						<br>
+						rx_fifo_store:<br>
+						in r16, SREG<br>
+						push r16<br>
+						push r17<br>
+						push XL<br>
+						push XH<br>
+						<br>
+						in r16, UDR<br>
+						lds XL, rx_in<br>
+						lds XH, rx_in + 1<br>
+						st X+, r16<br>
+						<br>
+						ldi r16, low(rx_fifo + rx_size)<br>
+						ldi r17, high(rx_fifo + rx_size)<br>
+						cp XL, r16<br>
+						cpc XH, r17<br>
+						breq rx_fifo_w_rollover<br>
+						<br>
+						rx_fifo_w_store:<br>
+						sts rx_in, XL<br>
+						sts rx_in + 1, XH<br>
+						<br>
+						lds r16, rx_n<br>
+						inc r16<br>
+						sts rx_n, r16<br>
+						<br>
+						pop XH<br>
+						pop XL<br>
+						pop r17<br>
+						pop r16<br>
+						out SREG, r16<br>
+						pop r16<br>
+						reti<br>
+						<br>
+						rx_fifo_w_rollover:<br>
+						ldi XL, low(rx_fifo)<br>
+						ldi XH, high(rx_fifo)<br>
+						rjmp rx_fifo_w_store</td>
+					<td>; UART Rx Complete ISR<br>
+						; save r16<br>
+						;<br>
+						; get counter<br>
+						; if FIFO not full,<br>
+						; store data<br>
+						; else restore r16<br>
+						; clear interrupt by reading UDR<br>
+						;<br>
+						;<br>
+						;<br>
+						
+						; SREG<br>
+						;<br>
+						;r17<br>
+						; and a pointer<br>
+						;<br>
+						;<br>
+						; get data<br>
+						; set up pointer<br>
+						;<br>
+						; and store in FIFO<br>
+						;<br>
+						; load r16:r17 with first invalid address after FIFO space<br>
+						;<br>
+						; do a 16-bit compare:<br>
+						; X = r16:r17?<br>
+						; if yes, roll over to beginning of FIFO space<br>
+						;<br>
+						; store pointer rx_in<br>
+						;<br>
+						;<br>
+						;<br>
+						; get counter<br>
+						; increment<br>
+						; store counter again<br>
+						;<br>
+						; restore registers we used<br>
+						;<br>
+						;<br>
+						;<br>
+						;<br>
+						;<br>
+						; return<br>
+						;<br>
+						; if X stored the data at the last fifo memory location,<br>
+						; roll over to the first address again<br>
+						;<br>
+						; and proceed as usual</td>
+				</tr>
+			</table>
+			<p>Reading from the buffer requires another routine which uses the rx_out pointer to get data from the buffer. It also doesn't need to save stuff, as it's not an ISR and will be executed at a known time. The routine shall return the data from the buffer in r18.</p>
+			<table class="codebox" width="95%" border="0" cellspacing="0" cellpadding="0">
+				<tr>
+					<td width="165">UART_read_fifo:<br>
+						lds r16, rx_n<br>
+						cpi r16, 1<br>
+						brsh rx_fifo_read<br>
+						ret<br>
+						<br>
+						rx_fifo_read:<br>
+						lds XL, rx_out<br>
+						lds XH, rx_out + 1<br>
+						ld r18, X+<br>
+						<br>
+						ldi r16, low(rx_fifo + rx_size)<br>
+						ldi r17, high(rx_fifo + rx_size)<br>
+						cp r16, XL<br>
+						cpc r17, XH<br>
+						breq rx_fifo_r_rollover<br>
+						<br>
+						rx_fifo_w_store:<br>
+						sts rx_out, XL<br>
+						sts rx_out + 1, XH<br>
+						<br>
+						lds r16, rx_n<br>
+						dec r16<br>
+						sts rx_n, r16<br>
+						ret<br>
+						<br>
+						rx_fifo_r_rollover:<br>
+						ldi XL, low(rx_fifo)<br>
+						ldi XH, high(rx_fifo)<br>
+						rjmp rx_fifo_r_store</td>
+					<td>; call this from within the application to get UART Rx data to r18<br>
+						; load number of received bytes<br>
+						; if one byte or more available,<br>
+						; branch to rx_fifo_read<br>
+						;else return<br>
+						;<br>
+						; data is available:<br>
+						; Get the Rx FIFO consume pointer<br>
+						;<br>
+						; and load data to r18<br>
+						;<br>
+						; check if end of mem space reached:<br>
+						; r16:r17 = first invalid address above Rx FIFO memory<br>
+						; 16-bit compare: X = invalid address above Rx FIFO memory?<br>
+						;<br>
+						; yes, roll over to base address<br>
+						;<br>
+						; store the new pointer<br>
+						;<br>
+						;<br>
+						;<br>
+						; load counter<br>
+						; decrease it<br>
+						; and store it again<br>
+						; return to application<br>
+						;<br>
+						; roll over to base address:<br>
+						; load base address to X<br>
+						;<br>
+						; and store the pointer</td>
+				</tr>
+			</table>
+		</div>
+		<div class="content_bold">
+			<div class="content">
+				<p>Transmitter FIFO</p>
+			</div>
+		</div>
+		<div class="content">
+			<p>The transmitter FIFO for the UART works just like the receiving one, with a small difference: The ISR routine in this case reads from the FIFO and writes the data to UDR, while the write routine takes the data from a specified location or register (let's take r18) and writes it to the FIFO.</p>
+			<p>So which interrupt do we choose? The UART offers the UART Data Register Empty (UDRE) interrupt and the UART Transmit Complete (TXC) interrupt. The transmit complete interrupt only occurs when a transmission is finished, so we can't use it for our purpose for two reasons:</p>
+			<p>- The Transmission finishes and then the ISR is called. So what? Maximum speed can't be achieved when using this interrupt. By using the UDRE int, the next byte to be transmitted is already in UDR when the previous transmission finishes and can be tranmitted by the hardware. If the interrupt occurs when the previous transmission finishes, the next byte has to be taken from the buffer memory space first and time is lost between two transmissions.</p>
+			<p>- If the UDRE interrupt is used and no data is available (last transmission was the last byte in the buffer) we can just disable the UDRE int re-enable it as soon as new data is written to the transmit FIFO. By re-enabling it, the ISR will be called because UDR is emtpy and transmission will start again. The TXC int will not provide this automatical transmission start. The code for the transmit FIFO can be cut 'n pasted from the RX FIFO with the small changes described above. This will be no problem if you understood the RX FIFO.</p>
+			<p>The following code does the following (it's written for a 2313):</p>
+			<p>Stack and UART setup (38400 baud @ 7.3728 MHz)</p>
+			<p>FIFO setup</p>
+			<p>Receive data via Rx FIFO and loop it back via Tx FIFO</p>
+			<p>If you have an STK 500 you only need to plug in a 2313 and a 7.3728 MHz crystal, connect PD0 to the RS232 spare RxD pin and PD1 to the TxD pin. Don't forget power and the connection to your PC via a COM port...</p>
+			<p>Also change the first line (include directive for 2313def.inc) to suit your system.</p>
+			<p><a href="uart_buffer.asm">Here's the asm file</a></p>
+		</div>
+	</body>
+
+</html>

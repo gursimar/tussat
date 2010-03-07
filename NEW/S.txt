@@ -1,0 +1,6 @@
+Press [ F11 ]. The Temp variable is decremented (0xFF - 1 = 0xFE). In addition
+the PINB register changes from 0x00 to 0xFF! Why? To find out why this happens
+you have to look at the PORT sections of the datasheet. The explanation is that
+the PORTB is first latched out onto the pin, then latched back to the PIN register
+giving you a 1 clock cycle delay. As you can see, the simulator behaves like the
+actual part! The next instruction is a relative jump back to the Loop label.

@@ -1,0 +1,184 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+	<head>
+		<meta http-equiv="content-type" content="text/html;charset=iso-8859-1">
+		<title>AVR Fuses</title>
+		<link href="../../main.css" rel="stylesheet" media="screen">
+	</head>
+
+	<body class="content_page">
+	<div class="heading">Fuses</div>
+
+	<div class="content">
+		<p>Certain features of AVRs are controlled by
+fuse bits. For example, settings like clock options or the brown-out
+reset circuit are configured with these bits. These configurations
+differ from the other AVR peripherals (like SPI, ADC, etc) because you
+set the fuse bits at program time (with a programmer) instead of
+writing to some I/O memory space register at run time. So, for
+instance, to set the AVR to use an external oscillator, you must set
+this at the moment you program it. There is no way to change the clock
+behavior through the program code. If you change your mind, you must
+reprogram the AVR.<br>
+</p><p>The details of how to program
+the fuse bits in your AVR depend on the particular programmer you are
+using. Consult the manual about the details. For instance, if you are
+using an STK500 with AVR Studio, the STK500 window has a tab labeled
+Fuses, where you set the different bits and where you can program,
+verify or read the fuse bits.</p>
+<p>A little oddity is
+that to program a feature, you must write a "0" to the particular bit.
+It's sort of a negative logic. If you are programming the fuse bits with AVR
+studio, you don't have to worry about this issue because the value of
+the fuse bit is managed by the programmer.</p>
+
+<p>Fuse bits live in a different memory space than
+the program memory. This means that the fuse bits are not affected by a
+program memory erasure. This has the advantage that once you program
+the correct fuse bits in your AVR, you can forget about them and don't
+need to reprogram them each time you alter the program memory.</p>
+
+<p>Fuse bits differ greatly between different AVR
+variants. Some AVRs, like the AT90S8535, have only two fuse bits, while
+others, like Atmega128, have 18. I will explain the AT90S4433's fuse
+bits.</p>
+
+<p>The AT90S4433 AVR has 6 fuse bits. One is related to serial programming (SPIEN), two are related to the Brown-Out Reset
+Circuit operation (BODEN and BODLEVEL), and three are for configuring
+the clock options (CKSEL2..0).</p>
+
+<p>AVRs have two programming modes, parallel and serial. (See the
+Memory Programming section of the datasheet for details). When the
+SPIEN fuse bit is programmed, serial programming and data downloading
+is enabled. The default value for this fuse is programmed. You can
+change this fuse only if you are programming the AVR in parallel mode.</p>
+
+<p>The Brown-Out Detector circuit monitors the Vcc
+voltage. When Vcc drops below the trigger level, this
+circuit resets the AVR. When Vcc is above the trigger level, the reset
+signal is released. If you want to enable the Brown-Out Detector
+circuit, you must program the BODEN fuse. The BODLEVEL fuse sets the trigger
+level. The following table summarizes this:<br>
+<br>
+</p>
+
+
+<table cellpadding="1" cellspacing="0" border="1">
+  <tbody>
+    <tr>
+      <th>Fuse
+      </th>
+      <th>Programmed
+      </th>
+      <th>Unprogrammed
+      </th>
+      <th>Default
+      </th>
+    </tr>
+    <tr>
+      <td style="border-width: 1px;">BODEN
+      </td>
+      <td style="border-width: 1px;">Brown-Out Detector circuit enabled
+      </td>
+      <td style="border-width: 1px;">Brown-Out Detector circuit disabled
+      </td>
+      <td style="border-width: 1px;">Unprogrammed
+      </td>
+    </tr>
+    <tr>
+      <td style="border-width: 1px;">BODLEVEL
+      </td>
+      <td style="border-width: 1px;">Brown-Out reset threshold voltage 4.0V
+      </td>
+      <td style="border-width: 1px;">Brown-Out reset threshold voltage 2.7V
+      </td>
+      <td style="border-width: 1px;">Unprogrammed
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<p><br>
+There are several options for the AVR clock which differ in the
+start-up time after a reset. You need to adjust the start-up time
+according to the clock source you are using. See the datasheet and
+the clock section for more details. The following table summarizes the
+setting of CKSEL fuses:<br>
+<br>
+</p>
+
+<table cellpadding="4" cellspacing="0" border="1">
+  <tbody>
+    <tr>
+      <th style="border-width: 1px;">CKSEL[2..0]
+      </th>
+      <th style="border-width: 1px;">Recommended Usage
+      </th>
+    </tr>
+    <tr>
+      <td style="border-width: 1px;">000
+      </td>
+      <td style="border-width: 1px;">External Clock, slowly rising power
+      </td>
+    </tr>
+    <tr>
+      <td style="border-width: 1px;">001
+      </td>
+      <td style="border-width: 1px;">External Clock, BOD enabled
+      </td>
+    </tr>
+    <tr>
+      <td style="border-width: 1px;">010
+      </td>
+      <td style="border-width: 1px;">Crystal Oscillator
+      </td>
+    </tr>
+    <tr>
+      <td style="border-width: 1px;">011
+      </td>
+      <td style="border-width: 1px;">Crystal Oscillator, fast rising power
+      </td>
+    </tr>
+    <tr>
+      <td style="border-width: 1px;">100
+      </td>
+      <td style="border-width: 1px;">Crystal Oscillator, BOD enabled
+      </td>
+    </tr>
+    <tr>
+      <td style="border-width: 1px;">101
+      </td>
+      <td style="border-width: 1px;">Ceramic Resonator
+      </td>
+    </tr>
+    <tr>
+      <td style="border-width: 1px;">110
+      </td>
+      <td style="border-width: 1px;">Ceramic Resonator, fast rising power
+      </td>
+    </tr>
+    <tr>
+      <td style="border-width: 1px;">111
+      </td>
+      <td style="border-width: 1px;">Ceramic Resonator, BOD enabled
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="heading_small"><br>
+<br>
+Common Pitfall</div>
+
+<p>A common pitfall with fuses is to forget about them, so you end up
+working with the default settings. If you are lucky, these are the
+settings you need, but if you are not, strange things will happen. For
+instance, many AVRs have an internal oscillator, which is enabled by
+default. If you are using the UART based on the frequency of an
+external oscillator, your serial link won't work. Or maybe your
+Atmega128 is not working as expected, because you forget to unprogram
+the Atmega103 compatibility mode fuse, which is programmed by default.
+So, here is my advice: Carefully check the fuse bits before using your
+AVR!</p>
+	</div>
+</body></html>

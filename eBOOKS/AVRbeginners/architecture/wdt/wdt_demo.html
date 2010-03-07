@@ -1,0 +1,87 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html>
+
+	<head>
+                <meta http-equiv="content-type" content="text/html;charset=iso-8859-1">
+		<title>Welcome To AVRbeginners.net!</title>
+		<link href="../../main.css" rel="stylesheet">
+	</head>
+
+	<body class="content_page">
+		<div class="content">
+			<div class="heading">Watch Dog Timer Demo Code</div>
+			<p>The WDT demo code shows how the watch dog timer periodically generates a reset if it's not reset by the wdr instruction. It uses the delay loop from the <a href="../../getting_started/starter_2.html">Getting Started</a> code example. This delay loop generates a delay of 0.5 seconds at 4 MHz.</p>
+			<p>An LED is connected to PortB.3 (active low - anode to Vcc, cathode to the pin via a current limiting resistor). This example works with the mega8 and should be adaptable to fit other AVRs without problems:</p>
+			<table class="codebox" width="95%" border="0" cellspacing="0" cellpadding="0">
+				<tr>
+					<td width="150">.org 0x0000<br>
+						rjmp reset<br>
+						<br>
+						reset:<br>
+						ldi r16, low(RAMEND)<br>
+						out SPL, r16<br>
+						ldi r16, high (RAMEND)<br>
+						out SPH, r16<br>
+						<br>
+						sbi DDRB, 3<br>
+						<br>
+						ldi r16, 0b00001110<br>
+						out WDTCR, r16<br>
+						<br>
+						rcall delay_05<br>
+						
+						sbi PortB, 3<br>
+						
+						loop:<br>
+						rjmp loop<br>
+						<br>
+						delay_05:<br>
+						ldi r16, 8<br>
+						outer_loop:<br>
+						ldi r24, low(3037)<br>
+						ldi r25, high(3037)<br>
+						delay_loop:<br>
+						adiw r24, 1<br>
+						brne delay_loop<br>
+						dec r16<br>
+						brne outer_loop<br>
+						ret</td>
+					<td>; reset interrupt vector:<br>
+						; jump to &quot;reset&quot;<br>
+						;<br>
+						; our code:<br>
+						; init Stack Pointer to RAMEND<br>
+						;<br>
+						;<br>
+						;<br>
+						;<br>
+						; set PortB.3 Direction bit to 1<br>
+						;<br>
+						; configure Watch Dog prescaler for 1.0 seconds at 5V, enable WDT<br>
+						;<br>
+						;<br>
+						; delay for 0.5 seconds<br>
+						; turn off the LED<br>
+						; loop forever (until the WDT resets the AVR)<br>
+						;<br>
+						;<br>
+						;<br>
+						;<br>
+						;<br>
+						;<br>
+						;<br>
+						;<br>
+						;<br>
+						;<br>
+						;<br>
+						;<br>
+						;<br>
+					</td>
+				</tr>
+			</table>
+			<p>What the code will do is: Turn on the LED, wait for 0.5 seconds and turn it off again. As the Watch Dog is enabled to generate a reset after 1 second, the reset will occur 0.5 seconds after the LED has been turned off. The result is an LED flashing at 1 Hz with a duty cycle of 50%.</p>
+		</div>
+	</body>
+
+</html>

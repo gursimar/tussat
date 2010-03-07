@@ -1,0 +1,81 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html>
+
+	<head>
+		<meta http-equiv="content-type" content="text/html;charset=iso-8859-1">
+		<title>SRAM Operations</title>
+                <link rel="stylesheet" href="../../main.css">
+	</head>
+
+	<body class="content_page">
+		<div class="heading">SRAM And Flash Operations		</div>
+
+		<div class="content">
+			<p>The SRAM contents can't be changed as easy as the register contents, but there are a few powerful instructions. You can either 
+			use direct addresses (like 0x60 or a label which has been assigned to an address) or index registers to have indirect 
+			addressing.</p>
+
+			<p>Direct Addressing:</p>
+
+			<p>lds and sts load from and store to a direct address.</p>
+
+			<p>lds r16, 0x60 will load register 16 with the data stored at address 0x60 in SRAM.</p>
+
+			<p>sts 0x60, r16 will store the register 16 data at SRAM address 0x60.</p>
+
+			<p>Indirect Addressing:</p>
+
+			<p>I'll first explain the AVR's index register pairs. The index register pairs are registers 26 to 31, with register pair 26:27 
+			named X, 28:29 named Y and 30:31 named Z. These can be used as pointers to SRAM. The instructions for index registers not only 
+			support loading/storing, but also act on the index register pair itself if needed.</p>
+
+			<p>ld r16, X loads register 16 with data pointed at by X (r26:r27).</p>
+
+			<p>ld r16, X+ loads register16 with data pointed at by X and also increments the register pair afterwards. This is 
+			handy for processing strings or arrays of bytes. The index register pair will then point at the next address (the next character of 
+			the string).</p>
+
+			<p>ld r16, -X decrements the register pair before loading r16 with data pointed to by X. If the register pair pointed 
+			at 0x61, r16 will have the value of address 0x60. X will point at 0x60 after the instruction is completed.</p>
+
+			<p>Y and Z support these instruction as well, but have more features. Y and Z can be post-incremented by a constant value if needed 
+			(does not work for pre-decrementing). If an array consists of 3-byte values, Y can be used to handle the first byte of consectutive 
+			array elements in the following way:</p>
+
+			<p>ldd r16, Y+3 If Y pointed at array[0].byte0, it will load that value to r16 and then point at array[1].byte0. Do not 
+			try ld for this, it causes the assembler to give an error message (a good source for errors which is not easy to find 
+			sometimes...)</p>
+
+			<p>The Z register has even more features: It can be used to work with Flash contents.</p>
+
+			<p>lpm loads register 0 with the Flash byte Z points at. As Flash is arranged (and addressed) in words (byte pairs) you 
+			have to multiply constant addresses by 2 to get a byte address.</p>
+
+			<div class="codebox">
+				ldi ZL, low(2*label)<br>
+				ldi ZH, high(2*label)<br>&nbsp;<br>
+				label:<br>
+				.db &quot;Hello world&quot;, 0<br>
+				lpm
+			</div>
+
+			<p>If the address is not multiplied by two and label is at byte address 0x60 (word address 0x30), Z will point at the 
+			code stored there. I hope this clarified the addressing problem. Other versions are</p>
+
+			<div class="codebox">
+				lpm r16, Z<br>
+				lpm r16, Z+
+			</div>
+
+			<p>which work like ld and st, but in Flash. The ATmega series also supports spm (store 
+			program memory). This is an advanced feature and not as easy to use as lpm.</p>
+
+			<p>push and pop work on the Stack Pointer. The Stack points at SRAM as well and is also modified by 
+			function call and return instrutions (for a description of the stack pointer (SP) see the AVR Archtecture section). 
+			push stores a register on the stack and pop loads a value from the stack into a register. This feature is 
+			usually used in ISRs (Interrupt Service Routines) to preserve registers also used in normal code.</p>
+		</div>
+	</body>
+
+</html>

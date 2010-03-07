@@ -1,0 +1,508 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html>
+
+	<head>
+                <meta http-equiv="content-type" content="text/html;charset=iso-8859-1">
+		<title>Welcome To AVRbeginners.net!</title>
+		<link href="../../main.css" rel="stylesheet">
+	</head>
+
+	<body class="content_page">
+		<div class="heading">
+			<div class="content">The Analog to Digital Converter (ADC)</div>
+		</div>
+		<div class="content" align="center">
+			[How it works] [<a href="#modes">Modes</a>] [<a href="#registers">Registers</a>] [<a href="#hw_issues">Hardware Issues</a>]</div>
+		<div class="content">
+			<p class="heading_small">How it works</p>
+			<p>The Analog to Digital Converter (ADC) is used to convert an analog voltage (a voltage that vary continuously within a known range) to a 10-bit digital value. For instance, it can be used to log the output of a sensor (temperature, pressure, etc) at regular intervals, or to take some action in function of the measured variable value. There are several types of ADCs. The one used by AVR is of the &quot;succesive approximation ADC&quot; kind. The following is a simplified scheme of the ADC.</p>
+			<p><img src="../img/adc.gif" alt="" border="0"><br>
+			</p>
+			<p>At the input of the ADC itself is an analog multiplexer, which is used to select between eight analog inputs. That means that you can convert up to eight signals (not at the same time of course). At the end of the conversion, the correponding value is transferred to the registers ADCH and ADCL. As the AVR's registers are 8-bit wide, the 10-bit value can only be held in two registers.</p>
+			<p>The analog voltage at the input of the ADC must be greater than 0V, and smaller than the ADC's reference voltage AREF. The reference voltage is an external voltage you must supply at the Aref pin of the chip. The value the voltage at the input is converted to can be calculated with the following formula:</p>
+			<p>ADC conversion value = round( (vin/vref)*1023)</p>
+			<p>Since it is a 10-bit ADC, you have 1024(1024=2^10) possible output values (from 0 to 1023). So, if vin is equal to 0V, the result of the conversion will be 0, if vin is equal to vref, it will be 1023, and if vin is equal to vref/2 it will be 512. As you can see, since you are converting a continuous variable (with infinite possible values) to a variable with a finite number of possible values (elegantly called a &quot;discrete variable&quot;), the ADC conversion produces an error, known as &quot;quantization error&quot;.</p>
+			<p class="heading_small">Modes of Operation<a name="modes"></a></p>
+			<p>The ADC has two fundamental operation modes: Single Conversion and Free Running. In Single Conversion mode, you have to initiate each conversion. When it is done, the result is placed in the ADC Data register pair and no new conversion is started. In Free Runing mode, you start the conversion only once, and then, the ADC automatically will start the following conversion as soon as the previous one is finished.</p>
+			<p>The analog to digital conversion is not instantaneous, it takes some time. This time depends on the clock signal used by the ADC. The conversion time is proportional to the frequency of the ADC clock signal, which must be between 50kHz and 200kHz.</p>
+			<p>If you can live with less than 10-bit resolution, you can reduce the conversion time by increasing the ADC clock frequency. The ADC module contains a prescaler, which divides the system clock to an acceptable ADC clock frequency. You configure the division factor of the prescaler using the ADPS bits (see below for the details).</p>
+			<p>To know the time that a conversion takes, just need to divide the number of ADC clock cycles needed for conversion by the frequency of the ADC clock. Normaly, a conversion takes 13 ADC clock cycles. The first conversion after the ADC is switched on (by setting the ADEN bit) takes 25 ADC clock cycles. This first conversion is called an &quot;Extended Conversion&quot;. For instance, if you are using a 200kHz ADC clock signal, a normal conversion will take 65 microsenconds (13/200e3=65e-6), and an extended conversion will take 125 microseconds (25/200e3=125e-6).</p>
+			<p class="heading_small">Registers<a name="registers"></a></p>
+			<p>[ADMUX] [<a href="#adcsr">ADCSR</a>] [<a href="#adc_data">ADCL/ADCH</a>]</p>
+			<p>There are four registers related to the operation of the ADC : ADC Multiplexer Select Register (ADMUX), ADC Control and Status Register (ADCSR), ADC Data Register Low (ADCL) and ADC Data Register High (ADCH). Let's discuss them in detail.</p>
+			<p><b>ADMUX</b></p>
+			<table border="0" cellspacing="0" cellpadding="0">
+				<tr>
+					<th width="40">Bit 7</th>
+					<th width="40">Bit 6</th>
+					<th width="40">Bit 5</th>
+					<th width="40">Bit 4</th>
+					<th width="40">Bit 3</th>
+					<th width="40">Bit 2</th>
+					<th width="40">Bit 1</th>
+					<th width="40">Bit 0</th>
+				</tr>
+				<tr>
+					<td width="40">
+						<div align="center">
+							---</div>
+					</td>
+					<td width="40">
+						<div align="center">
+							---</div>
+					</td>
+					<td width="40">
+						<div align="center">
+							---</div>
+					</td>
+					<td width="40">
+						<div align="center">
+							---</div>
+					</td>
+					<td width="40">
+						<div align="center">
+							---</div>
+					</td>
+					<td width="40">
+						<div align="center">
+							MUX2</div>
+					</td>
+					<td width="40">
+						<div align="center">
+							MUX1</div>
+					</td>
+					<td width="40">
+						<div align="center">
+							MUX0</div>
+					</td>
+				</tr>
+			</table>
+			<p></p>
+			<p>This register is used to select which of the 8 channel (between ADC0 to ADC7) will be the input to the ADC. Since there are 8 possible inputs, only the 3 least significant bits of this register are used. The following table describe the setting of ADMUX.</p>
+			<table border="0" cellspacing="0" cellpadding="0">
+				<tr>
+					<th width="40">MUX2</th>
+					<th width="40">MUX1</th>
+					<th width="40">MUX0</th>
+					<th width="100">Selected Input</th>
+				</tr>
+				<tr>
+					<td width="40">
+						<div align="center">
+							0</div>
+					</td>
+					<td width="40">
+						<div align="center">
+							0</div>
+					</td>
+					<td width="40">
+						<div align="center">
+							0</div>
+					</td>
+					<td width="100">
+						<div align="center">
+							ADC0</div>
+					</td>
+				</tr>
+				<tr>
+					<td width="40">
+						<div align="center">
+							0</div>
+					</td>
+					<td width="40">
+						<div align="center">
+							0</div>
+					</td>
+					<td width="40">
+						<div align="center">
+							1</div>
+					</td>
+					<td width="100">
+						<div align="center">
+							ADC1</div>
+					</td>
+				</tr>
+				<tr>
+					<td width="40">
+						<div align="center">
+							0</div>
+					</td>
+					<td width="40">
+						<div align="center">
+							1</div>
+					</td>
+					<td width="40">
+						<div align="center">
+							0</div>
+					</td>
+					<td width="100">
+						<div align="center">
+							ADC2</div>
+					</td>
+				</tr>
+				<tr>
+					<td width="40">
+						<div align="center">
+							0</div>
+					</td>
+					<td width="40">
+						<div align="center">
+							1</div>
+					</td>
+					<td width="40">
+						<div align="center">
+							1</div>
+					</td>
+					<td width="100">
+						<div align="center">
+							ADC3</div>
+					</td>
+				</tr>
+				<tr>
+					<td width="40">
+						<div align="center">
+							1</div>
+					</td>
+					<td width="40">
+						<div align="center">
+							0</div>
+					</td>
+					<td width="40">
+						<div align="center">
+							0</div>
+					</td>
+					<td width="100">
+						<div align="center">
+							ADC4</div>
+					</td>
+				</tr>
+				<tr>
+					<td width="40">
+						<div align="center">
+							1</div>
+					</td>
+					<td width="40">
+						<div align="center">
+							0</div>
+					</td>
+					<td width="40">
+						<div align="center">
+							1</div>
+					</td>
+					<td width="100">
+						<div align="center">
+							ADC5</div>
+					</td>
+				</tr>
+				<tr>
+					<td width="40">
+						<div align="center">
+							1</div>
+					</td>
+					<td width="40">
+						<div align="center">
+							1</div>
+					</td>
+					<td width="40">
+						<div align="center">
+							0</div>
+					</td>
+					<td width="100">
+						<div align="center">
+							ADC6</div>
+					</td>
+				</tr>
+				<tr>
+					<td width="40">
+						<div align="center">
+							1</div>
+					</td>
+					<td width="40">
+						<div align="center">
+							1</div>
+					</td>
+					<td width="40">
+						<div align="center">
+							1</div>
+					</td>
+					<td width="100">
+						<div align="center">
+							ADC7</div>
+					</td>
+				</tr>
+			</table>
+			<p>You can see that it's possible to load a register with the desired input number and write it to ADMUX directly, as the register does not contain any other flags or setting bits.<br>If these bits are changed during a conversion, the change will have no effect until this conversion is complete. This is a problem when multiple channels are scanned:</p>
+			<p><img src="../img/adc_mux.gif" alt="" height="134" width="593" border="0"></p>
+			<p>If you can make sure that the ISR always changes the ADMUX value to the next channel (or some other value that can be reconstructed by the next ISR) the value in the ADC data register pair is always the conversion result from the last ADMUX change. When the ISR changes ADMUX from 2 to 3, the value in the data registers is from channel 2.</p>
+			<p><b>ADCSR</b><a name="adcsr"></a></p>
+			<table border="0" cellspacing="0" cellpadding="0">
+				<tr>
+					<th width="50">Bit 7</th>
+					<th width="50">Bit 6</th>
+					<th width="50">Bit 5</th>
+					<th width="50">Bit 4</th>
+					<th width="50">Bit 3</th>
+					<th width="50">Bit 2</th>
+					<th width="50">Bit 1</th>
+					<th width="50">Bit 0</th>
+				</tr>
+				<tr>
+					<td width="50">
+						<div align="center">
+							ADEN</div>
+					</td>
+					<td width="50">
+						<div align="center">
+							ADSC</div>
+					</td>
+					<td width="50">
+						<div align="center">
+							ADFR</div>
+					</td>
+					<td width="50">
+						<div align="center">
+							ADIF</div>
+					</td>
+					<td width="50">
+						<div align="center">
+							ADIE</div>
+					</td>
+					<td width="50">
+						<div align="center">
+							ADPS2</div>
+					</td>
+					<td width="50">
+						<div align="center">
+							ADPS1</div>
+					</td>
+					<td width="50">
+						<div align="center">
+							ADPS0</div>
+					</td>
+				</tr>
+			</table>
+			<p>ADEN (ADC Enable) bit : Setting this bit enables the ADC. By clearing this bit to zero, the ADC is turned off. Turning the ADC off while a conversion is in progress will terminate this conversion.</p>
+			<p>ADSC (ADC Start Conversion) bit : In Free Running Mode, you must set this bit to start the first conversion. The following conversions will be started automatically. In Single Conversion Mode, you must set it to start each conversion. This bit will be cleared by hardware when a normal conversion is completed. Remember that the first conversion after the ADC is enabled is an extended conversion. An extended conversion will not clear this bit after completion.</p>
+			<p>ADFR (ADC Free Running Select) bit : If you want to use the Free Running Mode, you must set this bit.</p>
+			<p>ADIF (ADC Interrupt Flag) bit : This bit is set when an ADC conversion is completed. If the ADIE bit is set and global interrupts are enabled, the ADC Conversion Complete interrupt is executed. ADIF is cleared by hardware when executing the corresponding interrupt handling vector. Alternatively, ADIF is cleared by writing a logical 1 (!) to the flag. This has a nasty side effect : if you modify some other bit of ADCSR using the SBI or the CBI instruction, ADIF will be cleared if it has become set before the operation.</p>
+			<p>ADIE (ADC Interrupt Enable) bit : When the ADIE bit is set and global interrupts are enabled, the ADC interrupt is activated and the ADC interrupt routine is called when a conversion is completed. When cleared, the interrupt is disabled.</p>
+			<p>ADPS (ADC Prescaler Select ) bits : These bits determine the division factor between the AVR clock frequency and the ADC clock frequency. The following table describe the setting of these bits :</p>
+			<table border="0" cellspacing="0" cellpadding="0">
+				<tr>
+					<th width="50">ADPS2</th>
+					<th width="50">ADPS1</th>
+					<th width="50">ADPS0</th>
+					<th width="100">Division Factor</th>
+				</tr>
+				<tr>
+					<td width="50">
+						<div align="center">
+							0</div>
+					</td>
+					<td width="50">
+						<div align="center">
+							0</div>
+					</td>
+					<td width="50">
+						<div align="center">
+							0</div>
+					</td>
+					<td width="100">
+						<div align="center">
+							2</div>
+					</td>
+				</tr>
+				<tr>
+					<td width="50">
+						<div align="center">
+							0</div>
+					</td>
+					<td width="50">
+						<div align="center">
+							0</div>
+					</td>
+					<td width="50">
+						<div align="center">
+							1</div>
+					</td>
+					<td width="100">
+						<div align="center">
+							2</div>
+					</td>
+				</tr>
+				<tr>
+					<td width="50">
+						<div align="center">
+							0</div>
+					</td>
+					<td width="50">
+						<div align="center">
+							1</div>
+					</td>
+					<td width="50">
+						<div align="center">
+							0</div>
+					</td>
+					<td width="100">
+						<div align="center">
+							4</div>
+					</td>
+				</tr>
+				<tr>
+					<td width="50">
+						<div align="center">
+							0</div>
+					</td>
+					<td width="50">
+						<div align="center">
+							1</div>
+					</td>
+					<td width="50">
+						<div align="center">
+							1</div>
+					</td>
+					<td width="100">
+						<div align="center">
+							8</div>
+					</td>
+				</tr>
+				<tr>
+					<td width="50">
+						<div align="center">
+							1</div>
+					</td>
+					<td width="50">
+						<div align="center">
+							0</div>
+					</td>
+					<td width="50">
+						<div align="center">
+							0</div>
+					</td>
+					<td width="100">
+						<div align="center">
+							16</div>
+					</td>
+				</tr>
+				<tr>
+					<td width="50">
+						<div align="center">
+							1</div>
+					</td>
+					<td width="50">
+						<div align="center">
+							0</div>
+					</td>
+					<td width="50">
+						<div align="center">
+							1</div>
+					</td>
+					<td width="100">
+						<div align="center">
+							32</div>
+					</td>
+				</tr>
+				<tr>
+					<td width="50">
+						<div align="center">
+							1</div>
+					</td>
+					<td width="50">
+						<div align="center">
+							1</div>
+					</td>
+					<td width="50">
+						<div align="center">
+							0</div>
+					</td>
+					<td width="100">
+						<div align="center">
+							64</div>
+					</td>
+				</tr>
+				<tr>
+					<td width="50">
+						<div align="center">
+							1</div>
+					</td>
+					<td width="50">
+						<div align="center">
+							1</div>
+					</td>
+					<td width="50">
+						<div align="center">
+							1</div>
+					</td>
+					<td width="100">
+						<div align="center">
+							128</div>
+					</td>
+				</tr>
+			</table>
+			<p><b>ADCL and ADCH</b><a name="adc_data"></a></p>
+			<p>These registers hold the result of the last ADC conversion. ADCH holds the two most significant bits, and ADCL holds the remaining bits.</p>
+			<p>When ADCL is read, the ADC Data Register is not updated until ADCH is read. Consequently,it is essential that both registers are read and that ADCL is read before ADCH.</p>
+			<p>Here is a code snippet to make a conversion of ADC3. The result is placed in r16 and r17. The AVR is running at 4MHz:</p>
+			<table class="codebox" width="541" border="0" cellspacing="0" cellpadding="0">
+				<tr>
+					<td width="203">
+						<div class="content">
+							<p>ADC_Init:<br>
+								&nbsp;<br>
+								ldi r16,3<br>
+								out ADMUX, r16<br>
+								ldi r16, 10000101b<br>
+								out  ADCSR,r16<br>
+								sbi ADCSR,ADSC<br>
+								&nbsp;<br>
+								Wait:<br>
+								sbis ADCSR,ADIF<br>
+								rjmp Wait:<br>
+								&nbsp;<br>
+								in r16,ADCL<br>
+								in r17,ADCH</p>
+						</div>
+					</td>
+					<td>&nbsp;<br>
+						&nbsp;<br> ; Select ADC3<br>
+						; Enable ADC, Single Mode conversion<br>
+						; ADC Interrupt disable, Prescaler division factor = 32<br>; this gives an ADC clock frequency of 4e6/32=125kHz.<br>
+						; Start conversion<br>
+						&nbsp;<br>
+						; Wait until the conversion is completed<br>
+						&nbsp;<br>
+						&nbsp;<br>
+						&nbsp;<br>
+						&nbsp;<br>
+						; Place ADCH in r16:r17.<br>
+					</td>
+				</tr>
+			</table>
+			<p>The ATmega series of AVRs have a more complex ADC. They are similar to the ADC explained here, but have some additional features like (see the datasheet for the details) :</p>
+			<ul>
+				<li>7 Differential Input Channels
+				<li>2 Differential Input Channels with Optional Gain of 10x and 200x(1)
+				<li>Optional Left adjustment for ADC Result Readout
+				<li>Selectable 2.56V ADC Reference Voltage
+				<li>ADC Start Conversion by Auto Triggering on Interrupt Sources
+			</ul>
+			<p class="heading_small">Hardware issues<a name="hw_issues"></a></p>
+			<p>Due to the analog nature of the ADC, there are some additional issues you must consider. First of all, the ADC has two separate analog supply voltage pins, AVCC and AGND. If your application doesn't require great accuracy, you can keep your life simple and just connect directly AVCC to VCC, and AGND to GND. However, if you want to get the best performance of the ADC, you must pay special attention to the ADC power supply and PCB routing. See the &quot;ADC Noise Canceling Techniques&quot; section of the datasheet to get the details. Beside that, the CPU core of the AVR also induce some noise during the conversion. For this reason, the ADC features a noise canceler that enables conversion during Idle Mode. Please see the datasheet to get the details.</p>
+			<p>CAUTION :</p>
+			<p>You MUST respect the voltage range allowed for the AVR pins (see Maximum Absolute Ratings in the Electrical Characteristics section of the datasheet). The voltage must be below VCC+0.5V and above -1V. If you don't respect this, you will blow your AVR. Be sure that the analog signals you are using are in the right range. If they come from the external world, is a good idea to use some kind of protection at the input. See the suggested circuit below (which consists of just one resistor...).</p>
+			<p><img src="../img/adc_hw.gif" alt="" height="268" width="339" border="0"></p>
+			<p>This circuit uses the internal clamping diodes present in all AVR I/O pins. If the analog voltage is higher than Vcc plus the conduction voltage of the diode (around 0.5V), the upper diode  will conduct and the voltage at the input pin is clamped to Vcc+0.5 . On the other hand, if the analog voltage is lower than 0V minus the conduction voltage of the diode, the lower diode will conduct, and the voltage at the input pin is clamped to &#150;0.5V. The resistor will limit the current through the conducting diode, which must not exceed 1mA, so you must design the resistor accordingly. For instance, if you expect that the maxim value that may reach the analog voltage is &plusmn;24V, the resistor value should be :</p>
+			<p>R=24V/1mA=24K.</p>
+		</div>
+		<div class="heading_small">
+			<div class="content">
+				<p>Common Pitfall</p>
+			</div>
+		</div>
+		<div class="content">
+			<p>I am not sure if this is a &quot;Common&quot; pitfall, but at least two guys (one of them me) had fallen in it. Is a common temptation to use the output of the voltage regulator as the voltage reference for the ADC. The problem is that a typical voltage regulator, like a 7805, has voltage tolerance of about 5%. This mean that the ADC converted value will have a 5% error. Lets take an example. Suppose that the regulator output voltage is 5.1V, and the input to the ADC is 2.5V. You would expect a converted value of 512, but instead you get 501. Seeing that, you could think that something is wrong with your ADC, but the problem is with your reference voltage. Don't worry, there's components designed to produce reference voltages, like the LM285. However. There is one exception to this rule: when you are making a radiometric measurement. In a radiometric measurement, the voltage is a proportion of the regulator voltage, so any error in the value of this voltage is canceled. The output of a potentiometer is a typical radiometric output. The problem described above is common to external sensors that have an own power supply.</p>
+		</div>
+	</body>
+
+</html>

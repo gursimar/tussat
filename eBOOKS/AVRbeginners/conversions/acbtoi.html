@@ -1,0 +1,58 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html>
+
+	<head>
+                <meta http-equiv="content-type" content="text/html;charset=iso-8859-1">
+		<title>Conversion: ASCII Coded Binary to Int</title>
+		<link href="../main.css" rel="stylesheet">
+	</head>
+
+	<body class="content_page">
+		<div class="content">
+			<div class="heading">Converting ASCII Coded Binary to INT			</div>
+			<p>This one is mean. Like with the conversion from ASCII coded decimal to int, we need the file size to determine whether we're receiving a 8-, 16-, or even 32-bit number. If the string is sent most significant bit first, this is no problem, but if the value is sent least significant bit first, we need to store the entire string first (or need some neat trick). To determine the string end of a null-terminated string, the following check is necessary:
+			<p><img src="img/acdtoi_eos.gif" alt="" height="251" width="347" border="0"></p>
+			<p>I'll only discuss the case of the string being sent most significant bit first here.</p>
+			<p>What is to be done? The bit is received, converted to a 'real' bit (1 or 0) and then shifted into the result.</p>
+			<table class="codebox" width="90%" border="0" cellspacing="0" cellpadding="1">
+				<tr>
+					<td width="145">rcall receive_character<br>
+						tst character<br>
+						breq end_of_string<br>
+						clc<br>
+						subi character, '0'<br>
+						lsr character<br>
+						rol result</td>
+					<td>; get the next character<br>
+						; if it is zero, the string ended<br>
+						&nbsp;<br>
+						; clear carry bit<br>
+						; convert character to 1 or 0<br>
+						; shift least significant bit from converted character into carry bit<br>
+						; and rotate it into the result</td>
+				</tr>
+			</table>
+			<p>What happens during the shift operations? These are most important for the conversion, as they combine the result with the converted character. </p>
+			<p>The lsr instruction shifts the byte one place to the right. The bit that is shtifted out is placed in the carry bit and the most significant bit is replaced by 0. </p>
+			<p>The carry bit is then rotated (rol) into the result: The most significant bit of the result is placed in the carry bit and the least significant bit is replaced by the old carry bit which we got from the character.</p>
+			<p>But how can we determine when to begin a new byte? We don't know the exact string length by now and have to start a new byte after 8 bits have been received and shifted into the result. The code above has to be altered so that it handles the highest possible number of bits that might be sent by the source of the string.</p>
+			<p>This can be done with multiple rol instructions. One for each byte, beginning with the least significant one:</p>
+			<table class="codebox" width="90%" border="0" cellspacing="0" cellpadding="1">
+				<tr>
+					<td width="145">rol result_0<br>
+						rol result_1<br>
+						rol result_2<br>
+						rol result_3</td>
+					<td>; get new bit into lowest byte of result<br>
+						; rotate most significant bit of result_0 into result_1<br>
+						; rotate most significant bit of result_1 into result_2<br>
+						; and do the same with result_3</td>
+				</tr>
+			</table>
+			<p>Now the bit from the character is shifted into the 32-bit result. Of course, the result can also be left 16 bits wide.</p>
+			<p>Make sure that the result is initialised to 0 before starting to shift in bits: Some bits might not be overwritten by the bits from the string!</p>
+		</div>
+	</body>
+
+</html>

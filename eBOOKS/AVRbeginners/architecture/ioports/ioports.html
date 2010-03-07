@@ -1,0 +1,63 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html>
+
+	<head>
+		<meta http-equiv="content-type" content="text/html;charset=iso-8859-1">
+		<title>I/O Ports</title>
+                <link rel="stylesheet" href="../../main.css">
+	</head>
+
+	<body class="content_page">
+		<div class="heading">
+			I/O Ports
+		</div>
+		<div class="content">
+			<p>The AVR I/O Ports are pretty simple to understand. They have a Port register, a Data Direction register and a Pin register. These 
+			are part of every I/O port in every AVR. Here's a drawing of their basic functionality:</p>
+
+			<p><img src="../img/port.gif" alt="" height="371" width="662" class="image"></p>
+
+			<p>As you can see, there's an internal pull-up for every pin. It can be activated by setting the DDR bit of the pin to 0 and the 
+			Port bit to 1. A cleared DDR bit means that the pin is an input pin. So the pin is disconnected from the Port register (see the 
+			driver in the drawing?) and the pin is floating. In this case the Port bit controls the pull-up. I have not drawn boxes for 
+			writing/reading the data direction bit, because it would only make the drawing more complex.</p>
+
+			<p>Why I actually made the drawing for is not only describing the pull-up, but also to explain a mistake many people make, even 
+			experienced programmers, just because it doesn't &quot;hit the eye&quot;:</p>
+
+			<p>When the actual state of a port pin is needed (which is not necessarily the Port bit value), often the Port bit is read instead 
+			of the pin bit (by mistake). The Pin bit is directly connected to the physical pin. The port bit can be disconnected from the pin 
+			via the data direction register. So if you have problems with your I/O code, check for this mistake first.</p>
+
+			<p>Here's a table with the possible Port/DDR cominations and what they do to the pin:</p>
+
+			<table border="1" cellspacing="0" align="center" cellpadding="0" bgcolor="white">
+				<tr>
+					<th style="border-width: 1px;"></th>
+					<th style="border-width: 1px;">
+						<div align="left">
+							DDR bit = 1</div>
+					</th>
+					<th style="border-width: 1px;">DDR bit = 0</th>
+				</tr>
+				<tr>
+					<th style="border-width: 1px;">Port bit = 1</th>
+					<td style="border-width: 1px;" align="center">High</td>
+					<td style="border-width: 1px;" align="center">pull-up</td>
+				</tr>
+				<tr>
+					<th style="border-width: 1px;">Port bit = 0</th>
+					<td style="border-width: 1px;" align="center">Low</td>
+					<td style="border-width: 1px;" align="center">floating</td>
+				</tr>
+			</table>
+
+			<p>Reading from/writing to the ports can be done bit-wise or byte-wise (whole port), on Pin, Port, and Data Direction registers.</p>
+
+			<p>The drawing above is just a simple one. As many Port pins have special functions, their values are also controlled by the 
+			internal peripherals, like the pins of the UART or SPI. These are more complex and can be looked at in the datasheets.</p>
+		</div>
+	</body>
+
+</html>

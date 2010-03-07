@@ -1,0 +1,75 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html>
+
+	<head>
+                <meta http-equiv="content-type" content="text/html;charset=iso-8859-1">
+		<title>Welcome To AVRbeginners.net!</title>
+		<link href="../main.css" rel="stylesheet">
+	</head>
+
+	<body class="content_page">
+		<div class="content">
+			<div class="heading">An asm Introduction And The Embedded &quot;Hello World&quot;!!!!</div>
+			<p>Assembler is a low-level language. It consists of a list of instructions that are in no way comparable to anything you might know from C, Basic or Pascal. The AVR has about 120 of them, depending on the type and it's peripherals and size. You can download the instruction set from Atmel's website and print out the summary (a list of all instructions and what type of operands they have). If you download it, I suggest printing out pages 1 and 10 to 15. That's not too much and yet is everything you need for a start. <a href="http://www.atmel.com/dyn/resources/prod_documents/DOC0856.PDF" target="_blank">Here's a link to it</a>. The document is about 150 pages in total.</p>
+			<p>Let's have look at probably the easiest program possible:</p>
+			<table class="codebox" width="95%" border="0" cellspacing="0" cellpadding="0">
+				<tr>
+					<td width="150">main:<br>
+						rjmp main</td>
+					<td>; this is a the label &quot;main&quot;<br>
+						; Relative JuMP to main</td>
+				</tr>
+			</table>
+			<p>&quot;Main&quot; (the first line) is not translated by the assembler, but used as a label. This label replaces an address in the AVR's code space (FLASH memory). At exactly this address the next instruction (rjmp main) is placed. When the instruction is exectued, the cpu will jump to &quot;main&quot; again. The jump will be repeated over and over, resulting in an infinite loop.</p>
+			<p>After power-up, or when a reset has occured, the micro will always start program execution from address 0x0000. The first bytes in code space are the &quot;Interrupt Vector Table&quot;. The AVR has internal peripherals, like timers, a UART or an analog-to-digital converter. These can generate interrupts which will stop normal code execution in order to react on certain events as fast as possible. This is good to know. See <a href="architecture/int.html">Architecture -&gt; Interrupts</a> for more!</p>
+			<p>The interrupt vector table can be used by you to tell the micro what it has to do when a specific interrupt occurs. The normal AVRs have space for one instruction per interrupt vector (an rjmp for example). This instruction will be executed when the interrupt occurs (There's more to tell you about this, but not now...)</p>
+			<p>The first interrupt vector is the &quot;reset vector&quot;. It contains the instruction the cpu should execute when a reset occurs. We will use it to jump to our program we already had above:</p>
+			<table class="codebox" width="95%" border="0" cellspacing="0" cellpadding="0">
+				<tr>
+					<td width="150">.org 0x0000<br>
+						rjmp main<br>
+						&nbsp;<br>
+						main:<br>
+						rjmp main</td>
+					<td>; the next instruction has to be written to address 0x0000<br>
+						; the reset vector: jump to &quot;main&quot;<br>
+						; <br>; this is the label &quot;main&quot;<br>
+						; Relative JuMP to main</td>
+				</tr>
+			</table>
+			<p>Assuming that our AVR is running at 4 MHz (4 Million clock cycles per second), how long does all this take? AVRs are pretty fast - most instructions can be executed in one or two clock cycles. Some instructions need a bit more time, but these are not important now. As the external clock is not divided internally (some other microcontrollers do that, like the HC11 from motorola, but that's an old one), two clock cycles at 4 MHz means that the instruction takes 0.0000005 seconds. Pretty fast!</p>
+			<p>&quot;main&quot; itself only needs 0.0000005 seconds per round, as it only consists of a single rjmp. Right now, our main program doesn't actually DO anything.</p>
+			<p>The first thing I did when I started on AVRs was making an LED flash. LEDs can be connected to the AVR's I/O ports (<a href="architecture/ioports.html">Architecture -&gt; I/O Ports</a>). These can be set to be input or output individually for each pin and you can also enable an internal pull-up resistor if the port pin is set to input. Each I/O port has three registers you can work with: The port's data register (for example PortB), the Data Direction Register (for example DDRB) and the Pin register (for example PinB). For confiugring a pin as an output pin, set its corresponding bit in the data direction register. The output value (0 or 1) can then be set in the Port Data register.</p>
+			<p>If you have an STK500, get yourself an ATmega8 in a DIP package and a 4 MHz crystal. The micro can plugged into the green target socket named &quot;SCKT3200A2&quot;. Connect the 6-pin cable from &quot;ISP6PIN&quot; to the ISP header for the green socket. That's the one named &quot;SPROG2&quot;. The default jumper setting for the oscillator system is the software oscillator. We want to use the crystal oscillator instead. Set the &quot;OSCSEL&quot; jumper to close pins 2 and 3 (pin 1 is marked with a &quot;1&quot;). &quot;Vtarget&quot;, &quot;AREF&quot;, &quot;RESET&quot; and &quot;XTAL1&quot; should be closed. Of course, the mega8 should be the only micro plugged into the STK. Do not insert more than one AVR at a time! Now take one of the two wire-cables and use it to connect &quot;PB3&quot; (that's one of the &quot;PORTB&quot; pins) to &quot;LED0&quot; (that's one of the &quot;LEDS&quot; pins). The crystal belongs into the crystal socket on the STK500.</p>
+			<p>The STK500 LEDs are connected to the AVR via some extra components. If you want, you can take a look at the LED circuit in the STK500 documentation (it's included in the AVR Studio help file and also came with the STK). The most important fact is that the LED is connected to be &quot;active low&quot;, which means that if PortB.3 is low now (we connected it to one of the LEDs), the LED will be ON.</p>
+			<p>If you don't have an STK, connect the LED to PortB.3 via a current limiting resistor (about 470 Ohms is OK, the value is not critical). Connect the resistor to the port pin and the LED's cathode, the anode goes to Vcc. This will result in the same &quot;active low&quot; behavior.</p>
+			<p>Let's now change our program a bit so that it configures all PortB pins as output pins. After a reset, all Data bits are set to zero, so the LED should be ON when the program is executed:</p>
+			<table class="codebox" width="95%" border="0" cellspacing="0" cellpadding="0">
+				<tr>
+					<td width="150">.org 0x0000<br>
+						rjmp main<br>
+						&nbsp;<br>
+						main:<br>
+						ldi r16, 0xFF<br>
+						out DDRB, r16<br>
+						loop:<br>
+						rjmp loop</td>
+					<td>; the next instruction has to be written to address 0x0000<br>
+						; the reset vector: jump to &quot;main&quot;<br>
+						;<br>
+						; this is the label &quot;main&quot;<br>
+						; load register 16 with 0xFF (all bits are 1)<br>
+						; write the value in r16 (0xFF) to Data Direction Register B<br>
+						; this is a new label we use for a &quot;do nothing loop&quot;<br>
+						; jump to loop</td>
+				</tr>
+			</table>
+			<p>The new loop was inserted so that we can set the Data Direction bits to our needs and then loop without doing that again. We could, however, include the load and store instructions (ldi and out) in the loop. It wouldn't hurt, but the micro would configure the Ports to the same value over and over again.</p>
+			<p>If you haven't done it already, <a href="http://www.atmel.com/dyn/products/tools.asp?family_id=607" target="_blank">download AVR Studio</a> (I prefer version 3.5, not 4!) from Atmel's website and install it. Now read &quot;<a href="../studio/new_project.html">Creating a Project</a>&quot; in the AVR Studio Section and create a new project, choose your favourite name and take into account that the LED will flash when it's finished :-)</p>
+			<p>It's now time to start a new page (it's already long enough). Our code will grow a bit...it might be useful to have a calculator for all the timing stuff...</p>
+			<p>&gt;&gt;&gt;<a href="starter_2_2.html">NEXT</a>&gt;&gt;&gt;</p>
+		</div>
+	</body>
+
+</html>

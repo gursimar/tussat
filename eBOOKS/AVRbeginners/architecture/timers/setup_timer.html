@@ -1,0 +1,114 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html>
+
+	<head>
+                <meta http-equiv="content-type" content="text/html;charset=iso-8859-1">
+		<title>Welcome To AVRbeginners.net!</title>
+		<link href="../../main.css" rel="stylesheet">
+	</head>
+
+	<body class="content_page">
+		<div class="content">
+			<div class="heading">
+				Setting up a Timer</div>
+			<p>Setting up a timer is pretty simple - once you know how it basically works. Once you've set up a timer successfully you can also use the other modes without much learning as all timer modes are based on the same principles.</p>
+			<p>Right now, we just want to let an LED light up for 1 second after reset. What do we need for that? The best way is to set up a timer (Timer1, the 16 bit timer), switch the LED on and wait. As the timer overflow has an own interrupt, we can write an ISR that switches the LED off again.</p>
+			<p>First, some stuff that has to be prepared/kept in mind. The following is assumed:</p>
+			<p>- The program is running on a AT90S2313, the LED is connected to PortB.4 (this pin doesn't have any special functions), cathode connected to PortB.4 via a current limiting resistor and the anode connected to Vcc. That means that the LED is ON when the port pin is LOW.</p>
+			<p>- The micro is running at 4MHz</p>
+			<p>- How do we get the timer to overflow after 1 second? 1 second means 4 Million cycles, so we need a big prescaler: 1024 seems to be good. 4,000,000 / 1024 = 3906,25; so after 3906 timer clock cycles the timer has to overflow. As the timers count UP and then overflow from $FFFF to 0 (that's when the ISR is called), we have to load TCNT1 with -3906 (=0xF0BE)</p>
+			<p>- The interrupt vector for Timer1 overflow is at address 0x0005</p>
+			<p>Here's the code: (don't forget to include 2313def.inc!!!)</p>
+			<table class="codebox" width="95%" border="0" cellspacing="0" cellpadding="0">
+				<tr>
+					<td width="150">.org 0x0000<br>
+						rjmp reset<br>
+						.org 0x0005<br>
+						rjmp led_off<br>
+						&nbsp;<br>
+						reset:<br>
+						ldi r16, low(RAMEND)<br>
+						out SPL, r16<br>
+						&nbsp;<br>
+						ldi r16, high(0xF0BE)<br>
+						out TCNT1H, r16<br>
+						ldi r16, low(0xF0BE)<br>
+						out TCNT1L, r16<br>
+						&nbsp;<br>
+						ldi r16, 0b00000101<br>
+						out TCCR1B, r16<br>
+						&nbsp;<br>
+						ldi r16, 0b10000000<br>
+						out TIMSK, r16<br>
+						sei<br>
+						&nbsp;<br>
+						sbi DDRB, 4<br>
+						cbi PortB, 4<br>
+						&nbsp;<br>
+						loop:<br>
+						rjmp loop<br>
+						&nbsp;<br>
+						led_off:<br>
+						push r16<br>
+						in r16, SREG<br>
+						
+						push r16<br>
+						&nbsp;<br>
+						
+						ldi r16, 0<br>
+						out TCCR1B, r16<br>
+						sbi PortB, 4<br>
+						&nbsp;<br>
+						
+						pop r16<br>
+						out SREG, r16<br>
+						pop r16<br>
+						reti</td>
+					<td>; reset vector address<br>
+						; when reset occurs, jump to label &quot;reset&quot;<br>
+						; Timer 1 overflow interrupt vector address<br>
+						; jump to &quot;led_off&quot;<br>
+						;<br>
+						; reset handler:<br>
+						; setup stack pointer<br>
+						;<br>
+						;<br>
+						; load timer 1 register (TCNT1) with 0xF0BE<br>
+						;<br>
+						;<br>
+						;<br>
+						;<br>
+						; set CS10 and CS12 for 1024 cycle prescaler<br>
+						;<br>
+						;<br>
+						; set bit 7 in TIMSK to enable Timer 1 overflow interrupt<br>
+						;<br>
+						;and enable global interrupts<br>
+						;<br>
+						; set PortB.4 to output<br>
+						; switch LED on<br>
+						; <br>
+						; loop forever (we're waiting for the interrupt)<br>
+						;<br>
+						;<br>
+						; This is the ISR:<br>
+						; preserve r16<br>
+						; save MCU status register<br>
+						;<br>
+						;<br>; stop Timer 1 (clear CS10 and CS12)<br>
+						;<br>
+						; Turn off LED<br>;<br>
+						; restore SREG<br>
+						;<br>
+						; restore r16<br>
+						; return from interrupt</td>
+				</tr>
+			</table>
+			<p>Simulating this code in AVR Studio showed that the LED is turned off after 3999759 cycles. When changing the timer value to 0xF0BD the simulator turns the LED off after 4000783 cycles (3999759 + 1024).</p>
+			<p>This is not the fastest code you can write for this specific problem. As the micro isn't doing anything during the loop, the ISR doesn't need to preserve any register or the SREG, but I included this anyway to remind you of that important step.</p>
+			<p>No it's up to you to alter this code to use a prescaler of 256 or turn the LED off after some other time interval. Then the TCCR1B and TCNT1 values change. You can also connect the LED to PortB.3 (Output Capture Pin) and use the Output Compare mode of Timer 1 to make the LED flash! It's now just a matter of reading the datasheet or the <a href="timers.html">AVR Architecture -&gt; Timers</a> page (see &quot;modes&quot;).</p>
+		</div>
+	</body>
+
+</html>

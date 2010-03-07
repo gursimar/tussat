@@ -1,0 +1,166 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html>
+
+	<head>
+                <meta http-equiv="content-type" content="text/html;charset=iso-8859-1">
+		<title>Welcome To AVRbeginners.net!</title>
+		<link href="../../main.css" rel="stylesheet">
+	</head>
+
+	<body class="content_page">
+		<div class="content">
+			<div class="heading">Embedded &quot;Hello World&quot; - The Flashing LED (Timer Version)</div>
+			<p>Making an LED flash is not only possible with delay loops, but also with timers, of course. The good thing about timers is that they need little tweaking (or none at all) and don't block the CPU.
+			<p>This example does the same as the <a href="../../getting_started/starter_2.html">Getting Started</a> Example did. We let an LED flash once per second. The AVR (2313) it is connected to is running at 4 MHz. The LED is again (via a current limiting resistor) connected to PortB.3 (cathode) and to Vcc (anode). The LED will therefore be ON when the port pin is LOW.</p>
+			<p>Setting up the timer requires some quick calculations. First of all, we need the 16 bit timer for this. Why? Half a second at 4 MHz is 2 million clock cycles. With a prescaler of 1024 (the biggest possible), we still need 1953 counts, which is more than the 8 bit range can offer. The 16-bit timer can do that. We can even choose a smaller prescaler for higher accuracy. With a prescaler value of 64, 31250 timer clock cycles are needed, which will result in exactly 2,000,000 clock cycles. That's good.</p>
+			<p>0x0000 - 31250 = 0x85EE is what we're loading into TCNT1. The timer is up-counting and will generate an overflow when counting from 0xFFFF to 0x0000, that's why we start counting at &quot;-31250&quot;.</p>
+			<p>The timer 1 overflow interrupt ISR has to reload timer 1 with this value every time the ISR is called. Otherwise, the timer ill start from 0 again and the next interrupt will occur after 1.049 seconds.</p>
+			<p>In order to enable the timer, we need to set up the interrupt vector, initialise the timer and write an ISR that toggles the LED port pin. For the timer stuff, re-read &quot;<a href="setup_timer.html">Setting up a Timer</a>&quot;. On that page, the example will switch on the LED for one second after reset. If you understand that example, this one will be no match for you.</p>
+			<p>Here's the example code, again don't forget to include 2313def.inc or whatever include files you need for your AVR!</p>
+			<table class="codebox" width="95%" border="0" cellspacing="0" cellpadding="0">
+				<tr>
+					<td width="165">.equ timer_value = 0x85EE<br>
+						&nbsp;<br>
+						.org 0x0000<br>
+						rjmp reset<br>
+						.org 0x0005<br>
+						rjmp Timer1_ovf<br>
+						&nbsp;<br>
+						reset:<br>
+						ldi r16, low(RAMEND)<br>
+						out SPL, r16<br>
+						&nbsp;<br>
+						ldi r16, 0b10000000<br>
+						out TIMSK, r16<br>
+						ldi r16, high(timer_value)<br>
+						out TCNT1H, r16<br>
+						ldi r16, low(timer_value)<br>
+						out TCNT1L, r16<br>
+						ldi r16, 0b00000011<br>
+						out TCCR1B, r16<br>
+						&nbsp;<br>
+						sei<br>
+						<br>sbi DDRB, 3<br>cbi PortB, 3<br>
+						&nbsp;<br>
+						loop:<br>
+						rjmp loop<br>
+						&nbsp;<br>
+						Timer1_ovf:<br>
+						in r16, SREG<br>
+						push r16<br>
+						&nbsp;<br>
+						ldi r16, high(timer_value)<br>
+						out TCNT1H, r16<br>
+						ldi r16, low(timer_value)<br>
+						out TCNT1L, r16<br>
+						in r16, PortB<br>ldi r17, 0b00001000<br>
+						eor r16, r17<br>
+						out PortB, r16<br>
+						&nbsp;<br>
+						pop r16<br>
+						out SREG, r16<br>
+						reti</td>
+					<td>; value to be loaded into timer 1<br>
+						;<br>
+						; reset vector<br>
+						;<br>
+						; Timer 1 Overflow interrupt vector<br>
+						; this is where we jump to on overflow<br>
+						;<br>
+						; jump here after reset and begin init:<br>
+						; set up stack pointer<br>
+						; remember SPH=high(RAMEND) as well for bigger devices!!!<br>
+						;<br>
+						; the timer 1 setup code:<br>
+						; enable Timer 1 overflow int in TIMSK<br>
+						; set timer 1 counting value<br>
+						;<br>
+						;<br>
+						;<br>
+						; and start timer 1 with a prescaler of 64<br>
+						;<br>
+						;<br>
+						; enable global interrupts<br>
+						;<br>; PortB.3 = output<br>; PortB.3 = low =&gt; LED on<br>
+						;<br>
+						; loop forever (do nothing but wait for the ISR)<br>
+						;<br>
+						;<br>
+						; the ISR:<br>
+						; save SREG on stack<br>
+						;<br>
+						;<br>
+						; reload timer value<br>
+						;<br>
+						;<br>
+						;<br>
+						; get PortB status<br>; load r17 with bit 3 = &quot;1&quot;<br>; toggle bit 3 in r16<br>
+						; and write to PortB again<br>
+						;<br>
+						; restore SREG<br>
+						;<br>
+						; and return from ISR</td>
+				</tr>
+			</table>
+			<p>When simulating this in AVR Studio the ISR toggles the Port pin every 2,000,000 clock cycles.</p>
+			<p>There's an even better way to make an LED flash! Timer 1 has a mode called &quot;Output Compare Mode&quot;. You can read about this on the <a href="timers.html">AVR Architecture -&gt; Timers</a> page or in the datasheet. On the 2313, PortB.3 is also the Output Compare pin, that's why I chose it for this example. I'll not go into detail, just give you some code and explain what it does.</p>
+			<table class="codebox" width="95%" border="0" cellspacing="0" cellpadding="0">
+				<tr>
+					<td width="165">.equ timer_value = 31250<br>
+						&nbsp;<br>
+						.org 0x0000<br>
+						rjmp reset<br>
+						&nbsp;<br>
+						reset:<br>
+						ldi r16, low(RAMEND)<br>
+						out SPL, r16<br>
+						&nbsp;<br>
+						ldi r16, 0b01000000<br>
+						out TIMSK, r16<br>
+						ldi r16, high(timer_value)<br>
+						out OCR1AH, r16<br>
+						ldi r16, low(timer_value)<br>
+						out OCR1AL, r16<br>
+						ldi r16, 0b01000000<br>
+						out TCCR1A, r16<br>
+						ldi r16, 0b00000011<br>
+						out TCCR1B, r16<br>
+						&nbsp;<br>
+						sbi DDRB, 3<br>
+						sbi PortB, 3<br>
+						&nbsp;<br>
+						loop:<br>
+						rjmp loop</td>
+					<td>; value timer 1 is constantly compared to<br>
+						;<br>
+						; (same as above)<br>
+						;<br>
+						;<br>
+						; jump here after reset and begin init:<br>
+						; set up stack pointer<br>
+						;<br>
+						; enable Timer 1 Compare match interrupt<br>
+						;<br>
+						; load OC value<br>
+						; and store it in Output Capture Register<br>
+						;<br>
+						;<br>
+						; set OC1 mode to &quot;toggle&quot;<br>
+						;<br>
+						; start timer 1 with a prescaler of 64<br>
+						;<br>
+						;<br>
+						;<br>
+						; set output compare pin to output<br>
+						; turn off the LED<br>
+						;<br>
+						;loop<br>
+						;</td>
+				</tr>
+			</table>
+			<p>This time, as the timer value is compared to the Output Compare value, we use 31250 to dreate the required timing of 0.5 seconds. The timer counts up, and when it reaches 31250, the Output Compare Match occurs. Then, the OC1 pin is toggled (we told the AVR to do so via TCCR1A). We need no ISR, as the LED is toggled by hardware. It's also possible to use the ISR from the first example. You then need to delete the lines which set up TCCR1A (these connect the timer to the OC pin) and set up the interrupt vector at 0x0003. </p>
+		</div>
+	</body>
+
+</html>

@@ -1,0 +1,365 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html>
+
+	<head>
+                <meta http-equiv="content-type" content="text/html;charset=iso-8859-1">
+		<title>Welcome To AVRbeginners.net!</title>
+		<link href="../../main.css" rel="stylesheet">
+	</head>
+
+	<body class="content_page">
+		<div class="content">
+			<div class="heading">Setting up the UART		</div>
+		</div>
+		<div class="content" align="center">
+			<p>[ Voltage Level Conversion ] [ <a href="#uart_cable">The Cable</a> ] [ <a href="#uart_setup">UART Setup</a> ] [ <a href="#uart_example">Code</a> ]</div>
+		<div class="heading_small">
+			<div class="content">
+				<p>Voltage Level Conversion</p>
+			</div>
+		</div>
+		<div class="content">
+			<p>The AVR UART is a very powerful peripheral. You can use it to send messages to your PC and let a terminal program display them (for debugging purposes or as a user interface), or to communicate with a self-written program for analyzing logged data. As the UART heavily relies on timing (for generating the correct baud rate), you have to know which frequency your AVR is running at and what speed you need for communications.</p>
+			<p>It's also important to use the correct driver circuit between your AVR and the PC, as the COM port is using RS232 voltage levels. They are different from CMOS levels and without a driver chip you'll fry your AVR. That's bad. So use a driver chip. A widely used one is the MAX232 which just needs some caps and supply voltage to work. Here's a diagram of it:</p>
+			<p><img src="../img/max232.gif" alt="" height="358" width="271" border="0"></p>
+			<p><font color="red">WARNING!</font> This is a diagram of the MAX202 from the MAX232 datasheet. Use <font color="red">10&micro;F</font> caps for the MAX232! The one connected from VCC to ground should be 0.1&micro;F though.</p>
+			<p>For the UART to work you need one driver per direction only: One Transmitter (T1 or T2 in the diagram) from AVR to PC and one receiver (R1 or R2 in the diagram) from PC to AVR.</p>
+		</div>
+		<div class="heading_small">
+			<div class="content">
+				<p>The Cable<a name="uart_cable"></a></p>
+			</div>
+		</div>
+		<div class="content">
+			<p>The Cable from your circuit to the PC will most probably have a 9-pin D-type connector. The signals we need are Ground, Receive Data and Transmit Data. Below is a table of the necessary connections. The signal name refers to the PC side.</p>
+			<table border="1" cellspacing="0" cellpadding="0">
+				<tr>
+					<th>Signal</th>
+					<th width="80">PC side (male)</th>
+					<th width="80">Device Side (female)</th>
+					<th width="80">MAX232 pin to connector</th>
+					<th width="80">AVR pin to MAX232</th>
+				</tr>
+				<tr>
+					<td>
+						<div align="right">
+							Ground</div>
+					</td>
+					<td width="80">
+						<div align="center">
+							5</div>
+					</td>
+					<td width="80">
+						<div align="center">
+							5</div>
+					</td>
+					<td width="80">
+						<div align="center">
+							15</div>
+					</td>
+					<td width="80">
+						<div align="center">
+							(ground)</div>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<div align="right">
+							Tx</div>
+					</td>
+					<td width="80">
+						<div align="center">
+							3</div>
+					</td>
+					<td width="80">
+						<div align="center">
+							3</div>
+					</td>
+					<td width="80">
+						<div align="center">
+							13 or 8</div>
+					</td>
+					<td width="80">
+						<div align="center">
+							RxD</div>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<div align="right">
+							Rx</div>
+					</td>
+					<td width="80">
+						<div align="center">
+							2</div>
+					</td>
+					<td width="80">
+						<div align="center">
+							2</div>
+					</td>
+					<td width="80">
+						<div align="center">
+							14 or 7</div>
+					</td>
+					<td width="80">
+						<div align="center">
+							TxD</div>
+					</td>
+				</tr>
+			</table>
+			<p></p>
+			<p>To find out which pin of the connector has which number, have a close look at it: Most have tiny numbers next to the pins on the plastic isolator. For more information, see <a href="http://www.hardwarebook.net" target="_blank">www.hardwarebook.net</a>. If your PC has a 25-pin connector you'll find the pinouts for it on that site as well.</p>
+			<p>I will not go into detail about the RS232 protocol.  The AVR datasheets have a small description of it (in the 2313 datasheet see the &quot;sampling received data&quot; figure), which should be enough for a start. If you want more, have a look at <a href="http://www.beyondlogic.org" target="_blank">www.beyondlogic.org</a>.</p>
+		</div>
+		<div class="heading_small">
+			<div class="content">
+				<p>UART Setup<a name="uart_setup"></a></p>
+			</div>
+		</div>
+		<div class="content">
+			<p>Setting up the UART is not very hard. You need to know the following:</p>
+			<p>- Clock frequency of your AVR</p>
+			<p>- desired baud rate</p>
+			<p>- data format (how many bits per transmission)</p>
+			<p>The clock frequency and the desired baud rate are used for calculating the UBRR value. With the formula from the datasheet or the <a href="../uart.html">AVR Architecture -&gt; UART</a> page this can be calculated in no time. Assuming a speed 3.6864 MHz and a desired baud rate of 38400, we get a value of 5. This must be written to UBRR</p>
+			<p>The data format will usually be 8 bits per transfer. Sometimes 9 bits are used, which the 2313 supports as well. The megas even have more options, but the 8-bit format is enough for now.</p>
+			<p>The next question we have to answer is: Interrupt driven or polling? Interrupt driven is of course more efficient, but when sending strings or packets of data, polling is easier, as an interrupt driven UART needs software buffers for efficient string transfers. These can be added, but then it's not a &quot;simple example&quot; any more :-) Below the polling example, you will find an interrupt driven version of it. </p>
+			<p>The example code below shows how to use polling. As we don't use interrupts, these can be left disabled. The transmitter and receiver have to be enabled though in order to make usage of the UART possible.</p>
+		</div>
+		<div class="content_bold">
+			<div class="content">
+				<p>The Setup Code</p>
+			</div>
+		</div>
+		<div class="content">
+			<table class="codebox" width="95%" border="0" cellspacing="0" cellpadding="0">
+				<tr>
+					<td width="150">setup_uart:<br>
+						ldi r16, 5<br>
+						out UBRR, r16<br>
+						&nbsp;<br>ldi r16, 0b00011000<br>
+						out UCR, r16<br>
+						&nbsp;<br>
+						ret</td>
+					<td>; we can call this as a subroutine during intitialisation<br>
+						; write correct clock divider value<br>
+						; to UBRR<br>
+						;<br>
+						; set Rx and Tx enable bits<br>
+						; write them to the UART Control Register<br>
+						;<br>
+						; done. Nothing more to do!</td>
+				</tr>
+			</table>
+			<p>So what do we want the AVR to do with the UART. A very simple task is to echo back the data we received from the PC. When typing in characters in a terminal, we should receive copies from it, so everything we type in should show up twice (assuming a local echo).</p>
+			<p>For receiving data we wait until the RXC flag in USR (UART Status Register) is set and then read that data from UDR (UART Data Register). Then we can transmit it again by writing it to UDR. If we write data to UDR while a byte is received that won't hurt, as the UDR is divided into two registers, one for each direction. God huh? Before writing it to UDR we need for the UDRE flag to be set, because it indicates when a character is transferred to the UART transfer shift register. Then a new character can be written to UDR.</p>
+		</div>
+		<div class="heading_small">
+			<div class="content">
+				<p>Example Code<a name="uart_example"></a></p>
+			</div>
+		</div>
+		<div class="content">
+			<p>So, enough theory, here's the code. Don't forget to include the 2313def.inc file and the setup routine above!</p>
+			<table class="codebox" width="95%" border="0" cellspacing="0" cellpadding="0">
+				<tr>
+					<td width="150">.org 0x0000<br>
+						
+						rjmp reset<br>				
+						&nbsp;<br>reset:<br>
+						ldi r16, low(RAMEND)<br>
+						out SPL, r16<br>
+						&nbsp;<br>
+						rcall setup_uart<br>
+						&nbsp;<br>
+						loop:<br>
+						rcall rx_uart<br>
+						rcall tx_uart<br>
+						rjmp loop<br>
+						&nbsp;<br>
+						rx_uart:<br>
+						in r16, USR<br>
+						sbrs r16, RXC<br>
+						rjmp rx_uart<br>
+						&nbsp;<br>
+						in r16, UDR<br>
+						ret<br>
+						&nbsp;<br>
+						tx_uart:<br>
+						in r17, USR<br>
+						sbrs r17, UDRE<br>
+						rjmp tx_uart<br>
+						&nbsp;<br>out UDR, r16<br>
+						ret<br>
+						&nbsp;<br>
+						;include setup_uart here!</td>
+					<td>; reset interrupt vector<br>
+						; for startup<br>
+						;<br>;<br>
+						; initialise Stack Pointer<br>
+						;<br>
+						;<br>
+						; initialise the UART<br>
+						;<br>
+						; then loop back the characters received from the PC<br>
+						; receive data<br>
+						; and transmit it again<br>
+						; and do this forever<br>
+						;<br>
+						; receive routine:<br>
+						; get UART Status Register<br>
+						; and see if Rx Complete flag is set<br>
+						; if not, go back to rx_uart<br>
+						;<br>
+						; data came in. RXC is cleared by reading UDR, UDR is stored in r16<br>
+						; return<br>
+						;<br>
+						; transmit routine:<br>
+						; get UART Status Register (r17 this time, the data is in r16!!!)<br>
+						; and see if UDR is free for transfer<br>
+						; if not, go back to rx_uart<br>
+						;<br>
+						; send the data, UDRE will be cleared by hardware<br>
+						; return<br>
+						;<br>
+						;<br>
+					</td>
+				</tr>
+			</table>
+			<p>After thinking about the code a bit you might come to the conclusion that the status register check for transmitting data is not necessary, as the data is coming in at very low speed (as fast as you can type) and therefore will be echoed back before the next character comes and can be transmitted again. I included this for showing how this check is done, because other applications might send data at higher speed. This is the case when sending data packets or strings. In that case, the application would send a character, get the next one from memory and send it as soon as possible.</p>
+		</div>
+		<div class="heading_small">
+			<div class="content">
+				<p>Interrupt Driven Examples</p>
+			</div>
+		</div>
+		<div class="content">
+			<p>The interrupt driven example doesn't hang around in loops checking if data had come in. Instead, the Rx Complete interrupt is used to determine when data is ready. It is then echoed back by the RXC ISR. To make the interrupt driven echo possible, the RXC Interrupt has to enabled (RXCIE in UCR is set) and, of course, global interrupts have to be allowed as well. The correct interrupt vector has to be installed, too.</p>
+			<table class="codebox" width="95%" border="0" cellspacing="0" cellpadding="0">
+				<tr>
+					<td width="150">.org 0x0000<br>
+						rjmp reset<br>
+						.org 0x0007<br>
+						rjmp UART_RXC<br>
+						&nbsp;<br>
+						reset:<br>
+						ldi r16, low(RAMEND)<br>
+						out SPL, r16<br>
+						&nbsp;<br>
+						ldi r16, 5<br>
+						out UBRR, r16<br>
+						ldi r16, 0b10011000<br>
+						out UCR, r16<br>
+						&nbsp;<br>
+						sei<br>
+						&nbsp;<br>
+						loop:<br>
+						rjmp loop<br>
+						&nbsp;<br>
+						UART_RXC:<br>
+						in r17, UDR<br>
+						out UDR, r17<br>
+						reti</td>
+					<td>; reset vector address:<br>
+						; handle reset<br>
+						; UART Receive Complete Interrupt vector:<br>
+						; go to UART_RXC<br>
+						;<br>
+						; jump here at reset<br>; stack setup<br>
+						;<br>
+						;<br>
+						; clock divider value for 38400 baud @ 3.6864 MHz<br>
+						;<br>
+						; enable Rx Complete Int, enable receiver and transmitter<br>
+						;<br>
+						;<br>
+						; enable interrupts<br>
+						;<br>
+						; loop here (do nothing)<br>
+						;<br>
+						;<br>
+						; UART Rx complete interrupt handler:<br>
+						; get data we received<br>
+						; write it to UDR<br>
+						; return from int</td>
+				</tr>
+			</table>
+			<p>This examle, apart from being interrupt driven, is different from the first one: The ISR doesn't check if it's allowed to write to UDR, so collisions can occur if the previous character wasn't transferred yet. This could be done with an ISR for the UART Data Register Empty interrupt. The flow chart shows how the two ISR would communicate via the UDRE Interrupt Enable (UDRIE) bit:</p>
+			<p><img src="../img/uart_intcom.gif" alt="" height="318" width="525" border="0"></p>
+			<table class="codebox" width="95%" border="0" cellspacing="0" cellpadding="0">
+				<tr>
+					<td width="150">.org 0x0000<br>
+						
+						rjmp reset<br>
+						.org 0x0007<br>
+						rjmp UART_RXC<br>
+						rjmp UART_DRE<br>
+						<br>
+						reset:<br>
+						ldi r16, low(RAMEND)<br>
+						out SPL, r16<br>
+						<br>
+						ldi r16, 5<br>
+						out UBRR, r16<br>
+						ldi r16, 0b10011000<br>
+						out UCR, r16<br>
+						<br>
+						sei<br>
+						<br>
+						loop:<br>
+						rjmp loop<br>
+						<br>
+						UART_RXC:<br>
+						in r17, UDR<br>
+						in r16, UCR<br>
+						sbr r16, 0b00100000<br>
+						out UCR, r16<br>
+						reti<br>
+						<br>
+						UART_DRE:<br>
+						in r16, UCR<br>
+						cbr r16, 0b00100000<br>
+						out UCR, r16<br>
+						out UDR, r17<br>
+						reti</td>
+					<td>; same as above<br>
+						;<br>
+						;<br>
+						; here's the Rx Complete vector<br>
+						; here's the UDRE Int vector (.org 0x0008)<br>
+						;<br>
+						;<br>
+						; stack setup<br>
+						;<br>
+						;<br>
+						; set baud rate<br>
+						;<br>
+						; enable Rx and Tx, enable Rx Complete Interrupt<br>
+						; UDRIE is NOT(!) set!!! This is done by the RXC ISR<br>
+						;<br>
+						; enable Interrupts<br>
+						;<br>
+						; do nothing as long as power is present<br>
+						;<br>
+						;<br>
+						; UART Rx Complete ISR:<br>
+						; get data<br>
+						; get UART Control Register<br>
+						; and set UDRIE bit;<br>
+						; store UART Control Register again<br>
+						; and that's it. <br>
+						;<br>
+						; UART Data Register Empty ISR: Will be called as soon as UART_RXC<br>
+						; returns! Get UCR<br>
+						; clear UDRIE bit<br>
+						; and store UCR again<br>
+						; send data<br>
+						; return from ISR</td>
+				</tr>
+			</table>
+			<p>These three examples should have given you an idea about UART usage and interrupt setup issues. The last example (with RXC and UDRE interrupts) is almost ready for FIFO buffer usage.</p>
+		</div>
+	</body>
+
+</html>

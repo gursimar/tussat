@@ -1,0 +1,120 @@
+.content_page  {
+	background-color: #ffffff
+        color: #2f4f4f; 
+        font-weight: normal;
+        font-size: 12px;
+        font-family: Arial, Tahoma, Verdana, Geneva, Helvetica, sans-serif;
+        text-decoration: none;
+        text-align: left;
+}
+
+.update_page  {
+        background-color: #b0c4de;
+        color: #2f4f4f;
+        font-weight: normal;
+        font-size: 9px;
+        font-family: Arial, Tahoma, Verdana, Geneva, Helvetica, sans-serif;
+        text-decoration: none;
+        text-align: left;
+}
+
+.banner {
+	position:absolute;
+	top: 49px;
+	left: 0px;
+	width: 100%;
+	height: 49px;
+	border-top-width: 1px;
+	border-left-width: 0px;
+	border-right-width: 0px;
+	border-bottom-width: 1px;
+	border-color: #000000;
+	border-style: solid;
+}
+
+a:link {
+	color: #2f4fAf
+}
+
+a:visited {
+	color: #2f4f4f
+}
+
+a:hover {
+	color: #2f4fff
+}
+
+a:active {
+	color: #2f4f4f
+}
+
+code  { color: #2f4f4f; font-size: 11px; font-family: Arial, Tahoma, Verdana, Geneva, Helvetica, sans-serif; text-decoration: none; text-align: center }
+
+pre {
+        color: #2f4f4f;
+        font-size: 12px;
+        font-family: Arial, Tahoma, Verdana, Geneva, Helvetica, sans-serif;
+        text-decoration: none;
+}
+
+td  { color: #2f4f4f; font-weight: normal; font-size: 12px; font-family: Arial, Tahoma, Verdana, Geneva, Helvetica, sans-serif; text-decoration: none; border: solid 0px #808080 }
+
+th {
+        color: #2f4f4f;
+        font-size: 12px;
+        font-weight: bold;
+        font-family: Arial, Tahoma, Verdana, Geneva, Helvetica, sans-serif;
+        text-decoration: none;
+}
+
+.content {
+	color: #2f4f4f;
+	margin-right: 20px;
+	margin-left: 20px;
+}
+
+.heading {
+	color: #2f4f4f;
+	font-weight: bold;
+	font-size: 24px;
+	font-family: Tahoma, Verdana, Geneva, Arial, Helvetica, sans-serif; 
+	text-decoration: none;
+	text-align: center;
+	padding: 15px
+}
+
+.heading_small   { color: #2f4f4f; font-weight: bold; font-size: 12px; font-family: Tahoma, Verdana, Geneva, Arial, Helvetica, sans-serif; text-decoration: none; margin-right: 4%; margin-left: 4% }
+.content_bold  { color: #2f4f4f; font-weight: bold; font-family: Tahoma, Verdana, Geneva, Arial, Helvetica, sans-serif; text-decoration: none }
+.image {
+	padding: 10px;
+}
+
+.left_image {
+	margin-left: 0px;
+	margin-top: 10px;
+	margin-bottom: 10px;
+	margin-right: 20px;
+}
+
+.logo {
+	position: absolute;
+	top: 4px;
+	left: 4px;
+}
+
+.codebox
+     { color: #2f4f4f; font-size: 12px; font-family: Arial, Tahoma, Verdana, Geneva, Helvetica, sans-serif; text-decoration: none; background-color: #eaf4ff; padding: 4px; border: solid 1px #e0e0e0 }
+
+.t0i {
+	font-family: Tahoma, Verdana, Geneva, Arial, Helvetica, sans-serif;
+	font-size: 11px;
+	color: DarkSlategray;
+	text-decoration: none;
+}
+
+/* Style for tree item image */
+.t0im {
+	border: 0px;
+	width: 19px;
+	height: 16px;
+}

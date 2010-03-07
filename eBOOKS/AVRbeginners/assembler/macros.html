@@ -1,0 +1,99 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html>
+
+	<head>
+                <meta http-equiv="content-type" content="text/html;charset=iso-8859-1">
+		<title>Welcome To AVRbeginners.net!</title>
+		<link href="../main.css" rel="stylesheet">
+	</head>
+
+	<body class="content_page">
+		<div class="content">
+			<div class="heading">Macros in AVR Assembler			</div>
+			<p>Macros are a good way to make code more readable, for example if it contains code that is often reused or if a lot of 16-bit calculations are done.
+
+			<p>Macros in AVR assembler can be defined everywhere in the code as long as they're not used at a location before the macro definition. They can take arguments which are replaced during assembly and can't be changed during runtime. The arguments can only be used in the form @0 or @1 (while 0 or 1 are the argument numbers startnig from 0). The arguments can be almost everything the assembler can handle: integers, characters, registers, I/O addresses, 16 or 32-bit integers, binary expressions...</p>
+			<p>This works:</p>
+			<table class="codebox" width="95%" border="0" cellspacing="0" cellpadding="0">
+				<tr>
+					<td width="150">.macro ldi16<br>
+					&nbsp;<br>
+						ldi @0, low(@2)<br>
+						ldi @1, high(@2)<br>
+						.endmacro<br>
+						&nbsp;<br>
+						ldi16 r16, r17, 1024</td>
+					<td>; lets make a macro for loading two registers<br>
+						
+						; with a 16-bit immediate<br>
+						; load the first argument (@0) with the low byte of @2<br>
+						; same with second arg (@1) and high byte of @2<br>
+						; end the macro definition<br>
+						&nbsp;<br>
+						; r16 = 0x00 r17 = 0x04</td>
+				</tr>
+			</table>
+			<p>While this does not:</p>
+			<table class="codebox" width="95%" border="0" cellspacing="0" cellpadding="0">
+				<tr>
+					<td width="150">ldi16 r16, r17, 1024<br>
+						<br>
+						.macro ldi16<br>
+						ldi @0, low(@2)<br>
+						
+						ldi @1, high(@2)<br>
+						.endmacro<br>
+					</td>
+					<td>; r16 = 0x00 r17 = 0x04<br>
+						&nbsp;<br>
+						&nbsp;<br>
+						&nbsp;<br>
+						
+						&nbsp;<br>
+						&nbsp;<br>
+					</td>
+				</tr>
+			</table>
+			<p>Above, I wrote that arguments are replaced during assembly. The following should make it clear:</p>
+			<table class="codebox" width="95%" border="0" cellspacing="0" cellpadding="0">
+				<tr>
+					<td width="150">ldi16 r16, r17, 1024<br>
+						; is assembled to:<br>
+						ldi r16, 0<br>
+						ldi r17, 0x04<br>
+					</td>
+					<td>; in the macro, this was:&nbsp;<br>
+						&nbsp;<br>
+						; ldi @0, low(@2)<br>
+						; ldi @1, high(@2)<br>
+					</td>
+				</tr>
+			</table>
+			<p>As I said, macros can also be used to replace 16-bit calculations. This is one example (along with ldi16):</p>
+			<table class="codebox" width="95%" border="0" cellspacing="0" cellpadding="0">
+				<tr>
+					<td width="150">.macro addi<br>
+						subi @0, -(@1)<br>
+						.endmacro<br>
+						&nbsp;<br>
+						.macro addi16<br>
+						subi @0, low(-@2)<br>
+						sbci @1, high(-@2)<br>
+						.endmacro</td>
+					<td>; This is the &quot;Add Immediate to register&quot; instruction we all<br>
+						; missed in the instruction set!<br>
+						&nbsp;<br>
+						;Now here's the 16-bit version:<br>
+						&nbsp;<br>
+						&nbsp;<br>
+						&nbsp;<br>
+						&nbsp;<br>
+					</td>
+				</tr>
+			</table>
+			<p>Macros can of course be more complex, take more arguments and crash the assembler. If too many macros are defined in one file, the last ones can't be found. I've had this with more than 7 I think. Just split them into more files, that helps sometimes. Or just don't be that lazy and write the code yourself...</p>
+		</div>
+	</body>
+
+</html>

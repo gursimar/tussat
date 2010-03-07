@@ -1,0 +1,31 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html>
+
+	<head>
+                <meta http-equiv="content-type" content="text/html;charset=iso-8859-1">
+		<title>Welcome To AVRbeginners.net!</title>
+		<link href="../main.css" rel="stylesheet">
+	</head>
+
+	<body class="content_page">
+		<div class="content">
+			<div class="heading">
+				Converting ASCII Coded Decimal to INT</div>
+			<p>Ascii Coded Decimal strings are, for example, used in the Ymodem protocol for sending file size information. To use that string as a file size it has to be converted to an integer in order to be processed fast and code-efficient.</p>
+			<p>The conversion is not as straight-forward as others, as the string length has to be taken into account:</p>
+			<p>'512' has a length of 3 characters, and therefore the '5' means 500, and not 50 or 5. As the most significant digits are usually sent first, the string is not too hard to be converted. If the least significant digit is sent first the string has to be stored first and can't be processed byte for byte.</p>
+			<p>Given that the most significant digit is sent first, the following steps are necessary for each character received:</p>
+			<p><img src="img/acdtoi.gif" alt="" height="226" width="169" border="0"></p>
+			<p>For the '512' string, this happens:</p>
+			<p>'5' is converted to 5 by subtracting ASCII '0' from '5'. Then the result (which is still zero) is multiplied by 10. The result is zero.</p>
+			<p>Now 5 is added. Result = 5</p>
+			<p>Now the '1' is received and converted to 1. The result (which is 5) is multiplied by 10, so we now have 50.</p>
+			<p>1 is added which equals 51.</p>
+			<p>The '2', being the last character of the string, is again converted, the result is pultiplied by 10 (=510) and 2 is added. The result is 512. Easy huh?</p>
+			<p>The only thing I didn't mention until now is how to determine when the string ends. This depends on the transmitter or source of the string. If it is a null-terminated string, we can use the following program flow:</p>
+			<p><img src="img/acdtoi_eos.gif" alt="" height="251" width="347" border="0"></p>
+		</div>
+	</body>
+
+</html>

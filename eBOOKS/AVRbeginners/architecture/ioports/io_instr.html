@@ -1,0 +1,35 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html>
+
+	<head>
+		<meta http-equiv="content-type" content="text/html;charset=iso-8859-1">
+		<title>I/O Instructions</title>
+                <link rel="stylesheet" href="../../main.css">
+	</head>
+
+	<body class="content_page">
+		<div class="heading">
+			I/O Instructions
+		</div>
+
+		<div class="content">
+			<p>The simplest I/O instructions are in and out.</p>
+			<p>in reads the value of an I/O Port or internal peripheral register (Timers, UART and so on) into a register.</p>
+			<p>Example: in r16, PinD</p>
+			<p>out writes the value of a register to an I/O Port or an internal peripheral register.</p>
+			<p>Example: out PortD, r16</p>
+			<p>If only one bit of an I/O register is needed, the AVR has some bit instructions: sbi and cbi for manipulating single bits of an I/O register (though these instructions don't operate on all I/O registers) and sbic and sbis for testing bits of an I/O register.</p>
+			<p>sbi PortD, 7 (same for cbi)</p>
+
+			<p>sbic PortD, 7<br>rjmp bit_is_set</p>
+
+			<p>sbic/sbis (skip if bit in I/O register is cleared/set) skips the next instruction depending on the I/O bit's state. 
+			In the example above I added a relative jump (rjmp) to show you how you could use this instruction. In this case, the 
+			mcu will jump to bit_is_set if bit 7 of PortD is not cleared (-&gt;set) and proceed with the instruction following the relative jump 
+			if that bit is cleared.</p>
+			<p>As I mentioned above, sbi and cbi don't operate on all I/O registers. The same is true for sbic/sbis. These can only be used for &quot;classic&quot; I/O Ports and other peripheral registers with addresses from 0 to 31 (0x00 to 0x1F).</p>
+		</div>
+	</body>
+
+</html>

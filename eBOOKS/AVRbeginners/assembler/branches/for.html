@@ -1,0 +1,71 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html>
+
+	<head>
+		<meta http-equiv="content-type" content="text/html;charset=iso-8859-1">
+		<title>For Loops</title>
+                <link rel="stylesheet" href="../../main.css">
+	</head>
+
+	<body class="content_page">
+		<div class="heading">
+			For Loops
+		</div>
+		<div class="content">
+			<p>I don't think I need to explain how a for loop works, but in assembler we need to take care of the counting register, which we 
+			wouldn't need to do in C ot Pascal. For loops can work in many different ways. Some are more code efficient, some are more 
+			flexible.</p>
+			<p>The flexible version counts from zero up to the required number of iterations. It is possible to use the counting register to 
+			address for example array elements.</p>
+			<table class="codebox" width="95%" border="0" cellspacing="0" cellpadding="0">
+				<tr>
+					<td style="border-width: 0px;" valign="top" width="150">ldi r16, 0<br>
+						loop:<br>
+						out PortB, r16<br>
+						inc r16<br>
+						cpi r16, 10<br>
+						brne loop<br>
+						<br>
+						ldi r16, 0<br>
+						loop1:<br>
+						inc r16<br>
+						out PortB, r16<br>
+						cpi r16, 10<br>
+						brne loop1</td>
+					<td style="border-width: 0px;" valign="top">; clear counting register<br>
+						<br>
+						; write counting register to PortB<br>
+						; increase counter<br>
+						; compare counter with 10<br>
+						; if &lt;&gt;10, repeat<br>
+						<br>
+						; basically this loop acts like<br>
+						; the first one, with one exception.<br>
+						; Find it.</td>
+				</tr>
+			</table>
+			<p>What is the difference beteween the two example loops? The first loop increments the counter after writing the counter value to PortB. So the values we can see on that port are 0..9. The second loop increments the counter before writing it to PortB. We can see the values 1..10. So whenever you plan to use the counter register within the loop (for whatever you can think of) remember to check where the counter has to be incremented.</p>
+			<p>If the counter value is only important for counting purposes (not used from within the loop), you can use a decrementing version:</p>
+			<table class="codebox" width="95%" border="0" cellspacing="0" cellpadding="0">
+				<tr>
+					<td style="border-width: 0px;" valign="top" width="150">ldi r16, 10<br>
+						loop2:<br>
+						(insert loop code)<br>
+						<br>
+						dec r16<br>
+						brne loop2</td>
+					<td style="border-width: 0px;" valign="top">; load r16 with desired number of iterations<br>
+						<br>
+						; do whatever the loop does...<br>
+						<br>
+						; decrement loop counter<br>
+						; if not zero, repeat loop<br>
+					</td>
+				</tr>
+			</table>
+			<p>You might have noticed that there is no compare instruction. <code>dec</code> leaves the status manipulated in uch a way that we can use <code>breq</code> to determine whether the result was zero or not. That saves 1 word of program space compared to the up-couting version of a for-loop.</p>
+		</div>
+	</body>
+
+</html>

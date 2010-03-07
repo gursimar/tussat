@@ -1,0 +1,21 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html>
+
+	<head>
+                <meta http-equiv="content-type" content="text/html;charset=iso-8859-1">
+		<title>Welcome To AVRbeginners.net!</title>
+		<link href="../main.css" rel="stylesheet">
+	</head>
+
+	<body class="content_page">
+		<div class="content">
+			<div class="heading">The Micro And Surrounding Circuits</div>
+			<p>The AVR needs a reset button. As \Reset is active low, the button is connected from \Reset (Pin 1/PortC.6) to ground. To keep \Reset high during normal operation a 4K7 pullup resistor is added. For additional protection a 10nF cap is added from \Reset to Ground.</p>
+			<p>For crystal operation two load caps of 22pF are needed, these are connected from the crystal pins to ground. If no crystal is used the free pins belong to PortB. The header for this is described on the <a href="m8_conns.html">Other Connectors and Jumpers</a> page.</p>
+			<p>Aref and Avcc each have a decoupling cap to ground to reject noise on these pins. The donnector for an external Aref is also described together with the other connectors (see link above).</p>
+			<p><img src="img/m8_mcu.gif" alt="" height="340" width="582" border="0"></p>
+		</div>
+	</body>
+
+</html>

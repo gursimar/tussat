@@ -1,0 +1,232 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html>
+
+	<head>
+                <meta http-equiv="content-type" content="text/html;charset=iso-8859-1">
+		<title>Welcome To AVRbeginners.net!</title>
+		<link href="../../main.css" rel="stylesheet">
+	</head>
+
+	<body class="content_page">
+		<div class="content">
+			<div class="heading">The Watchdog Timer (WDT)</div>
+			<p>The Watchdog Timer (WDT) is a counter clocked by a separate On-Chip oscillator (different from the main clock of the AVR). You can reset the WDT with the WDR (WDT reset) instruction. When the WDT overflows, the AVR resets and starts the program from the reset vector, which is similar to externally pulling down the reset pin.</p>
+			<p>The main purpose of the WDT is to make the device you are building robust and fault tolerant. The general idea is to reset the WDT regularly. If something goes wrong (for instance when EMI corrupts the Program Counter), the WDT won't be cleared and will overflow, and consecuently resets the AVR. A discussion about how to properly use the WDT to make your design bullet proof is out of scope. Here are links to some very good articles about this issue :</p>
+			<p>- <a href="http://www.embedded.com/story/OEG20010920S0064" target="_blank">http://www.embedded.com/story/OEG20010920S0064</a></p>
+			<p>- <a href="http://www.embedded.com/story/OEG20021211S0032" target="_blank">http://www.embedded.com/story/OEG20021211S0032</a></p>
+			<p>- <a href="http://www.embedded.com/story/OEG20030115S0042" target="_blank">http://www.embedded.com/story/OEG20030115S0042</a></p>
+			<p>A general rule of thumb is that if your code is sprinkled with the WDR instruction, you are doing things wrong.</p>
+			<p>Lets discuss in detail how the AVR Watchdog Timer works. It is quite simple, since there is only one register used : the Watchog Timer Control Register (WDTCR).</p>
+			<p>There are three things we can do with the WDT: enable the WDT, disable the WDT and set the prescaler.</p>
+			<p>You can set the prescaler to divide the WDT oscillator frequency, so that the reset interval can be adjusted. It is important to notice that the On-chip oscillator frequency is dependant on the Vcc value and the temperature of the chip. The following table shows the setting of the prescaler for the AT90S4433. All AVRs behave similar in that respect, but there are some minor variations between differents devices. Check the datasheet for the details.</p>
+			<table border="0" cellspacing="0" cellpadding="0">
+				<tr>
+					<th style="border-width: 1px;" width="40">
+						<div align="center">
+							WDP2</div>
+					</th>
+					<th style="border-width: 1px;" width="40">
+						<div align="center">
+							WDP1</div>
+					</th>
+					<th style="border-width: 1px;" width="40">
+						<div align="center">
+							WDP0</div>
+					</th>
+					<th style="border-width: 1px;" width="128">
+						<div align="center">
+							Number of Oscillator cycles</div>
+					</th>
+					<th style="border-width: 1px;" width="120">
+						<div align="center">
+							Timeout (Vcc = 3V)</div>
+					</th>
+					<th style="border-width: 1px;" width="120">
+						<div align="center">
+							Timeout (Vcc = 5V)</div>
+					</th>
+				</tr>
+				<tr>
+					<td style="border-width: 1px;" width="40">
+						<div align="center">
+							0</div>
+					</td>
+					<td style="border-width: 1px;" width="40">
+						<div align="center">
+							0</div>
+					</td>
+					<td style="border-width: 1px;" width="40">
+						<div align="center">
+							0</div>
+					</td>
+					<td style="border-width: 1px;" width="128">
+						<div align="left">
+							16K cycles</div>
+					</td>
+					<td style="border-width: 1px;" width="120">47 ms</td>
+					<td style="border-width: 1px;" width="120">15 ms</td>
+				</tr>
+				<tr>
+					<td style="border-width: 1px;" width="40">
+						<div align="center">
+							0</div>
+					</td>
+					<td style="border-width: 1px;" width="40">
+						<div align="center">
+							0</div>
+					</td>
+					<td style="border-width: 1px;" width="40">
+						<div align="center">
+							1</div>
+					</td>
+					<td style="border-width: 1px;" width="128">
+						<div align="left">
+							32K cycles</div>
+					</td>
+					<td style="border-width: 1px;" width="120">94 ms</td>
+					<td style="border-width: 1px;" width="120">30 ms</td>
+				</tr>
+				<tr>
+					<td style="border-width: 1px;" width="40">
+						<div align="center">
+							0</div>
+					</td>
+					<td style="border-width: 1px;" width="40">
+						<div align="center">
+							1</div>
+					</td>
+					<td style="border-width: 1px;" width="40">
+						<div align="center">
+							0</div>
+					</td>
+					<td style="border-width: 1px;" width="128">
+						<div align="left">
+							64K cycles</div>
+					</td>
+					<td style="border-width: 1px;" width="120">0.19 s</td>
+					<td style="border-width: 1px;" width="120">60 ms</td>
+				</tr>
+				<tr>
+					<td style="border-width: 1px;" width="40">
+						<div align="center">
+							0</div>
+					</td>
+					<td style="border-width: 1px;" width="40">
+						<div align="center">
+							1</div>
+					</td>
+					<td style="border-width: 1px;" width="40">
+						<div align="center">
+							1</div>
+					</td>
+					<td style="border-width: 1px;" width="128">
+						<div align="left">
+							128K cycles</div>
+					</td>
+					<td style="border-width: 1px;" width="120">0.38 s</td>
+					<td style="border-width: 1px;" width="120">0.12 s</td>
+				</tr>
+				<tr>
+					<td style="border-width: 1px;" width="40">
+						<div align="center">
+							1</div>
+					</td>
+					<td style="border-width: 1px;" width="40">
+						<div align="center">
+							0</div>
+					</td>
+					<td style="border-width: 1px;" width="40">
+						<div align="center">
+							0</div>
+					</td>
+					<td style="border-width: 1px;" width="128">
+						<div align="left">
+							256K cycles</div>
+					</td>
+					<td style="border-width: 1px;" width="120">0.75 s</td>
+					<td style="border-width: 1px;" width="120">0.24 s</td>
+				</tr>
+				<tr>
+					<td style="border-width: 1px;" width="40">
+						<div align="center">
+							1</div>
+					</td>
+					<td style="border-width: 1px;" width="40">
+						<div align="center">
+							0</div>
+					</td>
+					<td style="border-width: 1px;" width="40">
+						<div align="center">
+							1</div>
+					</td>
+					<td style="border-width: 1px;" width="128">
+						<div align="left">
+							512K cycles</div>
+					</td>
+					<td style="border-width: 1px;" width="120">1.5 s</td>
+					<td style="border-width: 1px;" width="120">0.49 s</td>
+				</tr>
+				<tr>
+					<td style="border-width: 1px;" width="40">
+						<div align="center">
+							1</div>
+					</td>
+					<td style="border-width: 1px;" width="40">
+						<div align="center">
+							1</div>
+					</td>
+					<td style="border-width: 1px;" width="40">
+						<div align="center">
+							0</div>
+					</td>
+					<td style="border-width: 1px;" width="128">
+						<div align="left">
+							1024K cycles</div>
+					</td>
+					<td style="border-width: 1px;" width="120">3.0 s</td>
+					<td style="border-width: 1px;" width="120">0.97 s</td>
+				</tr>
+				<tr>
+					<td style="border-width: 1px;" width="40">
+						<div align="center">
+							1</div>
+					</td>
+					<td style="border-width: 1px;" width="40">
+						<div align="center">
+							1</div>
+					</td>
+					<td style="border-width: 1px;" width="40">
+						<div align="center">
+							1</div>
+					</td>
+					<td style="border-width: 1px;" width="128">
+						<div align="left">
+							2048K cycles</div>
+					</td>
+					<td style="border-width: 1px;" width="120">6.0 s</td>
+					<td style="border-width: 1px;" width="120">1.9 s</td>
+				</tr>
+			</table>
+			<p>Enabling the WDT is simple, just set the Watchdog Enable (WDE) bit. Disabling the WDT is not that simple, you must follow a special procedure. The WDT is designed this way to avoid disabling the WDT unintentionally by an instruction executed during a fault condition.</p>
+			<p>The Watchdog Turn-off Enable (WDTOE) bit is used to disable the WDT. To disable the WDT you must follow the following procedure:</p>
+			<p>1. Write, with one instruction, a logical &quot;1&quot; to the WDTOE and WDE.</p>
+			<p>2. Within the next four clock cycles, write a logical &quot;0&quot; to WDE. This disables the Watchdog.</p>
+			<p>This is a code snippet to disable the WDT:</p>
+			<table class="codebox" width="95%" border="0" cellspacing="0" cellpadding="0">
+				<tr>
+					<td width="150">ldi r16, 0x18<br>
+						out WDTCR, r16<br>
+						ldi r16, 0x10<br>
+						out WDTCR, r16</td>
+					<td>;<br>
+						; set WDTOE and WDE<br>
+						;<br>
+						; write a 0 to WDE</td>
+				</tr>
+			</table>
+			<p>A word of caution : before turning-on the WDT, and before changing the prescaler, execute a WDR instruction. In this way you are sure that the WDT starts cleared and does not generate an accidental WDT overflow.</p>
+		</div>
+	</body>
+
+</html>

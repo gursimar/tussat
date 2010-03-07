@@ -1,0 +1,150 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html>
+
+	<head>
+                <meta http-equiv="content-type" content="text/html;charset=iso-8859-1">
+		<title>Welcome To AVRbeginners.net!</title>
+		<link href="../../main.css" rel="stylesheet">
+	</head>
+
+	<body class="content_page">
+		<div class="content">
+			<div class="heading">Working With Strings</div>
+		</div>
+		<div class="content" align="center">
+			<p>[ Strings in Flash ] [ <a href="#elegant">Making it More Elegant</a> ]</p>
+		</div>
+		<div class="heading_small">
+			<div class="content">
+				<p>Strings in Flash</p>
+			</div>
+		</div>
+		<div class="content">
+			<p>Strings can be stored in Flash using the .db directive. At runtime, they can be loaded from Flash by using the lpm (Load Program Memory) instruction in order to work with them. There are many ways to write routines to transfer them to SRAM, and some of them are really cool. Basically, you need to write a loop that loads the character from Flash and processes it (by transferring it to SRAM or something else depending on the application) until the terminating character is reached (usually zero).</p>
+			<p>The following example uses a routine to move a string from Flash (Z) to a known memory location (Y) and returns a pointer (Y) to the string. The address of the string in SRAM shall be 0x100 after the transfer. The terminating character (zero) shall not be cut off the string.</p>
+			<table class="codebox" width="95%" border="0" cellspacing="0" cellpadding="0">
+				<tr>
+					<td width="150">transfer_string:<br>
+						push YL<br>
+						push YH<br>
+						clr r1<br>
+						<br>
+						transfer_loop:<br>
+						lpm<br>
+						adiw ZL, 1<br>
+						st Y+, r0<br>
+						cp r0, r1<br>
+						brne transfer_loop<br>
+						<br>
+						pop YH<br>
+						pop YL<br>
+						ret
+						<p>;Usage:<br>
+							ldi YL, low(0x100)<br>
+							ldi YH, high(0x100)<br>
+							ldi ZL, low(2*mystring)<br>
+							ldi ZH, high(2*mystring)<br>
+							<br>
+							rcall transfer_string<br>
+							<br>
+							mystring:<br>
+							.db &quot;Hello&quot;, 0</p>
+					</td>
+					<td>; this is the label we call to transfer a string from Flash (Z) to SRAM (Y)<br>
+						; first, we save the SRAM pointer so that we can return it again<br>
+						;<br>
+						; as r0 doesn't support cpi, we need a zero register for the compare<br>
+						; which is r1<br>
+						; this is a do...while loop:<br>
+						; load characte from Flash to r0<br>
+						; increment Flash pointer<br>
+						; store in SRAM and increment Y<br>
+						; check if terminator reached<br>
+						; if not, go back to the loop<br>
+						;<br>
+						; restore SRAM pointer<br>
+						;<br>
+						; and return.
+						<p>; this is how you use this routine:<br>
+							; load Y with destination address<br>
+							; <br>
+							; load Z with source address<br>
+							;<br>
+							;<br>
+							; call the routine<br>
+							;<br>
+							; this is our string in flash:<br>
+							; &quot;Hello&quot; with terminating zero</p>
+					</td>
+				</tr>
+			</table>
+			<p>Not all AVRs support lpm rd, Z+ (load program memory to register and post-increment Z), so I used lpm together with a seperate add immediate to word (adiw). Check the device specific datasheet of your AVR to see if it supports lpm rd, Z+.</p>
+		</div>
+		<div class="heading_small">
+			<div class="content">
+				<p>Making it More Elegant<a name="elegant"></a></p>
+			</div>
+		</div>
+		<div class="content">
+			<p>The are of course more elegant ways to implement this. A design note (#043) on <a href="http://www.avrfreaks.net" target="_blank">www.avrfreaks.net</a> by Kelly Small (<a href="http://www.avrfreaks.net/Tools/ToolFiles/406/DN_043.pdf" target="_blank">Here's the direct link</a>) shows how to use the stack to get the source address of the string. The string is stored in Flash directly after the routine call instruction:</p>
+		</div>
+		<div class="codebox">
+			<div class="content">
+				<p>rcall transfer_string<br>
+					.db &quot;Hello&quot;, 0</p>
+			</div>
+		</div>
+		<div class="content">
+			<p>The cool thing about this is that the string can be found where it is used by the code. The example above would most probably use a string that is stored together with some other strings that might be a few pages away.</p>
+			<p>When the routine is called, the rcall instruction will store the address of the NEXT instruction (in this case the string). Therefore, the address of the string can just be popped off the stack. When the string has been processed and Z points at the next data byte after the zero, this will be the next address after the string, where normal code can follow (read the design note for a better explanation). So Z can be pushed onto the stack and ret will return to it.</p>
+			<p>rcall stores the low byte of the return address first, so popping has to be done in high byte, then low byte order. As the return address is a word address, it has to be multiplied by 2 to get a byte address for lpm, which can be done by shifting the address left once. For devices with 128KB of program memory, elpm has to be used then (together with rampz).</p>
+			<p>Messing around with return addresses is quite dangerous and has to be done carefully to avoid serious errors. The design note mentioned above does not mention why it's safe, So I'll explain that here. First of all, the routine has to be explained though:</p>
+			<p>Te return address is pushed onto the stack by the call instruction. The routine pops it from the stack and multiplies it by two to make it a byte address:</p>
+		</div>
+		<div class="codebox">
+			<div class="content">
+				<p>pop ZH<br>
+					pop ZL<br>
+					lsl ZL<br>
+					rol ZH</p>
+			</div>
+		</div>
+		<div class="content">
+			<p>Z now points at the first character of the string, which can now be processed by the process_string routine in a do...while loop that post-increments Z after every load-'n-process. The loop in this example is slightly different from the one above (uses r16). process_string uses the data in r16 to process it (send to UART, LCD, whatever).</p>
+		</div>
+		<div class="codebox">
+			<div class="content">
+				<p>read_string:<br>
+					lpm<br>
+					mov r16, r0<br>
+					adiw ZL, 1<br>
+					rcall process_string<br>
+					cpi r16, 0<br>
+					brne read_string</p>
+			</div>
+		</div>
+		<div class="content">
+			<p>Once the string is processed, the routine has to finish it's job by translating the address Z is pointing at to a word address again. Then the return address has to be pushed onto the stack again (for the ret instruction). BUT: What if the string had an even number of characters? Then the overall length of the string including the terminating zero is odd, so that Z still points to the string itself. The following two drawings assume that the instruction following the string is &quot;inc r16&quot;:</p>
+			<p><img src="../../advanced_code/img/string_routine.gif" alt="" usemap="#string_routine" border="0"></p>
+			<p>The second zero in the second example is added by the assembler (padding to achieve even number of bytes in the .db directive). As the routine stops upon reaching the first zero, Z will point to a zero in the second example and not at the increment instruction. </p>
+			<p>After the string has been processed, the routine will (as written above) push the return address onto the stack again. If Z is now shifted one place right (division by 2 to convert the byte address to a word address for ret), it will (second example) point to the first zero again and this word (two zeros) will be exectued after the return, but that's not too bad as the opcode 0x0000 is a nop. So any string with an even number of characters plus the terminating zreo will result in an additional nop being executed.</p>
+			<p>Therefore, the routine can end with </p>
+		</div>
+		<div class="codebox">
+			<div class="content">
+				<p>lsr ZH<br>
+					ror ZL<br>
+					push ZL<br>
+					push ZH<br>
+					ret</p>
+			</div>
+		</div>
+		<div class="content">
+			<p>The three code snippets pasted together work without problems, just process_string has to be added by you. Here' a working example with comments: <a href="../../advanced_code/flash_string.asm">flash_string.asm</a><br>
+				
+				This example stores the string at the memory address Y points to and works well in the simulator.</p>
+		</div>
+	</body>
+
+</html>

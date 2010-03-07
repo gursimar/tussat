@@ -1,0 +1,42 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html>
+
+	<head>
+                <meta http-equiv="content-type" content="text/html;charset=iso-8859-1">
+		<title>Welcome To AVRbeginners.net!</title>
+		<link href="../main.css" rel="stylesheet">
+	</head>
+
+	<body class="content_page">
+		<div class="content">
+			<div class="heading">Conversions...			</div>
+			<p>As you read through these pages you might want to have a look at an ascii table. You can find one in the Banner frame (&quot;quick links&quot;).
+			<p>Conversions are very important for user interaction:  If a register has the value 0x30 its corresponding ascii character is '0'. But if you want it to be displayed as '48' (0x30 is 48), you need to convert the number. In the case of '0' this is not that important, but 0xFF is displayed as a block. And '48' is better than '0' if you're displaying a temperature...
+</p>
+			<p>Some protocols, such as Ymodem, also use strings of values we have to convert first before we can perform calculations on them: Ymodem sends a file size of 512 bytes as '512'. An AVR has to convert this from ascii coded decimal to 16bit int first before it knows what '512' means.</p>
+			<p>Some number formats you should have in mind when doing calculations:</p>
+			<table class="codebox" width="95%" border="0" cellspacing="0" cellpadding="0">
+				<tr>
+					<td width="150">128<br>
+						'128'<br>
+						&nbsp;<br>
+						0x30<br>
+						&nbsp;<br>
+						0b11001010<br>
+						'11001010'</td>
+					<td>; normal decimal value<br>
+						; ascii coded decimal. In this case you need three bytes ('1', '2' and<br>
+						; '8') to store that number.<br>
+						; hex value<br>
+						;<br>
+						; binary value<br>
+						; ascii coded binary</td>
+				</tr>
+			</table>
+			<p>It's up to you which number format you use for a specific task. Ascii coded hex is quite often used for debugging purposes, because the numbers are all of the same size (number of characters needed) and becase the conversion always takes the same number of cpu cycles and doesn't require much space. Ascii coded decimal is better for things like temperatures or rpm of a motor. Ascii coded binary is good for displaying flag registers (SREG, Interrupt flag registers and so on).</p>
+			<p>I'll show you ways to convert numbers in both directions: From int to something you can display and back (remember the Ymodem example).</p>
+		</div>
+	</body>
+
+</html>

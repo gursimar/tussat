@@ -1,0 +1,24 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html>
+
+	<head>
+                <meta http-equiv="content-type" content="text/html;charset=iso-8859-1">
+		<title>Welcome To AVRbeginners.net!</title>
+		<link href="../main.css" rel="stylesheet">
+	</head>
+
+	<body class="content_page">
+		<div class="content">
+			<div class="heading">Converting ASCII Coded Hex to Int</div>
+			<p>For the conversion from ASCII coded hex to int we first need some code that converts one ASCII character (which represents one hex nibble) to its decimal value. 'A' -&gt; 10. This can't (or shouldn't) be done with a lookup table, because the ASCII value of 'A' is bigger than the size of efficient code doing the same thing. Therefore, the lookup table would also be quite big. So, it's better to choose the case structure.</p>
+			<p>Then the second nibble is converted in the same way and the two nibbles are combined to form one int.</p>
+			<p><img src="img/ascii_to_nibble.gif" alt="" height="109" width="246" border="0"></p>
+			<p>This conversion is done for the two nibble characters. These are then combined in one byte:</p>
+			<p><img src="img/achtoi.gif" alt="" height="235" width="305" border="0"></p>
+			<p>Maybe the nibbles have to be swapped again, depending on how the two nibbles were sent: If the high nibble was sent first, the received byte can left as it is: The high nibble was added, the nibbles were swapped and then the low nibble was added.</p>
+			<p>Consequently, if the low nibble is sent first, the nibbles have to be swapped again.</p>
+		</div>
+	</body>
+
+</html>

@@ -1,0 +1,46 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html>
+
+	<head>
+		<meta http-equiv="content-type" content="text/html;charset=iso-8859-1">
+		<title>MCU Status</title>
+                <link rel="stylesheet" href="../main.css">
+	</head>
+
+	<body class="content_page">
+		<div class="heading">
+			MCU Status
+		</div>
+		<div class="content">
+			<p>The microcontroller operates based on the Status Register (SREG) and other internal registers or components. Most important is the 
+			Status Register which holds information on the last instruction and its result and Interrupt enable status.</p>
+			<p>The SREG holds 8 Flags:</p>
+			<table class="codebox" width="95%" border="0" cellspacing="0" cellpadding="0">
+				<tr>
+					<td style="border-width: 0px;"><b>bit:</b><br>
+						0<br>
+						1<br>
+						2<br>
+						3<br>
+						4<br>
+						5<br>
+						6<br>
+						7</td>
+					<td style="border-width: 0px;"><b>Name:</b><br>
+						C (Carry bit)<br>
+						Z (zero Flag)<br>
+						N (Negative Flag)<br>
+						V (Overflow Flag)<br>
+						S (Signed Flag)<br>
+						H (Half Carry bit)<br>
+						T (Bit store Flag)<br>
+						I (Global Interrupt enable Flag</td>
+				</tr>
+			</table>
+			<p>The Carry flag is used for shift and rotate instructions. If the Global Interrupt Flag is set, the mcu will perform the Interrupt Service Routine corresponding to the interrupt that occured. Detailed knowledge about the other flags is not essential - most of the compare and branch instructions can be used without looking at the flags in detail.</p>
+			<p>Just remember: They are important for mathematical operations, and changing them between calculating a value and comparing it with something else might be fatal. That's why Interrupt Service routines should preserve the SREG and any other registers they use (unless these registers are unused in normal code). An interrupt might occur between comparing two values with each other and a following branch - the ISR might change status flags and corrupt the flags the branch relies on.</p>
+		</div>
+	</body>
+
+</html>

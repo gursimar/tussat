@@ -1,0 +1,168 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html>
+
+	<head>
+		<meta http-equiv="content-type" content="text/html;charset=iso-8859-1">
+		<title>Conditional Branches</title>
+                <link rel="stylesheet" href="../../main.css">
+	</head>
+
+	<body class="content_page">
+		<div class="heading">
+			Conditional Branches
+		</div>
+		<div class="content">
+			<p>Conditonal branches are branches based on the micro's Status Register. If the result of a previous operation left a status (for 
+			example &quot;Zero&quot;), this can be used to jump to code handling this result. Loops (for, while...) make use of this.</p>
+
+			<p>Any add, subtract, increment, decrement or logic instruction for example leaves a status that can be used for almost any branch instruction the AVR offers. There are as well some tests which set status flags based on their arguments. Basically they are just a subtraction: Comparing two numbers to each other is done by subtracting one from the other. The result of a - b can be negative (b &gt; a), positive (b &lt; a) and zero (b = a). This information is stored in the status register. When two numbers are added to each other, it can happen that the 8-bit result is greater than 255 and therefore &quot;rolls over&quot;. In this case, the carry bit in SREG is set.</p>
+			<p>Some examples:</p>
+			<table class="codebox" width="95%" border="0" cellspacing="0" cellpadding="0">
+				<tr>
+					<td style="border-width: 0px;" valign="top" width="150">subi r16, 5<br>
+						breq r16_is_0<br>
+						brlo r16_is_lower0<br>
+						r16_is_greater5:</td>
+					<td style="border-width: 0px;" valign="top">; r16 = r16 - 5<br>
+						; r16 was 5, handle that<br>
+						; r16 was lower than 5<br>
+						; r16 was higher than 5</td>
+				</tr>
+			</table>
+			<p>Now some examples for conditional branches in loops:</p>
+			<table class="codebox" width="95%" border="0" cellspacing="0" cellpadding="0">
+				<tr height="161">
+					<td style="border-width: 0px;" valign="top" width="150">ldi r16, 5<br>
+						loop:<br>
+						dec r16<br>
+						brne loop<br>
+						&nbsp;<br>
+						clr r16<br>
+						loop:<br>
+						inc r16<br>
+						cpi r16, 5<br>
+						brne loop</td>
+					<td style="border-width: 0px;" valign="top" height="161">; load desired loop count into r16<br>
+						; loop label<br>
+						; decrease loop count<br>
+						; if not equal (result=0), loop again<br>
+						;&nbsp;<br>
+						; clear counter<br>
+						; loop label<br>
+						; increase loop count<br>
+						; compare to desired loop count<br>
+						; if not reached, loop again</td>
+				</tr>
+			</table>
+			<p>Here is a list of simple tests which can also be used for branch instructions (exception: cpse - this instruction performs a compare and skips the next instruction if equal):</p>
+			<table cellspacing="10" cellpadding="0">
+				<tr>
+					<td style="border-width: 0px;" colspan="5"></td>
+					<td style="border-width: 0px;" colspan="8" valign="top">
+						<div align="right">
+							<code><span class="content">Valid SREG flags after test:</span></code></div>
+					</td>
+				</tr>
+				<tr height="97">
+					<td style="border-width: 0px;" valign="top"><b>instruction:</b><br>
+						cpi<br>
+						cp<br>
+						cpc<br>
+						tst<br>
+						cpse</td>
+					<td style="border-width: 0px;" valign="top"><b>arg 1:</b><br>
+						reg<br>
+						reg<br>
+						reg<br>
+						reg<br>
+						reg</td>
+					<td style="border-width: 0px;" valign="top"><b>arg 2:</b><br>
+						const<br>
+						reg<br>
+						reg<br>
+						---<br>
+						reg</td>
+					<td style="border-width: 0px;" colspan="2" valign="top"><b>&quot;action&quot;:</b><br>
+						reg - const<br>
+						reg - reg<br>
+						reg - reg - C<br>
+						reg AND reg<br>
+						reg - reg</td>
+					<td width="20" style="border-width: 0px;">&nbsp;</td>
+					<td width="10" style="border-width: 0px;" align="center" valign="top">I<br>
+						-<br>
+						-<br>
+						-<br>
+						-<br>
+						-</td>
+					<td width="10" style="border-width: 0px;" align="center" valign="top">T<br>
+						-<br>
+						-<br>
+						-<br>
+						-<br>
+						-</td>
+					<td width="10" style="border-width: 0px;" align="center" valign="top">H<br>
+						&lt;&gt;<br>
+						&lt;&gt;<br>
+						&lt;&gt;<br>
+						-<br>
+						-</td>
+					<td width="10" style="border-width: 0px;" align="center" valign="top">S<br>
+						&lt;&gt;<br>
+						&lt;&gt;<br>
+						&lt;&gt;<br>
+						&lt;&gt;<br>
+						-</td>
+					<td width="10" style="border-width: 0px;" align="center" valign="top">V<br>
+						&lt;&gt;<br>
+						&lt;&gt;<br>
+						&lt;&gt;<br>
+						0<br>
+						-</td>
+					<td width="10" style="border-width: 0px;" align="center" valign="top">N<br>
+						&lt;&gt;<br>
+						&lt;&gt;<br>
+						&lt;&gt;<br>
+						&lt;&gt;<br>
+						-</td>
+					<td width="10" style="border-width: 0px;" align="center" valign="top">Z<br>
+						&lt;&gt;<br>
+						&lt;&gt;<br>
+						&lt;&gt;<br>
+						&lt;&gt;<br>
+						-</td>
+					<td width="10" style="border-width: 0px;" align="center" valign="top">C<br>
+						&lt;&gt;<br>
+						&lt;&gt;<br>
+						&lt;&gt;<br>
+						-<br>
+						-</td>
+				</tr>
+			</table>
+			<p>If you want more info on which results change which SREG flag, see the AVRStudio assembler help. Here is a list of a few branch instructions and what they do based on the flags:</p>
+			<table class="codebox" width="95%" border="0" cellspacing="0" cellpadding="0">
+				<tr>
+					<td style="border-width: 0px;" valign="top" width="150">breq<br>
+						brne<br>
+						brsh<br>
+						brlo<br>
+						brmi<br>
+						brpl<br>
+						brge<br>
+						brlt</td>
+					<td style="border-width: 0px;" valign="top">; branch if equal<br>
+						; branch if not equal<br>
+						; branch if same or higher<br>
+						; branch if lower<br>
+						; branch if minus<br>
+						; branch if plus<br>
+						; branch if greater than or equal (signed)<br>
+						; branch if less than (signed)</td>
+				</tr>
+			</table>
+			<p>AVR assembler has more branches which test the interrupt flag or single other status flags. If you need one of them, see the AVRStudio assembler help. Branch instructions leave the flags they test untouched, so the code branched to or the code following the branch can use them without restriction.</p>
+		</div>
+	</body>
+
+</html>

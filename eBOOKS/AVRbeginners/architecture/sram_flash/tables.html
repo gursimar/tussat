@@ -1,0 +1,86 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html>
+
+	<head>
+                <meta http-equiv="content-type" content="text/html;charset=iso-8859-1">
+		<title>Welcome To AVRbeginners.net!</title>
+		<link href="../../main.css" rel="stylesheet">
+	</head>
+
+	<body class="content_page">
+		<div class="content">
+			<div class="heading">Lookup Tables			</div>
+			<p>Lookup tables are an easy way to convert numbers to other formats and they also provide a way to make calculations faster by providing basic values. A sine table could look like this (see second example below for an AVR assembler version of this):
+			<table class="codebox" width="95%" border="0" cellspacing="0" cellpadding="0">
+				<tr>
+					<td align="center">Angle:</td>
+					<td align="center" width="40">0&deg;</td>
+					<td align="center" width="40">10&deg;</td>
+					<td align="center" width="40">20&deg;</td>
+					<td align="center" width="40">30&deg;</td>
+					<td align="center" width="40">40&deg;</td>
+					<td align="center" width="40">50&deg;</td>
+					<td align="center" width="40">60&deg;</td>
+					<td align="center" width="40">70&deg;</td>
+					<td align="center" width="40">80&deg;</td>
+					<td align="center" width="40">90&deg;</td>
+				</tr>
+				<tr>
+					<td>
+						<div align="center">
+							Sine (*100)</div>
+					</td>
+					<td align="center" width="40">0</td>
+					<td align="center" width="40">17</td>
+					<td align="center" width="40">34</td>
+					<td align="center" width="40">50</td>
+					<td align="center" width="40">64</td>
+					<td align="center" width="40">77</td>
+					<td align="center" width="40">87</td>
+					<td align="center" width="40">94</td>
+					<td align="center" width="40">98</td>
+					<td align="center" width="40">100</td>
+				</tr>
+			</table>
+			<p>This tble is pretty rough and won't give you a very good result if you really need to calculate values based on a sine. On the other hand this table would only use 8 bits for the lookup value and doesn't even really use the 8 bit range as it could: By multiplying the sine of an angle by 200 we would still move within the 8 bit range while having a higher precision: The sine of 60&deg; * 200 is 173, not 174 as the table above would give us (when multiplied by two). With 16 bits the precision is fairly good, as we can even multiply the sine by 40,000 for storing it in a table! When the values have to be used however we still need to keep in mind that the AVR needs them for calculations: A multiplication by 2 or 4 is good as we can just shift the result right one or two places for dividing it again. But that's not the problem for now....</p>
+			<p>Lookup tables are usually stored in program memory using the .db or .dw directives and have an own label for addressing:</p>
+		</div>
+		<div class="codebox">
+			<div class="content">
+				<p>sine_table:<br>
+					.db 0, 17, 34, 50, 64, 77, 87, 94, 98, 100</p>
+			</div>
+		</div>
+		<div class="content">
+			<p>The label is used to have an index register pair point at the table. Assuming the angle we need the sine of is 40&deg; and the index register pait used is X, the following code returns the sine of 40&deg; * 100:<br>
+			</p>
+			<table class="codebox" width="95%" border="0" cellspacing="0" cellpadding="0">
+				<tr>
+					<td width="160">ldi XL, low(2*sine_table)<br>
+						ldi XH, high(2*sine_table)<br>
+						ldi r16, 4<br>
+						ldi r17, 0<br>
+						add XL, r16<br>
+						adc XH, r17<br>
+						lpm<br>
+					</td>
+					<td>; load BYTE ADDRESS (word address*2) of the table into<br>
+						; X<br>
+						; load r16 with 4 (which is the offset to the sine of 40&deg;)<br>
+						; load a dummy with 0 for 16-bit addition<br>
+						; add the angle to the sine table base address<br>
+						; <br>
+						; and load sine(40)*100 from program memory into r0</td>
+				</tr>
+			</table>
+			<p>This example was fairly simple, but it shows how to get a value from a table we first made up in program memory. If multiply values are to be read from the table, the AVR has two powerful instructions for us: adiw (add immediate to word) and sbiw (subtract immediate from word). These only take the lower register of a word as an argument and can only operate on r24, 26, 28, 30 (which includes X, Y and Z). The advantage of these instructions over normal 6-bit additions and subtractions is that they don't need any registers for holding the add/sub value. The example above needs those registers, as the value we want to add is not known at the time when we're writing the code.</p>
+			<p>On some AVRs lpm can also load the program memory contents to a register different than r0 and can post-increment Z. Possible ways of using lpm are:</p>
+			<p>lpm</p>
+			<p>lpm r16, Z</p>
+			<p>lpm r16, Z+ (while r16 can in both cases be replaced by any other register)</p>
+			<p>This makes usage of adiw or sbiw not necessary and saves code space on the devices which support the lpm rr, Z+ instruction. The AT90S1200 doesn't have lpm at all, the 2313 only supports a bare lpm. Look at your device's specific instruciton set for details.</p>
+		</div>
+	</body>
+
+</html>

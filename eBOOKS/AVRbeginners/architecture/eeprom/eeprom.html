@@ -1,0 +1,93 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html>
+
+	<head>
+                <meta http-equiv="content-type" content="text/html;charset=iso-8859-1">
+		<title>Welcome To AVRbeginners.net!</title>
+		<link href="../../main.css" rel="stylesheet" media="screen">
+	</head>
+
+	<body class="content_page">
+		<div class="heading">
+			The EEPROM<br>
+		</div>
+
+		<div class="content">
+		<p>EEPROM (Electrically Erasable Programmable Read Only Memory) is one of the three memory types of AVRs (the other are the Flash memory and SRAM). EEPROM is able to retain its contents when there is no supply voltage. You can also change the EEPROM contents on runtime, so, EEPROM is useful to store information like calibration values, ID numbers, etc.</p>
+		<p>Most AVRs have some amount of EEPROM (the exceptions are ATtiny11 and ATtiny28). You must check the corresponding datasheet to know the exact amount of memory of your particular device.</p>
+		<p>To write in the EEPROM, you need to specify the data you want to write and the address at which you want to write this data. In order to prevent unintentional EEPROM writes (for instance, during power supply power up/down), a specific write procedure must be followed. The write process is not instantaneous, it takes between 2.5 to 4 ms. For this reason, your software must check if the EEPROM is ready to write a new byte (maybe a previous write opeartion is not finished yet).</p>
+		<p>The address of the byte you want to write is specified in the EEPROM Address Register (EEAR). If the AVR you are using has more than 256 bytes, the EEAR register is divided in the EEARH and EEARL registers. The EEPROM Data Register (EEDR) contains the data you want to store.</p>
+		<p>The EEPROM Control Register (EECR) is used to control the operation of the EEPROM. It has three bits : EEMWE, EEWE and EERE. The EERE (EEPROM Read Enable) bit is used to read the EEPROM and is discussed later. In order to issue an EEPROM write, you must first set the EEMWE (EEPROM Master Write Enable) bit, and then set the EEWE (EEPROM write enable) bit. If you don't set EEMWE first, setting EEWE will have no effect. The EEWE bit is also used to know if the EEPROM is ready to write a new byte. While the EEPROM is busy, EEWE is set to one, and is cleared by hardware when the EEPROM is ready. So, your program can poll this bit and wait until is cleared before writing the next byte.</p>
+		<p>The following is a code snippet for writing the data 0xAA in address 0x10 :</p>
+
+		<table class="codebox" width="95%" border="0" cellspacing="0" cellpadding="0">
+			<tr>
+				<td style="border-width: 0px;" valign="top" width="150">
+					cli<br>&nbsp;<br>
+
+					EEPROM_write:<br>
+					sbic EECR, EEWE<br>
+					rjmp EEPROM_write<br>
+					ldi r16, 0x10<br>
+					out EEAR, r16<br>
+					ldi r16, 0xAA<br>
+					out EEDR, r16<br>
+					sbi EECR; EEMWE<br>
+					sbi EECR, EEWE<br>&nbsp;<br>
+
+					sei
+				</td>
+				<td style="border-width: 0px;" valign="top">
+					; disable interrupts<br>&nbsp;<br>&nbsp;<br>
+
+
+					; if write enable bit is cleared, EEPROM is ready to be written to<br>
+					; else loop until EEWE cleared<br>
+					; load r16 with address (0x10)<br>
+					; and write it to the address register<br>
+					; load with the data we want to write (0xAA)<br>
+					; and write it to the data register<br>
+					; set master write enable bit<br>
+					; set write enable bit<br>&nbsp;<br>
+
+					; and allow interrupts again
+				</td>
+			</tr>
+		</table>
+
+		<p>To read a data from the EEPROM, you must first check that the EEPROM is not busy by polling the EEWE bit, then you set the EEAR register 
+		with the address you want to read, and then set the EERE bit in the EECR register. After that, the requested data is found in the EEDR 
+		register.</p>
+
+		<p>The following is a code snippet for reading the data stored in address 0x10. The read data is stored in r16.</p>
+
+		<table class="codebox" width="95%" border="0" cellspacing="0" cellpadding="0">
+			<tr>
+				<td style="border-width: 0px;" valign="top" width="150">
+					EEPROM_read:<br>&nbsp;<br>
+
+					sbic EECR, EEWE<br>
+					rjmp EEPROM_read<br>
+					ldi r16, 0x10<br>
+					out EEAR, r16<br>
+					sbi EECR, EERE<br>
+					in r16, EEDR
+				</td>
+				<td style="border-width: 0px;" valign="top">
+					<br>&nbsp;<br>; check if the EEPROM is busy writing a byte<br>&nbsp;<br>
+
+
+					; load address register with 0x10<br>&nbsp;<br>
+					; set read enable bit<br>
+					; and get the data from address 0x10
+				</td>
+			</tr>
+		</table>
+
+		<p>Quite often people report problems reading the data at EEPROM address 0. The data is corrupted or appears not to be written correctly after a reset. This has a power reason: If the AVR does not have enough power to run (during times of low supply voltage) it can perform unexpected instructions and corrupt the first eeprom address. You either need a good reset circuit which can do a reset whenever needed or just don't use address 0.</p>
+
+		</div>
+	</body>
+
+</html>
