@@ -1,0 +1,137 @@
+
+eeprom.elf:     file format elf32-avr
+
+Sections:
+Idx Name          Size      VMA       LMA       File off  Algn
+  0 .text         000000a2  00000000  00000000  00000054  2**1
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+  1 .debug_aranges 00000020  00000000  00000000  000000f6  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  2 .debug_pubnames 0000001b  00000000  00000000  00000116  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  3 .debug_info   0000012d  00000000  00000000  00000131  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  4 .debug_abbrev 000000ed  00000000  00000000  0000025e  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  5 .debug_line   0000012f  00000000  00000000  0000034b  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  6 .debug_frame  00000020  00000000  00000000  0000047c  2**2
+                  CONTENTS, READONLY, DEBUGGING
+  7 .debug_str    000000b5  00000000  00000000  0000049c  2**0
+                  CONTENTS, READONLY, DEBUGGING
+
+Disassembly of section .text:
+
+00000000 <__vectors>:
+   0:	0c 94 2a 00 	jmp	0x54	; 0x54 <__ctors_end>
+   4:	0c 94 34 00 	jmp	0x68	; 0x68 <__bad_interrupt>
+   8:	0c 94 34 00 	jmp	0x68	; 0x68 <__bad_interrupt>
+   c:	0c 94 34 00 	jmp	0x68	; 0x68 <__bad_interrupt>
+  10:	0c 94 34 00 	jmp	0x68	; 0x68 <__bad_interrupt>
+  14:	0c 94 34 00 	jmp	0x68	; 0x68 <__bad_interrupt>
+  18:	0c 94 34 00 	jmp	0x68	; 0x68 <__bad_interrupt>
+  1c:	0c 94 34 00 	jmp	0x68	; 0x68 <__bad_interrupt>
+  20:	0c 94 34 00 	jmp	0x68	; 0x68 <__bad_interrupt>
+  24:	0c 94 34 00 	jmp	0x68	; 0x68 <__bad_interrupt>
+  28:	0c 94 34 00 	jmp	0x68	; 0x68 <__bad_interrupt>
+  2c:	0c 94 34 00 	jmp	0x68	; 0x68 <__bad_interrupt>
+  30:	0c 94 34 00 	jmp	0x68	; 0x68 <__bad_interrupt>
+  34:	0c 94 34 00 	jmp	0x68	; 0x68 <__bad_interrupt>
+  38:	0c 94 34 00 	jmp	0x68	; 0x68 <__bad_interrupt>
+  3c:	0c 94 34 00 	jmp	0x68	; 0x68 <__bad_interrupt>
+  40:	0c 94 34 00 	jmp	0x68	; 0x68 <__bad_interrupt>
+  44:	0c 94 34 00 	jmp	0x68	; 0x68 <__bad_interrupt>
+  48:	0c 94 34 00 	jmp	0x68	; 0x68 <__bad_interrupt>
+  4c:	0c 94 34 00 	jmp	0x68	; 0x68 <__bad_interrupt>
+  50:	0c 94 34 00 	jmp	0x68	; 0x68 <__bad_interrupt>
+
+00000054 <__ctors_end>:
+  54:	11 24       	eor	r1, r1
+  56:	1f be       	out	0x3f, r1	; 63
+  58:	cf e5       	ldi	r28, 0x5F	; 95
+  5a:	d4 e0       	ldi	r29, 0x04	; 4
+  5c:	de bf       	out	0x3e, r29	; 62
+  5e:	cd bf       	out	0x3d, r28	; 61
+  60:	0e 94 36 00 	call	0x6c	; 0x6c <main>
+  64:	0c 94 4f 00 	jmp	0x9e	; 0x9e <_exit>
+
+00000068 <__bad_interrupt>:
+  68:	0c 94 00 00 	jmp	0	; 0x0 <__vectors>
+
+0000006c <main>:
+
+void main(void) 
+{ 
+    
+
+	 DDRC=0XFF;
+  6c:	8f ef       	ldi	r24, 0xFF	; 255
+  6e:	84 bb       	out	0x14, r24	; 20
+/** \ingroup avr_eeprom
+    Write a byte \a __value to EEPROM address \a __p.
+ */
+static __inline__ void eeprom_write_byte (uint8_t *__p, uint8_t __value)
+{
+    do {} while (!eeprom_is_ready ());
+  70:	e1 99       	sbic	0x1c, 1	; 28
+  72:	fe cf       	rjmp	.-4      	; 0x70 <main+0x4>
+#endif
+
+#if	E2END <= 0xFF
+    EEARL = (size_t)__p;
+#else
+    EEAR = (size_t)__p;
+  74:	8e e2       	ldi	r24, 0x2E	; 46
+  76:	90 e0       	ldi	r25, 0x00	; 0
+  78:	9f bb       	out	0x1f, r25	; 31
+  7a:	8e bb       	out	0x1e, r24	; 30
+#endif
+    EEDR = __value;
+  7c:	81 e1       	ldi	r24, 0x11	; 17
+  7e:	8d bb       	out	0x1d, r24	; 29
+
+    __asm__ __volatile__ (
+  80:	0f b6       	in	r0, 0x3f	; 63
+  82:	f8 94       	cli
+  84:	e2 9a       	sbi	0x1c, 2	; 28
+  86:	e1 9a       	sbi	0x1c, 1	; 28
+  88:	0f be       	out	0x3f, r0	; 63
+/** \ingroup avr_eeprom
+    Read one byte from EEPROM address \a __p.
+ */
+__ATTR_PURE__ static __inline__ uint8_t eeprom_read_byte (const uint8_t *__p)
+{
+    do {} while (!eeprom_is_ready ());
+  8a:	e1 99       	sbic	0x1c, 1	; 28
+  8c:	fe cf       	rjmp	.-4      	; 0x8a <main+0x1e>
+#if E2END <= 0xFF
+    EEARL = (size_t)__p;
+#else
+    EEAR = (size_t)__p;
+  8e:	8e e2       	ldi	r24, 0x2E	; 46
+  90:	90 e0       	ldi	r25, 0x00	; 0
+  92:	9f bb       	out	0x1f, r25	; 31
+  94:	8e bb       	out	0x1e, r24	; 30
+    /* Use inline assembly below as some AVRs have problems with accessing
+    EECR with STS instructions. For example, see errata for ATmega64. 
+    The code below also assumes that EECR and EEDR are in the I/O space.
+    */
+    uint8_t __result;
+    __asm__ __volatile__
+  96:	e0 9a       	sbi	0x1c, 0	; 28
+  98:	8d b3       	in	r24, 0x1d	; 29
+
+
+ eeprom_write_byte ((uint8_t *)46, value);
+
+    
+	PORTC=eeprom_read_byte((uint8_t*)46);
+  9a:	85 bb       	out	0x15, r24	; 21
+}
+  9c:	08 95       	ret
+
+0000009e <_exit>:
+  9e:	f8 94       	cli
+
+000000a0 <__stop_program>:
+  a0:	ff cf       	rjmp	.-2      	; 0xa0 <__stop_program>

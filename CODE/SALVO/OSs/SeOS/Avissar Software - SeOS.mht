@@ -1,0 +1,242 @@
+From: "Saved by Windows Internet Explorer 8"
+Subject: Avissar Software - Embedded Projects
+Date: Mon, 15 Feb 2010 23:45:46 +0530
+MIME-Version: 1.0
+Content-Type: multipart/related;
+	type="text/html";
+	boundary="----=_NextPart_000_0039_01CAAE98.FEA35720"
+X-MimeOLE: Produced By Microsoft MimeOLE V6.1.7600.16385
+
+This is a multi-part message in MIME format.
+
+------=_NextPart_000_0039_01CAAE98.FEA35720
+Content-Type: text/html;
+	charset="Windows-1252"
+Content-Transfer-Encoding: quoted-printable
+Content-Location: http://dftpd.com/embedded.php
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD><TITLE>Avissar Software - Embedded Projects</TITLE>
+<META content=3D"text/html; charset=3Dwindows-1252" =
+http-equiv=3DContent-Type>
+<META name=3DGENERATOR content=3D"MSHTML 8.00.7600.16490"></HEAD>
+<BODY bgColor=3Dwhite>
+<TABLE border=3D0 cellSpacing=3D0 cellPadding=3D0 width=3D"95%">
+  <TBODY>
+  <TR>
+    <TD bgColor=3D#333366><FONT color=3Dwhite size=3D5>&nbsp;<B>Avissar=20
+      Software</B></FONT></TD></TR>
+  <TR>
+    <TD bgColor=3D#333366>&nbsp;</TD></TR>
+  <TR>
+    <TD bgColor=3D#666699>
+      <TABLE border=3D0 cellSpacing=3D0 cellPadding=3D0>
+        <TBODY>
+        <TR>
+          <TD width=3D"65%"><FONT color=3Dwhite =
+size=3D5>&nbsp;<B>Embedded=20
+            Projects</B></FONT></TD>
+          <TD><A href=3D"http://dftpd.com/index.php"><IMG border=3D0=20
+src=3D""></A></TD>
+          <TD><A href=3D"http://dftpd.com/products.php"><IMG border=3D0=20
+            src=3D"http://dftpd.com/images/menu-products.gif"></A></TD>
+          <TD><A href=3D"http://dftpd.com/downloads.php"><IMG border=3D0 =
+
+            src=3D"http://dftpd.com/images/menu-downloads.gif"></A></TD>
+          <TD><A href=3D"http://dftpd.com/feedback.php"><IMG border=3D0=20
+            =
+src=3D"http://dftpd.com/images/menu-feedback.gif"></A></TD></TR></TBODY><=
+/TABLE></TD></TR>
+  <TR>
+    <TD><BR><FONT size=3D4><B><U>SEOS (Simple Embedded Operating=20
+      System)</U></B></FONT><BR>
+      <TABLE border=3D0 cellSpacing=3D0 cellPadding=3D0 width=3D"90%">
+        <TBODY>
+        <TR>
+          <TD>SEOS is a small and simple embedded RTOS. It is loosely =
+based on=20
+            the ADEOS operating system described in "Programming =
+Embedded=20
+            Systems in C and C++" by Michael Barr (see <A=20
+            href=3D"http://dftpd.com/embedded.php#books">Recomended =
+Books</A>). It=20
+            runs on the Atmel AVR ATmega processors. It was developed on =
+the=20
+            ATmega16 but it should run on any of the ATmega processors. =
+In=20
+            general it should be relatively easy to modify SEOS to work =
+with=20
+            other architectures -- most changes will need to be made to =
+the=20
+            context switching code. The main features of SEOS are a =
+priority=20
+            based cooperative multitasking scheduler, critical sections, =
+serial=20
+            port communications, and timer management. However, what's =
+probably=20
+            the best thing about SEOS is that it is very simple and easy =
+to=20
+            understand and provides a good starting point for more =
+advanced=20
+            applications. NOTE: SEOS has not been rigorously tested and =
+any=20
+            applications that use it should be carefully debugged.=20
+            <BR><BR><B><U>Development Environment</U></B><BR>SEOS was =
+developed=20
+            using the WinAVR (20030424) compiler package. WinAVR is a =
+free port=20
+            for Windows of the avr-gcc cross compiler. The hardware used =
+is a=20
+            ATmega16 running on a STK500 development board made by =
+Atmel.=20
+            AVRStudio 4.07, which is freely available from Atmel, was =
+used to=20
+            program the board and run simulations. WinAVR, along with a =
+lot of=20
+            other useful AVR stuff, is available at <A=20
+            =
+href=3D"http://www.avrfreaks.net/">http://www.avrfreaks.net/</A>.=20
+            <BR><BR><B><U>Memory Usage</U></B><BR>The minimum amount of =
+memory=20
+            required to run SEOS depends on the number of tasks added.=20
+            Realistically 1-Kbyte of SRAM would be a good minimum to =
+use. The=20
+            state for each task requires 43 bytes. This state includes a =
+32-byte=20
+            array used to save all the registers. To minimize the memory =
+usage=20
+            the context switch code can be modified to only save the =
+minimum=20
+            required registers -- the registers that must be saved is =
+compiler=20
+            specific. Each task must also have a stack size that is at =
+least 4=20
+            bytes + stack size of the interrupt with the greatest stack =
+size +=20
+            any additional stack needed by the task for local variables =
+and=20
+            function calls. The stack for each task, as well as the =
+state for=20
+            the task, is stored on the heap. The size of each task's =
+stack is=20
+            set when the task is added. When accounting for the stack =
+size of=20
+            interrupt routines it is important to note that several =
+registers=20
+            need to be saved on the stack. For WinAVR (avr-gcc for =
+Windows) the=20
+            minimum stack size for an interrupt is approx 17 bytes -- =
+return=20
+            pointer + 15 saved registers. Therefore, the total minimum =
+stack=20
+            size for a task is 4 + 17 + greatest interrupt stack size + =
+task=20
+            specific stack data bytes. To be on the safe side a few =
+additional=20
+            bytes should be added to the task's stack. Also, SEOS uses =
+about 10=20
+            bytes of the system stack space when starting up. NOTE: =
+These memory=20
+            figures are approximations and have not been carefully =
+tested --=20
+            when debugging, stack overflows should always be checked =
+for.=20
+            <BR><BR>SEOS has its own dynamic memory allocation =
+functions. These=20
+            functions can be found in the alloc.c module. This module =
+creates a=20
+            static byte array and allocates pieces of it when needed.=20
+            <BR><BR><B><U>Coding Conventions</U></B><BR>The naming and =
+style=20
+            conventions used for SEOS are primarily based on a handout =
+written=20
+            by Prof. David Stewart (see <A=20
+            =
+href=3D"http://dftpd.com/files/Embedded/handout3.pdf">Handout 3</A>).=20
+            <BR><BR><B><U>SEOS Code Download</U></B><BR><A=20
+            =
+href=3D"http://dftpd.com/embedded-dl.php?product=3Dseos">Click here to=20
+            download SEOS source code.</A><BR>Please click on <A=20
+            href=3D"http://dftpd.com/feedback.php">Feedback</A> to send =
+any=20
+            questions/comments or bugs. <BR><BR><BR><B><U>Code For Tiny=20
+            Processors</U></B><BR>These modules are used for processors =
+that are=20
+            too small to support a RTOS, such as the ATtiny processors. =
+Two C=20
+            modules are currently included: sleep.c and swtx.c. The =
+processor=20
+            used when developing these is the ATtiny26, which has 128 =
+Bytes of=20
+            SRAM. The sleep module simply implements a sleep() function =
+that=20
+            blocks (busy waits) for a specified number of milliseconds.=20
+            Timer/Counter0 is used to keep track of the sleep time. The =
+swtx=20
+            module is a software implementation of a UART transmitter. =
+It can be=20
+            configured to use any I/O pin. Timer/Counter1 is used to =
+generate=20
+            the baud rate for the swtx module. <BR><BR><B><U>TINY Code=20
+            Download</U></B><BR><A=20
+            =
+href=3D"http://dftpd.com/embedded-dl.php?product=3Dtiny-utils">Click=20
+            here to download TINY source code.</A><BR>Please click on <A =
+
+            href=3D"http://dftpd.com/feedback.php">Feedback</A> to send =
+any=20
+            questions/comments or bugs. <BR><BR><BR><BR><A=20
+            name=3Dbooks><B>Recomended Books:</B><BR><BR>Programming =
+Embedded=20
+            Systems in C and C++<BR>By Michael Barr<BR>Published by =
+O'Reilly=20
+            &amp; Associates, Inc.<BR><A=20
+            =
+href=3D"http://www.oreilly.com/catalog/embsys/">www.oreilly.com/catalog/e=
+mbsys/</A><BR><BR>Designing=20
+            Embedded Hardware<BR>By John Catsoulis<BR>Published by =
+O'Reilly=20
+            &amp; Associates, Inc.<BR><A=20
+            =
+href=3D"http://www.oreilly.com/catalog/dbhardware/">www.oreilly.com/catal=
+og/dbhardware/</A><BR><BR><BR><A=20
+            name=3Dlinks><B>Related Links:</B><BR><A=20
+            =
+href=3D"http://www.avrfreaks.net/">http://www.avrfreaks.net/</A><BR><A=20
+            =
+href=3D"http://www.atmel.com/">http://www.atmel.com/</A><BR><A=20
+            =
+href=3D"http://www.oreilly.com/">http://www.oreilly.com/</A><BR><BR></TD>=
+</TR></TBODY></TABLE></TD></TR></TBODY></TABLE><BR></BODY></HTML>
+
+------=_NextPart_000_0039_01CAAE98.FEA35720
+Content-Type: image/gif
+Content-Transfer-Encoding: base64
+Content-Location: http://dftpd.com/images/menu-products.gif
+
+R0lGODlhSAAZAJH/AP///wAAAMDAwAAAACH5BAEAAAIALAAAAABIABkAQAKJlI+py+0Po5x0ArDu
+udho7XUgJ4BluG1dxbbuC8fWWmLcd6+5yPc4mZMJh8Si8Yh07GgV0wy2RElRplGvpqiSJE5V4oYA
+6oK1bbncTarX7Lb7DY/Lw2RXuu3Mf7NTJV13wmWzZWYlRQiIpWjY13CnRae4mJiWBwbxSPMTMsgz
+hcN5ZjZHWmpqWgAAOwAAOw==
+
+------=_NextPart_000_0039_01CAAE98.FEA35720
+Content-Type: image/gif
+Content-Transfer-Encoding: base64
+Content-Location: http://dftpd.com/images/menu-downloads.gif
+
+R0lGODlhVwAZAJH/AP///wAAAMDAwAAAACH5BAEAAAIALAAAAABXABkAQAKflI+py+0Po5y0WgcA
+yoZ3LWSc+B3eCYYaWrapd8XyTNf2rcCqKYLs1yPtgLAgr0dM4ZbMpvMJjTKDOlzVcqXofsORd9j1
+vZRhnkoooSaMZte4dS6ySSi09I7P6/f8vv8PuKDmlKVFVrFFdhihVLV4KGYSYri2ImYJVKZZt3np
+lqYIVrbSWZKYhAnHBkH1c3rW5hoJyynktRiYq7vLK1MAADs=
+
+------=_NextPart_000_0039_01CAAE98.FEA35720
+Content-Type: image/gif
+Content-Transfer-Encoding: base64
+Content-Location: http://dftpd.com/images/menu-feedback.gif
+
+R0lGODlhTAAZAJH/AP///wAAAMDAwAAAACH5BAEAAAIALAAAAABMABkAQAKQlI+py+0Po5y0KgBu
+Tlib/m1CB5aHSIrWyrbuC1Mgh801epf5eYc1P5rFhsSi8YhMOnIqyy/oEkaYIaAuY9tkEc+mz9uQ
+fnHC3VhrDm6hyrb7DY/L5/R6hQme4KL5cB/spWW1AMjVx0DFplOluNfIuAglhhhIZenIJrnzZDhJ
+SYiFBolG+tgl+minusraylAAADs7
+
+------=_NextPart_000_0039_01CAAE98.FEA35720--

@@ -1,0 +1,36 @@
+We chose a general purpose CPU:
+• PRO: Ease of design; can support an operating system
+• CON: Power hungry 2.5 W
+
+Diamond Systems Prometheus CPU system included abuilt-in 16-channel, 16-bit A/D converter.
+
+Linux OS fully compatible with Prometheus CPU board.
+
+This meant that no time was wasted finding or developing I/O drivers.
+
+Another advantage was that several key device drivers were already written for AX.25 (packet protocol) and the Baypac modem.
+
+These include free utilities that report 
+memory use
+disk space utilization
+software status
+date/time manipulation.
+
+The utilities were easily integrated into a set of diagnostic scripts that were used to report status to the contact software. 
+Other useful utilities included
+compression (bzip2)
+data integrity checking (md5sum)
+shell utilities like cat, grep,bash, etc.
+
+IP protocol stack
+PING, SSH, and SCP
+
+DISADVANTAGES
+the great flexibility requires much more testing (there can be a high number of corner cases)
+
+there is limited time-tagging accuracy (although our chosen Diamond Systems Prometheus computer
+addressed this with hardware timers).
+
+require the support of many files that work together and must be present in a valid state. With such
+a small team Quakefinder never had the time or developed the code necessary to validate all of the Linux files necessary to operate the payload software. It should be pointed out that Linux tools exist to solve this problem; one only needs time.
+

@@ -1,0 +1,1281 @@
+
+atmega_8.elf:     file format elf32-avr
+
+Sections:
+Idx Name          Size      VMA       LMA       File off  Algn
+  0 .text         000008e6  00000000  00000000  00000074  2**1
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+  1 .bss          00000041  00800060  00800060  0000095a  2**0
+                  ALLOC
+  2 .debug_aranges 00000020  00000000  00000000  0000095a  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  3 .debug_pubnames 00000159  00000000  00000000  0000097a  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  4 .debug_info   00000ac7  00000000  00000000  00000ad3  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  5 .debug_abbrev 00000308  00000000  00000000  0000159a  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  6 .debug_line   000003d5  00000000  00000000  000018a2  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  7 .debug_frame  000000a0  00000000  00000000  00001c78  2**2
+                  CONTENTS, READONLY, DEBUGGING
+  8 .debug_str    000003f6  00000000  00000000  00001d18  2**0
+                  CONTENTS, READONLY, DEBUGGING
+
+Disassembly of section .text:
+
+00000000 <__vectors>:
+   0:	12 c0       	rjmp	.+36     	; 0x26 <__ctors_end>
+   2:	2c c0       	rjmp	.+88     	; 0x5c <__bad_interrupt>
+   4:	2b c0       	rjmp	.+86     	; 0x5c <__bad_interrupt>
+   6:	2a c0       	rjmp	.+84     	; 0x5c <__bad_interrupt>
+   8:	29 c0       	rjmp	.+82     	; 0x5c <__bad_interrupt>
+   a:	4d c0       	rjmp	.+154    	; 0xa6 <__vector_5>
+   c:	4c c0       	rjmp	.+152    	; 0xa6 <__vector_5>
+   e:	26 c0       	rjmp	.+76     	; 0x5c <__bad_interrupt>
+  10:	25 c0       	rjmp	.+74     	; 0x5c <__bad_interrupt>
+  12:	24 c0       	rjmp	.+72     	; 0x5c <__bad_interrupt>
+  14:	23 c0       	rjmp	.+70     	; 0x5c <__bad_interrupt>
+  16:	22 c0       	rjmp	.+68     	; 0x5c <__bad_interrupt>
+  18:	21 c0       	rjmp	.+66     	; 0x5c <__bad_interrupt>
+  1a:	20 c0       	rjmp	.+64     	; 0x5c <__bad_interrupt>
+  1c:	1f c0       	rjmp	.+62     	; 0x5c <__bad_interrupt>
+  1e:	1e c0       	rjmp	.+60     	; 0x5c <__bad_interrupt>
+  20:	1d c0       	rjmp	.+58     	; 0x5c <__bad_interrupt>
+  22:	1c c0       	rjmp	.+56     	; 0x5c <__bad_interrupt>
+  24:	1b c0       	rjmp	.+54     	; 0x5c <__bad_interrupt>
+
+00000026 <__ctors_end>:
+  26:	11 24       	eor	r1, r1
+  28:	1f be       	out	0x3f, r1	; 63
+  2a:	cf e5       	ldi	r28, 0x5F	; 95
+  2c:	d4 e0       	ldi	r29, 0x04	; 4
+  2e:	de bf       	out	0x3e, r29	; 62
+  30:	cd bf       	out	0x3d, r28	; 61
+
+00000032 <__do_copy_data>:
+  32:	10 e0       	ldi	r17, 0x00	; 0
+  34:	a0 e6       	ldi	r26, 0x60	; 96
+  36:	b0 e0       	ldi	r27, 0x00	; 0
+  38:	e6 ee       	ldi	r30, 0xE6	; 230
+  3a:	f8 e0       	ldi	r31, 0x08	; 8
+  3c:	02 c0       	rjmp	.+4      	; 0x42 <.do_copy_data_start>
+
+0000003e <.do_copy_data_loop>:
+  3e:	05 90       	lpm	r0, Z+
+  40:	0d 92       	st	X+, r0
+
+00000042 <.do_copy_data_start>:
+  42:	a0 36       	cpi	r26, 0x60	; 96
+  44:	b1 07       	cpc	r27, r17
+  46:	d9 f7       	brne	.-10     	; 0x3e <.do_copy_data_loop>
+
+00000048 <__do_clear_bss>:
+  48:	10 e0       	ldi	r17, 0x00	; 0
+  4a:	a0 e6       	ldi	r26, 0x60	; 96
+  4c:	b0 e0       	ldi	r27, 0x00	; 0
+  4e:	01 c0       	rjmp	.+2      	; 0x52 <.do_clear_bss_start>
+
+00000050 <.do_clear_bss_loop>:
+  50:	1d 92       	st	X+, r1
+
+00000052 <.do_clear_bss_start>:
+  52:	a1 3a       	cpi	r26, 0xA1	; 161
+  54:	b1 07       	cpc	r27, r17
+  56:	e1 f7       	brne	.-8      	; 0x50 <.do_clear_bss_loop>
+  58:	56 d0       	rcall	.+172    	; 0x106 <main>
+  5a:	43 c4       	rjmp	.+2182   	; 0x8e2 <_exit>
+
+0000005c <__bad_interrupt>:
+  5c:	d1 cf       	rjmp	.-94     	; 0x0 <__vectors>
+
+0000005e <board_init>:
+
+
+
+//	Board- and compiler-specific initilaization, etc.
+void board_init ( void )
+{
+  5e:	df 93       	push	r29
+  60:	cf 93       	push	r28
+  62:	cd b7       	in	r28, 0x3d	; 61
+  64:	de b7       	in	r29, 0x3e	; 62
+  // Timer1 init.
+ 	TCCR1B = 0x00;  // Stop Timer1
+  66:	ee e4       	ldi	r30, 0x4E	; 78
+  68:	f0 e0       	ldi	r31, 0x00	; 0
+  6a:	10 82       	st	Z, r1
+  	TCNT1H = 0x00;  // Clear Timer1
+  6c:	ed e4       	ldi	r30, 0x4D	; 77
+  6e:	f0 e0       	ldi	r31, 0x00	; 0
+  70:	10 82       	st	Z, r1
+  	OCR1AH = 0x00;  // Set Compare A to 39
+  72:	eb e4       	ldi	r30, 0x4B	; 75
+  74:	f0 e0       	ldi	r31, 0x00	; 0
+  76:	10 82       	st	Z, r1
+  	OCR1AL = 0x26;  //  ((4MHz/1024)/39) = 10ms (9.984ms) timer
+  78:	ea e4       	ldi	r30, 0x4A	; 74
+  7a:	f0 e0       	ldi	r31, 0x00	; 0
+  7c:	86 e2       	ldi	r24, 0x26	; 38
+  7e:	80 83       	st	Z, r24
+  	TIMSK  = _BV(OCIE1A);  // Compare A Interrupt enable
+  80:	e9 e5       	ldi	r30, 0x59	; 89
+  82:	f0 e0       	ldi	r31, 0x00	; 0
+  84:	80 e1       	ldi	r24, 0x10	; 16
+  86:	80 83       	st	Z, r24
+  	TCCR1B = _BV(WGM12)|_BV(CS12)|_BV(CS10);  // Start Timer1 with clk/1024
+  88:	ee e4       	ldi	r30, 0x4E	; 78
+  8a:	f0 e0       	ldi	r31, 0x00	; 0
+  8c:	8d e0       	ldi	r24, 0x0D	; 13
+  8e:	80 83       	st	Z, r24
+}
+  90:	cf 91       	pop	r28
+  92:	df 91       	pop	r29
+  94:	08 95       	ret
+
+00000096 <board_enable_interrupt>:
+
+void board_enable_interrupt ( void )
+{
+  96:	df 93       	push	r29
+  98:	cf 93       	push	r28
+  9a:	cd b7       	in	r28, 0x3d	; 61
+  9c:	de b7       	in	r29, 0x3e	; 62
+  	sei();
+  9e:	78 94       	sei
+}
+  a0:	cf 91       	pop	r28
+  a2:	df 91       	pop	r29
+  a4:	08 95       	ret
+
+000000a6 <__vector_5>:
+
+**                                                         **
+****                                                     ****
+************************************************************/
+ISR(TIMER1_COMPA_vect) 
+{	
+  a6:	1f 92       	push	r1
+  a8:	0f 92       	push	r0
+  aa:	0f b6       	in	r0, 0x3f	; 63
+  ac:	0f 92       	push	r0
+  ae:	11 24       	eor	r1, r1
+  b0:	2f 93       	push	r18
+  b2:	3f 93       	push	r19
+  b4:	4f 93       	push	r20
+  b6:	5f 93       	push	r21
+  b8:	6f 93       	push	r22
+  ba:	7f 93       	push	r23
+  bc:	8f 93       	push	r24
+  be:	9f 93       	push	r25
+  c0:	af 93       	push	r26
+  c2:	bf 93       	push	r27
+  c4:	ef 93       	push	r30
+  c6:	ff 93       	push	r31
+  c8:	df 93       	push	r29
+  ca:	cf 93       	push	r28
+  cc:	cd b7       	in	r28, 0x3d	; 61
+  ce:	de b7       	in	r29, 0x3e	; 62
+	//The whole code depends on the interrupt from the timer ........
+	if (count >=40)
+  d0:	80 91 61 00 	lds	r24, 0x0061
+  d4:	88 32       	cpi	r24, 0x28	; 40
+  d6:	18 f0       	brcs	.+6      	; 0xde <__vector_5+0x38>
+	{
+		//every one sec ...
+		rtclock();
+  d8:	e2 d0       	rcall	.+452    	; 0x29e <rtclock>
+		count=0;
+  da:	10 92 61 00 	sts	0x0061, r1
+	}
+ 	OSTimer();
+  de:	2d d3       	rcall	.+1626   	; 0x73a <OSTimer>
+	//PORTB=~PORTB;
+}
+  e0:	cf 91       	pop	r28
+  e2:	df 91       	pop	r29
+  e4:	ff 91       	pop	r31
+  e6:	ef 91       	pop	r30
+  e8:	bf 91       	pop	r27
+  ea:	af 91       	pop	r26
+  ec:	9f 91       	pop	r25
+  ee:	8f 91       	pop	r24
+  f0:	7f 91       	pop	r23
+  f2:	6f 91       	pop	r22
+  f4:	5f 91       	pop	r21
+  f6:	4f 91       	pop	r20
+  f8:	3f 91       	pop	r19
+  fa:	2f 91       	pop	r18
+  fc:	0f 90       	pop	r0
+  fe:	0f be       	out	0x3f, r0	; 63
+ 100:	0f 90       	pop	r0
+ 102:	1f 90       	pop	r1
+ 104:	18 95       	reti
+
+00000106 <main>:
+
+ISR(TIMER1_CAPT_vect, ISR_ALIASOF(TIMER1_COMPA_vect));
+
+
+int main( void )
+{
+ 106:	df 93       	push	r29
+ 108:	cf 93       	push	r28
+ 10a:	cd b7       	in	r28, 0x3d	; 61
+ 10c:	de b7       	in	r29, 0x3e	; 62
+	board_enable_interrupt();
+ 10e:	c3 df       	rcall	.-122    	; 0x96 <board_enable_interrupt>
+	board_init();
+ 110:	a6 df       	rcall	.-180    	; 0x5e <board_init>
+	OSInit();
+ 112:	31 d1       	rcall	.+610    	; 0x376 <OSInit>
+	OSCreateTask(check, OSTCBP(1), 8);	//moderate priority
+ 114:	8a ea       	ldi	r24, 0xAA	; 170
+ 116:	90 e0       	ldi	r25, 0x00	; 0
+ 118:	2e e7       	ldi	r18, 0x7E	; 126
+ 11a:	30 e0       	ldi	r19, 0x00	; 0
+ 11c:	b9 01       	movw	r22, r18
+ 11e:	48 e0       	ldi	r20, 0x08	; 8
+ 120:	59 d1       	rcall	.+690    	; 0x3d4 <OSCreateTask>
+	OSCreateTask(snake, OSTCBP(2), 3);		//high priority
+ 122:	8c e2       	ldi	r24, 0x2C	; 44
+ 124:	91 e0       	ldi	r25, 0x01	; 1
+ 126:	29 e8       	ldi	r18, 0x89	; 137
+ 128:	30 e0       	ldi	r19, 0x00	; 0
+ 12a:	b9 01       	movw	r22, r18
+ 12c:	43 e0       	ldi	r20, 0x03	; 3
+ 12e:	52 d1       	rcall	.+676    	; 0x3d4 <OSCreateTask>
+	
+//	board_init();
+	
+	DDRB=0xFF;
+ 130:	e7 e3       	ldi	r30, 0x37	; 55
+ 132:	f0 e0       	ldi	r31, 0x00	; 0
+ 134:	8f ef       	ldi	r24, 0xFF	; 255
+ 136:	80 83       	st	Z, r24
+	DDRC=0xFF;
+ 138:	e4 e3       	ldi	r30, 0x34	; 52
+ 13a:	f0 e0       	ldi	r31, 0x00	; 0
+ 13c:	8f ef       	ldi	r24, 0xFF	; 255
+ 13e:	80 83       	st	Z, r24
+	DDRD=0xFF;
+ 140:	e1 e3       	ldi	r30, 0x31	; 49
+ 142:	f0 e0       	ldi	r31, 0x00	; 0
+ 144:	8f ef       	ldi	r24, 0xFF	; 255
+ 146:	80 83       	st	Z, r24
+	PORTB=0b00000001;
+ 148:	e8 e3       	ldi	r30, 0x38	; 56
+ 14a:	f0 e0       	ldi	r31, 0x00	; 0
+ 14c:	81 e0       	ldi	r24, 0x01	; 1
+ 14e:	80 83       	st	Z, r24
+
+	while (1) 
+	{
+		OSSched();
+ 150:	08 d2       	rcall	.+1040   	; 0x562 <OSSched>
+ 152:	fe cf       	rjmp	.-4      	; 0x150 <main+0x4a>
+
+00000154 <check>:
+	}
+}
+
+//low Priority
+void check()
+{
+ 154:	0f 93       	push	r16
+ 156:	1f 93       	push	r17
+ 158:	df 93       	push	r29
+ 15a:	cf 93       	push	r28
+ 15c:	cd b7       	in	r28, 0x3d	; 61
+ 15e:	de b7       	in	r29, 0x3e	; 62
+	while(1)
+	{
+		if(PINC==0b0000001)
+ 160:	e3 e3       	ldi	r30, 0x33	; 51
+ 162:	f0 e0       	ldi	r31, 0x00	; 0
+ 164:	80 81       	ld	r24, Z
+ 166:	81 30       	cpi	r24, 0x01	; 1
+ 168:	f9 f4       	brne	.+62     	; 0x1a8 <check+0x54>
+		{
+			
+			eeprom_write_byte ((uint8_t *)46, value);
+ 16a:	20 91 67 00 	lds	r18, 0x0067
+ 16e:	8e e2       	ldi	r24, 0x2E	; 46
+ 170:	90 e0       	ldi	r25, 0x00	; 0
+ 172:	62 2f       	mov	r22, r18
+ 174:	29 d0       	rcall	.+82     	; 0x1c8 <eeprom_write_byte>
+			
+			// only for veryfing purposes ....
+
+			temp = min<<4;
+ 176:	80 91 65 00 	lds	r24, 0x0065
+ 17a:	82 95       	swap	r24
+ 17c:	80 7f       	andi	r24, 0xF0	; 240
+ 17e:	80 93 68 00 	sts	0x0068, r24
+			value = temp | sec;
+ 182:	90 91 68 00 	lds	r25, 0x0068
+ 186:	80 91 66 00 	lds	r24, 0x0066
+ 18a:	89 2b       	or	r24, r25
+ 18c:	80 93 67 00 	sts	0x0067, r24
+			PORTB=eeprom_read_byte((uint8_t*)46);
+ 190:	08 e3       	ldi	r16, 0x38	; 56
+ 192:	10 e0       	ldi	r17, 0x00	; 0
+ 194:	8e e2       	ldi	r24, 0x2E	; 46
+ 196:	90 e0       	ldi	r25, 0x00	; 0
+ 198:	3e d0       	rcall	.+124    	; 0x216 <eeprom_read_byte>
+ 19a:	f8 01       	movw	r30, r16
+ 19c:	80 83       	st	Z, r24
+			
+
+			OS_Delay(25);
+ 19e:	89 e1       	ldi	r24, 0x19	; 25
+ 1a0:	60 e0       	ldi	r22, 0x00	; 0
+ 1a2:	af d0       	rcall	.+350    	; 0x302 <OSDelay>
+ 1a4:	0e d3       	rcall	.+1564   	; 0x7c2 <OSCtxSw>
+ 1a6:	0e c0       	rjmp	.+28     	; 0x1c4 <check+0x70>
+			//_delay_ms(5000);
+		}
+		else
+		{
+			PORTD=1<<i;
+ 1a8:	e2 e3       	ldi	r30, 0x32	; 50
+ 1aa:	f0 e0       	ldi	r31, 0x00	; 0
+ 1ac:	80 91 60 00 	lds	r24, 0x0060
+ 1b0:	28 2f       	mov	r18, r24
+ 1b2:	30 e0       	ldi	r19, 0x00	; 0
+ 1b4:	81 e0       	ldi	r24, 0x01	; 1
+ 1b6:	90 e0       	ldi	r25, 0x00	; 0
+ 1b8:	02 c0       	rjmp	.+4      	; 0x1be <check+0x6a>
+ 1ba:	88 0f       	add	r24, r24
+ 1bc:	99 1f       	adc	r25, r25
+ 1be:	2a 95       	dec	r18
+ 1c0:	e2 f7       	brpl	.-8      	; 0x1ba <check+0x66>
+ 1c2:	80 83       	st	Z, r24
+		}
+		OS_Yield();
+ 1c4:	fe d2       	rcall	.+1532   	; 0x7c2 <OSCtxSw>
+ 1c6:	cc cf       	rjmp	.-104    	; 0x160 <check+0xc>
+
+000001c8 <eeprom_write_byte>:
+
+/** \ingroup avr_eeprom
+    Write a byte \a __value to EEPROM address \a __p.
+ */
+static __inline__ void eeprom_write_byte (uint8_t *__p, uint8_t __value)
+{
+ 1c8:	df 93       	push	r29
+ 1ca:	cf 93       	push	r28
+ 1cc:	00 d0       	rcall	.+0      	; 0x1ce <eeprom_write_byte+0x6>
+ 1ce:	0f 92       	push	r0
+ 1d0:	cd b7       	in	r28, 0x3d	; 61
+ 1d2:	de b7       	in	r29, 0x3e	; 62
+ 1d4:	9a 83       	std	Y+2, r25	; 0x02
+ 1d6:	89 83       	std	Y+1, r24	; 0x01
+ 1d8:	6b 83       	std	Y+3, r22	; 0x03
+    do {} while (!eeprom_is_ready ());
+ 1da:	ec e3       	ldi	r30, 0x3C	; 60
+ 1dc:	f0 e0       	ldi	r31, 0x00	; 0
+ 1de:	80 81       	ld	r24, Z
+ 1e0:	88 2f       	mov	r24, r24
+ 1e2:	90 e0       	ldi	r25, 0x00	; 0
+ 1e4:	82 70       	andi	r24, 0x02	; 2
+ 1e6:	90 70       	andi	r25, 0x00	; 0
+ 1e8:	00 97       	sbiw	r24, 0x00	; 0
+ 1ea:	b9 f7       	brne	.-18     	; 0x1da <eeprom_write_byte+0x12>
+#endif
+
+#if	E2END <= 0xFF
+    EEARL = (unsigned)__p;
+#else
+    EEAR = (unsigned)__p;
+ 1ec:	ee e3       	ldi	r30, 0x3E	; 62
+ 1ee:	f0 e0       	ldi	r31, 0x00	; 0
+ 1f0:	89 81       	ldd	r24, Y+1	; 0x01
+ 1f2:	9a 81       	ldd	r25, Y+2	; 0x02
+ 1f4:	91 83       	std	Z+1, r25	; 0x01
+ 1f6:	80 83       	st	Z, r24
+#endif
+    EEDR = __value;
+ 1f8:	ed e3       	ldi	r30, 0x3D	; 61
+ 1fa:	f0 e0       	ldi	r31, 0x00	; 0
+ 1fc:	8b 81       	ldd	r24, Y+3	; 0x03
+ 1fe:	80 83       	st	Z, r24
+
+    __asm__ __volatile__ (
+ 200:	0f b6       	in	r0, 0x3f	; 63
+ 202:	f8 94       	cli
+ 204:	e2 9a       	sbi	0x1c, 2	; 28
+ 206:	e1 9a       	sbi	0x1c, 1	; 28
+ 208:	0f be       	out	0x3f, r0	; 63
+          [__sreg]  "i" (_SFR_IO_ADDR(SREG)),
+          [__eemwe] "i" (EEMWE),
+          [__eewe]  "i" (EEWE)
+        : "r0"
+    );
+}
+ 20a:	0f 90       	pop	r0
+ 20c:	0f 90       	pop	r0
+ 20e:	0f 90       	pop	r0
+ 210:	cf 91       	pop	r28
+ 212:	df 91       	pop	r29
+ 214:	08 95       	ret
+
+00000216 <eeprom_read_byte>:
+
+/** \ingroup avr_eeprom
+    Read one byte from EEPROM address \a __p.
+ */
+__ATTR_PURE__ static __inline__ uint8_t eeprom_read_byte (const uint8_t *__p)
+{
+ 216:	df 93       	push	r29
+ 218:	cf 93       	push	r28
+ 21a:	00 d0       	rcall	.+0      	; 0x21c <eeprom_read_byte+0x6>
+ 21c:	0f 92       	push	r0
+ 21e:	cd b7       	in	r28, 0x3d	; 61
+ 220:	de b7       	in	r29, 0x3e	; 62
+ 222:	9b 83       	std	Y+3, r25	; 0x03
+ 224:	8a 83       	std	Y+2, r24	; 0x02
+    do {} while (!eeprom_is_ready ());
+ 226:	ec e3       	ldi	r30, 0x3C	; 60
+ 228:	f0 e0       	ldi	r31, 0x00	; 0
+ 22a:	80 81       	ld	r24, Z
+ 22c:	88 2f       	mov	r24, r24
+ 22e:	90 e0       	ldi	r25, 0x00	; 0
+ 230:	82 70       	andi	r24, 0x02	; 2
+ 232:	90 70       	andi	r25, 0x00	; 0
+ 234:	00 97       	sbiw	r24, 0x00	; 0
+ 236:	b9 f7       	brne	.-18     	; 0x226 <eeprom_read_byte+0x10>
+#if E2END <= 0xFF
+    EEARL = (uint8_t)__p;
+#else
+    EEAR = (uint16_t)__p;
+ 238:	ee e3       	ldi	r30, 0x3E	; 62
+ 23a:	f0 e0       	ldi	r31, 0x00	; 0
+ 23c:	8a 81       	ldd	r24, Y+2	; 0x02
+ 23e:	9b 81       	ldd	r25, Y+3	; 0x03
+ 240:	91 83       	std	Z+1, r25	; 0x01
+ 242:	80 83       	st	Z, r24
+    /* Use inline assembly below as some AVRs have problems with accessing
+    EECR with STS instructions. For example, see errata for ATmega64. 
+    The code below also assumes that EECR and EEDR are in the I/O space.
+    */
+    uint8_t __result;
+    __asm__ __volatile__
+ 244:	e0 9a       	sbi	0x1c, 0	; 28
+ 246:	8d b3       	in	r24, 0x1d	; 29
+ 248:	89 83       	std	Y+1, r24	; 0x01
+        : "=r" (__result)
+        : "i" (_SFR_IO_ADDR(EECR)),
+          "i" (EERE),
+          "i" (_SFR_IO_ADDR(EEDR))
+    );
+    return __result;
+ 24a:	89 81       	ldd	r24, Y+1	; 0x01
+}
+ 24c:	0f 90       	pop	r0
+ 24e:	0f 90       	pop	r0
+ 250:	0f 90       	pop	r0
+ 252:	cf 91       	pop	r28
+ 254:	df 91       	pop	r29
+ 256:	08 95       	ret
+
+00000258 <snake>:
+	}
+}
+
+//high priority
+void snake()
+{
+ 258:	df 93       	push	r29
+ 25a:	cf 93       	push	r28
+ 25c:	cd b7       	in	r28, 0x3d	; 61
+ 25e:	de b7       	in	r29, 0x3e	; 62
+	
+	while(1)
+	{
+		PORTD=1<<(i);
+ 260:	e2 e3       	ldi	r30, 0x32	; 50
+ 262:	f0 e0       	ldi	r31, 0x00	; 0
+ 264:	80 91 60 00 	lds	r24, 0x0060
+ 268:	28 2f       	mov	r18, r24
+ 26a:	30 e0       	ldi	r19, 0x00	; 0
+ 26c:	81 e0       	ldi	r24, 0x01	; 1
+ 26e:	90 e0       	ldi	r25, 0x00	; 0
+ 270:	02 2e       	mov	r0, r18
+ 272:	02 c0       	rjmp	.+4      	; 0x278 <snake+0x20>
+ 274:	88 0f       	add	r24, r24
+ 276:	99 1f       	adc	r25, r25
+ 278:	0a 94       	dec	r0
+ 27a:	e2 f7       	brpl	.-8      	; 0x274 <snake+0x1c>
+ 27c:	80 83       	st	Z, r24
+		
+		i++;
+ 27e:	80 91 60 00 	lds	r24, 0x0060
+ 282:	8f 5f       	subi	r24, 0xFF	; 255
+ 284:	80 93 60 00 	sts	0x0060, r24
+		if(i==8)
+ 288:	80 91 60 00 	lds	r24, 0x0060
+ 28c:	88 30       	cpi	r24, 0x08	; 8
+ 28e:	11 f4       	brne	.+4      	; 0x294 <snake+0x3c>
+		{
+			i=0;
+ 290:	10 92 60 00 	sts	0x0060, r1
+		}
+
+		//OS_Yield();
+
+		 OS_Delay(50);
+ 294:	82 e3       	ldi	r24, 0x32	; 50
+ 296:	60 e0       	ldi	r22, 0x00	; 0
+ 298:	34 d0       	rcall	.+104    	; 0x302 <OSDelay>
+ 29a:	93 d2       	rcall	.+1318   	; 0x7c2 <OSCtxSw>
+ 29c:	e1 cf       	rjmp	.-62     	; 0x260 <snake+0x8>
+
+0000029e <rtclock>:
+	}
+	
+}
+
+void rtclock(void)
+{
+ 29e:	df 93       	push	r29
+ 2a0:	cf 93       	push	r28
+ 2a2:	cd b7       	in	r28, 0x3d	; 61
+ 2a4:	de b7       	in	r29, 0x3e	; 62
+	sec++;
+ 2a6:	80 91 66 00 	lds	r24, 0x0066
+ 2aa:	8f 5f       	subi	r24, 0xFF	; 255
+ 2ac:	80 93 66 00 	sts	0x0066, r24
+
+	if(sec>=60)
+ 2b0:	80 91 66 00 	lds	r24, 0x0066
+ 2b4:	8c 33       	cpi	r24, 0x3C	; 60
+ 2b6:	10 f1       	brcs	.+68     	; 0x2fc <rtclock+0x5e>
+	{
+		sec=0;
+ 2b8:	10 92 66 00 	sts	0x0066, r1
+		min++;
+ 2bc:	80 91 65 00 	lds	r24, 0x0065
+ 2c0:	8f 5f       	subi	r24, 0xFF	; 255
+ 2c2:	80 93 65 00 	sts	0x0065, r24
+		
+		if(min>=60)
+ 2c6:	80 91 65 00 	lds	r24, 0x0065
+ 2ca:	8c 33       	cpi	r24, 0x3C	; 60
+ 2cc:	b8 f0       	brcs	.+46     	; 0x2fc <rtclock+0x5e>
+		{
+			h++;
+ 2ce:	80 91 64 00 	lds	r24, 0x0064
+ 2d2:	8f 5f       	subi	r24, 0xFF	; 255
+ 2d4:	80 93 64 00 	sts	0x0064, r24
+			if(h>=24)
+ 2d8:	80 91 64 00 	lds	r24, 0x0064
+ 2dc:	88 31       	cpi	r24, 0x18	; 24
+ 2de:	70 f0       	brcs	.+28     	; 0x2fc <rtclock+0x5e>
+			{
+				d++;
+ 2e0:	80 91 62 00 	lds	r24, 0x0062
+ 2e4:	8f 5f       	subi	r24, 0xFF	; 255
+ 2e6:	80 93 62 00 	sts	0x0062, r24
+				if(d>=127)
+ 2ea:	80 91 62 00 	lds	r24, 0x0062
+ 2ee:	8f 37       	cpi	r24, 0x7F	; 127
+ 2f0:	28 f0       	brcs	.+10     	; 0x2fc <rtclock+0x5e>
+				{
+					m++;
+ 2f2:	80 91 63 00 	lds	r24, 0x0063
+ 2f6:	8f 5f       	subi	r24, 0xFF	; 255
+ 2f8:	80 93 63 00 	sts	0x0063, r24
+				}
+			}
+
+		}
+	}
+}
+ 2fc:	cf 91       	pop	r28
+ 2fe:	df 91       	pop	r29
+ 300:	08 95       	ret
+
+00000302 <OSDelay>:
+ 302:	0f 93       	push	r16
+ 304:	1f 93       	push	r17
+ 306:	18 2f       	mov	r17, r24
+ 308:	06 2f       	mov	r16, r22
+ 30a:	38 d2       	rcall	.+1136   	; 0x77c <OSDisableHook>
+ 30c:	11 23       	and	r17, r17
+ 30e:	49 f4       	brne	.+18     	; 0x322 <OSDelay+0x20>
+ 310:	e0 91 6a 00 	lds	r30, 0x006A
+ 314:	f0 91 6b 00 	lds	r31, 0x006B
+ 318:	80 81       	ld	r24, Z
+ 31a:	8f 78       	andi	r24, 0x8F	; 143
+ 31c:	80 61       	ori	r24, 0x10	; 16
+ 31e:	80 83       	st	Z, r24
+ 320:	26 c0       	rjmp	.+76     	; 0x36e <OSDelay+0x6c>
+ 322:	00 23       	and	r16, r16
+ 324:	11 f4       	brne	.+4      	; 0x32a <OSDelay+0x28>
+ 326:	91 2f       	mov	r25, r17
+ 328:	10 c0       	rjmp	.+32     	; 0x34a <OSDelay+0x48>
+ 32a:	80 91 75 00 	lds	r24, 0x0075
+ 32e:	91 2f       	mov	r25, r17
+ 330:	98 1b       	sub	r25, r24
+ 332:	e0 91 6a 00 	lds	r30, 0x006A
+ 336:	f0 91 6b 00 	lds	r31, 0x006B
+ 33a:	82 85       	ldd	r24, Z+10	; 0x0a
+ 33c:	98 0f       	add	r25, r24
+ 33e:	01 c0       	rjmp	.+2      	; 0x342 <OSDelay+0x40>
+ 340:	91 0f       	add	r25, r17
+ 342:	19 17       	cp	r17, r25
+ 344:	e8 f3       	brcs	.-6      	; 0x340 <OSDelay+0x3e>
+ 346:	99 23       	and	r25, r25
+ 348:	91 f0       	breq	.+36     	; 0x36e <OSDelay+0x6c>
+ 34a:	e0 91 6a 00 	lds	r30, 0x006A
+ 34e:	f0 91 6b 00 	lds	r31, 0x006B
+ 352:	80 81       	ld	r24, Z
+ 354:	8f 78       	andi	r24, 0x8F	; 143
+ 356:	80 62       	ori	r24, 0x20	; 32
+ 358:	80 83       	st	Z, r24
+ 35a:	e0 91 6a 00 	lds	r30, 0x006A
+ 35e:	f0 91 6b 00 	lds	r31, 0x006B
+ 362:	92 87       	std	Z+10, r25	; 0x0a
+ 364:	80 91 6a 00 	lds	r24, 0x006A
+ 368:	90 91 6b 00 	lds	r25, 0x006B
+ 36c:	ab d0       	rcall	.+342    	; 0x4c4 <OSInsDelayQ>
+ 36e:	0b d2       	rcall	.+1046   	; 0x786 <OSEnableHook>
+ 370:	1f 91       	pop	r17
+ 372:	0f 91       	pop	r16
+ 374:	08 95       	ret
+
+00000376 <OSInit>:
+ 376:	10 92 74 00 	sts	0x0074, r1
+ 37a:	10 92 73 00 	sts	0x0073, r1
+ 37e:	10 92 6b 00 	sts	0x006B, r1
+ 382:	10 92 6a 00 	sts	0x006A, r1
+ 386:	10 92 71 00 	sts	0x0071, r1
+ 38a:	10 92 70 00 	sts	0x0070, r1
+ 38e:	10 92 72 00 	sts	0x0072, r1
+ 392:	10 92 75 00 	sts	0x0075, r1
+ 396:	10 92 76 00 	sts	0x0076, r1
+ 39a:	10 92 77 00 	sts	0x0077, r1
+ 39e:	10 92 78 00 	sts	0x0078, r1
+ 3a2:	10 92 6d 00 	sts	0x006D, r1
+ 3a6:	10 92 6c 00 	sts	0x006C, r1
+ 3aa:	10 92 a0 00 	sts	0x00A0, r1
+ 3ae:	10 92 9f 00 	sts	0x009F, r1
+ 3b2:	08 95       	ret
+
+000003b4 <OSInitPrioTask>:
+ 3b4:	f9 2f       	mov	r31, r25
+ 3b6:	e8 2f       	mov	r30, r24
+ 3b8:	60 31       	cpi	r22, 0x10	; 16
+ 3ba:	18 f0       	brcs	.+6      	; 0x3c2 <OSInitPrioTask+0xe>
+ 3bc:	91 e0       	ldi	r25, 0x01	; 1
+ 3be:	6f e0       	ldi	r22, 0x0F	; 15
+ 3c0:	01 c0       	rjmp	.+2      	; 0x3c4 <OSInitPrioTask+0x10>
+ 3c2:	90 e0       	ldi	r25, 0x00	; 0
+ 3c4:	6f 70       	andi	r22, 0x0F	; 15
+ 3c6:	80 81       	ld	r24, Z
+ 3c8:	80 7f       	andi	r24, 0xF0	; 240
+ 3ca:	86 2b       	or	r24, r22
+ 3cc:	80 83       	st	Z, r24
+ 3ce:	89 2f       	mov	r24, r25
+ 3d0:	90 e0       	ldi	r25, 0x00	; 0
+ 3d2:	08 95       	ret
+
+000003d4 <OSCreateTask>:
+ 3d4:	ff 92       	push	r15
+ 3d6:	0f 93       	push	r16
+ 3d8:	1f 93       	push	r17
+ 3da:	cf 93       	push	r28
+ 3dc:	df 93       	push	r29
+ 3de:	08 2f       	mov	r16, r24
+ 3e0:	19 2f       	mov	r17, r25
+ 3e2:	d7 2f       	mov	r29, r23
+ 3e4:	c6 2f       	mov	r28, r22
+ 3e6:	f4 2e       	mov	r15, r20
+ 3e8:	80 e0       	ldi	r24, 0x00	; 0
+ 3ea:	6e 37       	cpi	r22, 0x7E	; 126
+ 3ec:	78 07       	cpc	r23, r24
+ 3ee:	30 f1       	brcs	.+76     	; 0x43c <OSCreateTask+0x68>
+ 3f0:	6f 59       	subi	r22, 0x9F	; 159
+ 3f2:	70 40       	sbci	r23, 0x00	; 0
+ 3f4:	09 f0       	breq	.+2      	; 0x3f8 <OSCreateTask+0x24>
+ 3f6:	10 f5       	brcc	.+68     	; 0x43c <OSCreateTask+0x68>
+ 3f8:	c1 d1       	rcall	.+898    	; 0x77c <OSDisableHook>
+ 3fa:	19 82       	std	Y+1, r1	; 0x01
+ 3fc:	8f 2d       	mov	r24, r15
+ 3fe:	8f 77       	andi	r24, 0x7F	; 127
+ 400:	80 31       	cpi	r24, 0x10	; 16
+ 402:	08 f0       	brcs	.+2      	; 0x406 <OSCreateTask+0x32>
+ 404:	8f e0       	ldi	r24, 0x0F	; 15
+ 406:	8f 70       	andi	r24, 0x0F	; 15
+ 408:	98 81       	ld	r25, Y
+ 40a:	90 78       	andi	r25, 0x80	; 128
+ 40c:	98 2b       	or	r25, r24
+ 40e:	90 61       	ori	r25, 0x10	; 16
+ 410:	89 2f       	mov	r24, r25
+ 412:	8f 77       	andi	r24, 0x7F	; 127
+ 414:	88 83       	st	Y, r24
+ 416:	1b 83       	std	Y+3, r17	; 0x03
+ 418:	0a 83       	std	Y+2, r16	; 0x02
+ 41a:	80 91 75 00 	lds	r24, 0x0075
+ 41e:	8a 87       	std	Y+10, r24	; 0x0a
+ 420:	f7 fc       	sbrc	r15, 7
+ 422:	08 c0       	rjmp	.+16     	; 0x434 <OSCreateTask+0x60>
+ 424:	9f 70       	andi	r25, 0x0F	; 15
+ 426:	90 65       	ori	r25, 0x50	; 80
+ 428:	98 83       	st	Y, r25
+ 42a:	63 e7       	ldi	r22, 0x73	; 115
+ 42c:	70 e0       	ldi	r23, 0x00	; 0
+ 42e:	8c 2f       	mov	r24, r28
+ 430:	9d 2f       	mov	r25, r29
+ 432:	0c d0       	rcall	.+24     	; 0x44c <OSInsPrioQ>
+ 434:	a8 d1       	rcall	.+848    	; 0x786 <OSEnableHook>
+ 436:	80 e0       	ldi	r24, 0x00	; 0
+ 438:	90 e0       	ldi	r25, 0x00	; 0
+ 43a:	02 c0       	rjmp	.+4      	; 0x440 <OSCreateTask+0x6c>
+ 43c:	82 e0       	ldi	r24, 0x02	; 2
+ 43e:	90 e0       	ldi	r25, 0x00	; 0
+ 440:	df 91       	pop	r29
+ 442:	cf 91       	pop	r28
+ 444:	1f 91       	pop	r17
+ 446:	0f 91       	pop	r16
+ 448:	ff 90       	pop	r15
+ 44a:	08 95       	ret
+
+0000044c <OSInsPrioQ>:
+ 44c:	cf 93       	push	r28
+ 44e:	df 93       	push	r29
+ 450:	b9 2f       	mov	r27, r25
+ 452:	a8 2f       	mov	r26, r24
+ 454:	d7 2f       	mov	r29, r23
+ 456:	c6 2f       	mov	r28, r22
+ 458:	e8 81       	ld	r30, Y
+ 45a:	f9 81       	ldd	r31, Y+1	; 0x01
+ 45c:	30 97       	sbiw	r30, 0x00	; 0
+ 45e:	39 f4       	brne	.+14     	; 0x46e <__stack+0xf>
+ 460:	99 83       	std	Y+1, r25	; 0x01
+ 462:	88 83       	st	Y, r24
+ 464:	d9 2f       	mov	r29, r25
+ 466:	c8 2f       	mov	r28, r24
+ 468:	1d 82       	std	Y+5, r1	; 0x05
+ 46a:	1c 82       	std	Y+4, r1	; 0x04
+ 46c:	26 c0       	rjmp	.+76     	; 0x4ba <__stack+0x5b>
+ 46e:	8c 91       	ld	r24, X
+ 470:	8f 70       	andi	r24, 0x0F	; 15
+ 472:	20 e0       	ldi	r18, 0x00	; 0
+ 474:	30 e0       	ldi	r19, 0x00	; 0
+ 476:	48 2f       	mov	r20, r24
+ 478:	50 e0       	ldi	r21, 0x00	; 0
+ 47a:	0b c0       	rjmp	.+22     	; 0x492 <__stack+0x33>
+ 47c:	84 81       	ldd	r24, Z+4	; 0x04
+ 47e:	95 81       	ldd	r25, Z+5	; 0x05
+ 480:	2e 2f       	mov	r18, r30
+ 482:	3f 2f       	mov	r19, r31
+ 484:	00 97       	sbiw	r24, 0x00	; 0
+ 486:	19 f4       	brne	.+6      	; 0x48e <__stack+0x2f>
+ 488:	e0 e0       	ldi	r30, 0x00	; 0
+ 48a:	f0 e0       	ldi	r31, 0x00	; 0
+ 48c:	08 c0       	rjmp	.+16     	; 0x49e <__stack+0x3f>
+ 48e:	f9 2f       	mov	r31, r25
+ 490:	e8 2f       	mov	r30, r24
+ 492:	80 81       	ld	r24, Z
+ 494:	8f 70       	andi	r24, 0x0F	; 15
+ 496:	90 e0       	ldi	r25, 0x00	; 0
+ 498:	48 17       	cp	r20, r24
+ 49a:	59 07       	cpc	r21, r25
+ 49c:	7c f7       	brge	.-34     	; 0x47c <__stack+0x1d>
+ 49e:	21 15       	cp	r18, r1
+ 4a0:	31 05       	cpc	r19, r1
+ 4a2:	19 f4       	brne	.+6      	; 0x4aa <__stack+0x4b>
+ 4a4:	b9 83       	std	Y+1, r27	; 0x01
+ 4a6:	a8 83       	st	Y, r26
+ 4a8:	04 c0       	rjmp	.+8      	; 0x4b2 <__stack+0x53>
+ 4aa:	d3 2f       	mov	r29, r19
+ 4ac:	c2 2f       	mov	r28, r18
+ 4ae:	bd 83       	std	Y+5, r27	; 0x05
+ 4b0:	ac 83       	std	Y+4, r26	; 0x04
+ 4b2:	db 2f       	mov	r29, r27
+ 4b4:	ca 2f       	mov	r28, r26
+ 4b6:	fd 83       	std	Y+5, r31	; 0x05
+ 4b8:	ec 83       	std	Y+4, r30	; 0x04
+ 4ba:	80 e0       	ldi	r24, 0x00	; 0
+ 4bc:	90 e0       	ldi	r25, 0x00	; 0
+ 4be:	df 91       	pop	r29
+ 4c0:	cf 91       	pop	r28
+ 4c2:	08 95       	ret
+
+000004c4 <OSInsDelayQ>:
+ 4c4:	cf 93       	push	r28
+ 4c6:	df 93       	push	r29
+ 4c8:	68 2f       	mov	r22, r24
+ 4ca:	79 2f       	mov	r23, r25
+ 4cc:	e0 91 70 00 	lds	r30, 0x0070
+ 4d0:	f0 91 71 00 	lds	r31, 0x0071
+ 4d4:	30 97       	sbiw	r30, 0x00	; 0
+ 4d6:	49 f4       	brne	.+18     	; 0x4ea <OSInsDelayQ+0x26>
+ 4d8:	90 93 71 00 	sts	0x0071, r25
+ 4dc:	80 93 70 00 	sts	0x0070, r24
+ 4e0:	d9 2f       	mov	r29, r25
+ 4e2:	c8 2f       	mov	r28, r24
+ 4e4:	19 86       	std	Y+9, r1	; 0x09
+ 4e6:	18 86       	std	Y+8, r1	; 0x08
+ 4e8:	37 c0       	rjmp	.+110    	; 0x558 <OSInsDelayQ+0x94>
+ 4ea:	92 85       	ldd	r25, Z+10	; 0x0a
+ 4ec:	d7 2f       	mov	r29, r23
+ 4ee:	c6 2f       	mov	r28, r22
+ 4f0:	4a 85       	ldd	r20, Y+10	; 0x0a
+ 4f2:	20 e0       	ldi	r18, 0x00	; 0
+ 4f4:	30 e0       	ldi	r19, 0x00	; 0
+ 4f6:	0f c0       	rjmp	.+30     	; 0x516 <OSInsDelayQ+0x52>
+ 4f8:	a0 85       	ldd	r26, Z+8	; 0x08
+ 4fa:	b1 85       	ldd	r27, Z+9	; 0x09
+ 4fc:	10 97       	sbiw	r26, 0x00	; 0
+ 4fe:	19 f4       	brne	.+6      	; 0x506 <OSInsDelayQ+0x42>
+ 500:	2e 2f       	mov	r18, r30
+ 502:	3f 2f       	mov	r19, r31
+ 504:	0e c0       	rjmp	.+28     	; 0x522 <OSInsDelayQ+0x5e>
+ 506:	db 2f       	mov	r29, r27
+ 508:	ca 2f       	mov	r28, r26
+ 50a:	8a 85       	ldd	r24, Y+10	; 0x0a
+ 50c:	98 0f       	add	r25, r24
+ 50e:	2e 2f       	mov	r18, r30
+ 510:	3f 2f       	mov	r19, r31
+ 512:	fb 2f       	mov	r31, r27
+ 514:	ea 2f       	mov	r30, r26
+ 516:	49 17       	cp	r20, r25
+ 518:	78 f7       	brcc	.-34     	; 0x4f8 <OSInsDelayQ+0x34>
+ 51a:	82 85       	ldd	r24, Z+10	; 0x0a
+ 51c:	98 1b       	sub	r25, r24
+ 51e:	ae 2f       	mov	r26, r30
+ 520:	bf 2f       	mov	r27, r31
+ 522:	49 1b       	sub	r20, r25
+ 524:	f7 2f       	mov	r31, r23
+ 526:	e6 2f       	mov	r30, r22
+ 528:	42 87       	std	Z+10, r20	; 0x0a
+ 52a:	10 97       	sbiw	r26, 0x00	; 0
+ 52c:	29 f0       	breq	.+10     	; 0x538 <OSInsDelayQ+0x74>
+ 52e:	db 2f       	mov	r29, r27
+ 530:	ca 2f       	mov	r28, r26
+ 532:	8a 85       	ldd	r24, Y+10	; 0x0a
+ 534:	84 1b       	sub	r24, r20
+ 536:	8a 87       	std	Y+10, r24	; 0x0a
+ 538:	21 15       	cp	r18, r1
+ 53a:	31 05       	cpc	r19, r1
+ 53c:	29 f4       	brne	.+10     	; 0x548 <OSInsDelayQ+0x84>
+ 53e:	70 93 71 00 	sts	0x0071, r23
+ 542:	60 93 70 00 	sts	0x0070, r22
+ 546:	04 c0       	rjmp	.+8      	; 0x550 <OSInsDelayQ+0x8c>
+ 548:	f3 2f       	mov	r31, r19
+ 54a:	e2 2f       	mov	r30, r18
+ 54c:	71 87       	std	Z+9, r23	; 0x09
+ 54e:	60 87       	std	Z+8, r22	; 0x08
+ 550:	d7 2f       	mov	r29, r23
+ 552:	c6 2f       	mov	r28, r22
+ 554:	b9 87       	std	Y+9, r27	; 0x09
+ 556:	a8 87       	std	Y+8, r26	; 0x08
+ 558:	80 e0       	ldi	r24, 0x00	; 0
+ 55a:	90 e0       	ldi	r25, 0x00	; 0
+ 55c:	df 91       	pop	r29
+ 55e:	cf 91       	pop	r28
+ 560:	08 95       	ret
+
+00000562 <OSSched>:
+ 562:	0f 93       	push	r16
+ 564:	1f 93       	push	r17
+ 566:	cf 93       	push	r28
+ 568:	df 93       	push	r29
+ 56a:	08 d1       	rcall	.+528    	; 0x77c <OSDisableHook>
+ 56c:	10 d1       	rcall	.+544    	; 0x78e <OSClrWDTHook>
+ 56e:	c3 e7       	ldi	r28, 0x73	; 115
+ 570:	d0 e0       	ldi	r29, 0x00	; 0
+ 572:	1d c0       	rjmp	.+58     	; 0x5ae <OSSched+0x4c>
+ 574:	f0 93 6b 00 	sts	0x006B, r31
+ 578:	e0 93 6a 00 	sts	0x006A, r30
+ 57c:	84 81       	ldd	r24, Z+4	; 0x04
+ 57e:	95 81       	ldd	r25, Z+5	; 0x05
+ 580:	90 93 a0 00 	sts	0x00A0, r25
+ 584:	80 93 9f 00 	sts	0x009F, r24
+ 588:	15 82       	std	Z+5, r1	; 0x05
+ 58a:	14 82       	std	Z+4, r1	; 0x04
+ 58c:	6c 2f       	mov	r22, r28
+ 58e:	7d 2f       	mov	r23, r29
+ 590:	8e 2f       	mov	r24, r30
+ 592:	9f 2f       	mov	r25, r31
+ 594:	5b df       	rcall	.-330    	; 0x44c <OSInsPrioQ>
+ 596:	80 91 9f 00 	lds	r24, 0x009F
+ 59a:	90 91 a0 00 	lds	r25, 0x00A0
+ 59e:	89 2b       	or	r24, r25
+ 5a0:	21 f4       	brne	.+8      	; 0x5aa <OSSched+0x48>
+ 5a2:	10 92 6d 00 	sts	0x006D, r1
+ 5a6:	10 92 6c 00 	sts	0x006C, r1
+ 5aa:	ed d0       	rcall	.+474    	; 0x786 <OSEnableHook>
+ 5ac:	e7 d0       	rcall	.+462    	; 0x77c <OSDisableHook>
+ 5ae:	e0 91 9f 00 	lds	r30, 0x009F
+ 5b2:	f0 91 a0 00 	lds	r31, 0x00A0
+ 5b6:	30 97       	sbiw	r30, 0x00	; 0
+ 5b8:	e9 f6       	brne	.-70     	; 0x574 <OSSched+0x12>
+ 5ba:	88 c0       	rjmp	.+272    	; 0x6cc <OSSched+0x16a>
+ 5bc:	81 50       	subi	r24, 0x01	; 1
+ 5be:	80 93 72 00 	sts	0x0072, r24
+ 5c2:	e0 91 70 00 	lds	r30, 0x0070
+ 5c6:	f0 91 71 00 	lds	r31, 0x0071
+ 5ca:	f0 93 6b 00 	sts	0x006B, r31
+ 5ce:	e0 93 6a 00 	sts	0x006A, r30
+ 5d2:	30 97       	sbiw	r30, 0x00	; 0
+ 5d4:	09 f4       	brne	.+2      	; 0x5d8 <OSSched+0x76>
+ 5d6:	6f c0       	rjmp	.+222    	; 0x6b6 <OSSched+0x154>
+ 5d8:	82 85       	ldd	r24, Z+10	; 0x0a
+ 5da:	81 50       	subi	r24, 0x01	; 1
+ 5dc:	82 87       	std	Z+10, r24	; 0x0a
+ 5de:	6b c0       	rjmp	.+214    	; 0x6b6 <OSSched+0x154>
+ 5e0:	80 85       	ldd	r24, Z+8	; 0x08
+ 5e2:	91 85       	ldd	r25, Z+9	; 0x09
+ 5e4:	90 93 71 00 	sts	0x0071, r25
+ 5e8:	80 93 70 00 	sts	0x0070, r24
+ 5ec:	80 91 75 00 	lds	r24, 0x0075
+ 5f0:	82 87       	std	Z+10, r24	; 0x0a
+ 5f2:	e0 91 6a 00 	lds	r30, 0x006A
+ 5f6:	f0 91 6b 00 	lds	r31, 0x006B
+ 5fa:	80 81       	ld	r24, Z
+ 5fc:	98 2f       	mov	r25, r24
+ 5fe:	90 77       	andi	r25, 0x70	; 112
+ 600:	90 32       	cpi	r25, 0x20	; 32
+ 602:	19 f4       	brne	.+6      	; 0x60a <OSSched+0xa8>
+ 604:	8f 78       	andi	r24, 0x8F	; 143
+ 606:	80 65       	ori	r24, 0x50	; 80
+ 608:	44 c0       	rjmp	.+136    	; 0x692 <OSSched+0x130>
+ 60a:	90 37       	cpi	r25, 0x70	; 112
+ 60c:	19 f5       	brne	.+70     	; 0x654 <OSSched+0xf2>
+ 60e:	bb d0       	rcall	.+374    	; 0x786 <OSEnableHook>
+ 610:	e0 91 6a 00 	lds	r30, 0x006A
+ 614:	f0 91 6b 00 	lds	r31, 0x006B
+ 618:	02 80       	ldd	r0, Z+2	; 0x02
+ 61a:	f3 81       	ldd	r31, Z+3	; 0x03
+ 61c:	e0 2d       	mov	r30, r0
+ 61e:	09 95       	icall
+ 620:	ad d0       	rcall	.+346    	; 0x77c <OSDisableHook>
+ 622:	e0 91 6a 00 	lds	r30, 0x006A
+ 626:	f0 91 6b 00 	lds	r31, 0x006B
+ 62a:	90 81       	ld	r25, Z
+ 62c:	89 2f       	mov	r24, r25
+ 62e:	8f 70       	andi	r24, 0x0F	; 15
+ 630:	11 f4       	brne	.+4      	; 0x636 <OSSched+0xd4>
+ 632:	9f 77       	andi	r25, 0x7F	; 127
+ 634:	90 83       	st	Z, r25
+ 636:	e0 91 6a 00 	lds	r30, 0x006A
+ 63a:	f0 91 6b 00 	lds	r31, 0x006B
+ 63e:	80 81       	ld	r24, Z
+ 640:	87 ff       	sbrs	r24, 7
+ 642:	2f c0       	rjmp	.+94     	; 0x6a2 <OSSched+0x140>
+ 644:	86 81       	ldd	r24, Z+6	; 0x06
+ 646:	82 87       	std	Z+10, r24	; 0x0a
+ 648:	80 91 6a 00 	lds	r24, 0x006A
+ 64c:	90 91 6b 00 	lds	r25, 0x006B
+ 650:	39 df       	rcall	.-398    	; 0x4c4 <OSInsDelayQ>
+ 652:	27 c0       	rjmp	.+78     	; 0x6a2 <OSSched+0x140>
+ 654:	66 81       	ldd	r22, Z+6	; 0x06
+ 656:	77 81       	ldd	r23, Z+7	; 0x07
+ 658:	61 15       	cp	r22, r1
+ 65a:	71 05       	cpc	r23, r1
+ 65c:	11 f1       	breq	.+68     	; 0x6a2 <OSSched+0x140>
+ 65e:	8e 2f       	mov	r24, r30
+ 660:	9f 2f       	mov	r25, r31
+ 662:	d1 d0       	rcall	.+418    	; 0x806 <OSDelPrioQ>
+ 664:	71 2f       	mov	r23, r17
+ 666:	60 2f       	mov	r22, r16
+ 668:	80 91 6a 00 	lds	r24, 0x006A
+ 66c:	90 91 6b 00 	lds	r25, 0x006B
+ 670:	ca d0       	rcall	.+404    	; 0x806 <OSDelPrioQ>
+ 672:	6c 2f       	mov	r22, r28
+ 674:	7d 2f       	mov	r23, r29
+ 676:	80 91 6a 00 	lds	r24, 0x006A
+ 67a:	90 91 6b 00 	lds	r25, 0x006B
+ 67e:	c3 d0       	rcall	.+390    	; 0x806 <OSDelPrioQ>
+ 680:	e0 91 6a 00 	lds	r30, 0x006A
+ 684:	f0 91 6b 00 	lds	r31, 0x006B
+ 688:	17 82       	std	Z+7, r1	; 0x07
+ 68a:	16 82       	std	Z+6, r1	; 0x06
+ 68c:	80 81       	ld	r24, Z
+ 68e:	8f 78       	andi	r24, 0x8F	; 143
+ 690:	80 66       	ori	r24, 0x60	; 96
+ 692:	80 83       	st	Z, r24
+ 694:	6c 2f       	mov	r22, r28
+ 696:	7d 2f       	mov	r23, r29
+ 698:	80 91 6a 00 	lds	r24, 0x006A
+ 69c:	90 91 6b 00 	lds	r25, 0x006B
+ 6a0:	d5 de       	rcall	.-598    	; 0x44c <OSInsPrioQ>
+ 6a2:	80 91 70 00 	lds	r24, 0x0070
+ 6a6:	90 91 71 00 	lds	r25, 0x0071
+ 6aa:	90 93 6b 00 	sts	0x006B, r25
+ 6ae:	80 93 6a 00 	sts	0x006A, r24
+ 6b2:	69 d0       	rcall	.+210    	; 0x786 <OSEnableHook>
+ 6b4:	63 d0       	rcall	.+198    	; 0x77c <OSDisableHook>
+ 6b6:	e0 91 6a 00 	lds	r30, 0x006A
+ 6ba:	f0 91 6b 00 	lds	r31, 0x006B
+ 6be:	30 97       	sbiw	r30, 0x00	; 0
+ 6c0:	49 f0       	breq	.+18     	; 0x6d4 <OSSched+0x172>
+ 6c2:	82 85       	ldd	r24, Z+10	; 0x0a
+ 6c4:	88 23       	and	r24, r24
+ 6c6:	09 f4       	brne	.+2      	; 0x6ca <OSSched+0x168>
+ 6c8:	8b cf       	rjmp	.-234    	; 0x5e0 <OSSched+0x7e>
+ 6ca:	04 c0       	rjmp	.+8      	; 0x6d4 <OSSched+0x172>
+ 6cc:	0f e9       	ldi	r16, 0x9F	; 159
+ 6ce:	10 e0       	ldi	r17, 0x00	; 0
+ 6d0:	c3 e7       	ldi	r28, 0x73	; 115
+ 6d2:	d0 e0       	ldi	r29, 0x00	; 0
+ 6d4:	80 91 72 00 	lds	r24, 0x0072
+ 6d8:	88 23       	and	r24, r24
+ 6da:	09 f0       	breq	.+2      	; 0x6de <OSSched+0x17c>
+ 6dc:	6f cf       	rjmp	.-290    	; 0x5bc <OSSched+0x5a>
+ 6de:	e0 91 73 00 	lds	r30, 0x0073
+ 6e2:	f0 91 74 00 	lds	r31, 0x0074
+ 6e6:	f0 93 6b 00 	sts	0x006B, r31
+ 6ea:	e0 93 6a 00 	sts	0x006A, r30
+ 6ee:	30 97       	sbiw	r30, 0x00	; 0
+ 6f0:	d9 f0       	breq	.+54     	; 0x728 <OSSched+0x1c6>
+ 6f2:	84 81       	ldd	r24, Z+4	; 0x04
+ 6f4:	95 81       	ldd	r25, Z+5	; 0x05
+ 6f6:	90 93 74 00 	sts	0x0074, r25
+ 6fa:	80 93 73 00 	sts	0x0073, r24
+ 6fe:	80 81       	ld	r24, Z
+ 700:	91 81       	ldd	r25, Z+1	; 0x01
+ 702:	95 83       	std	Z+5, r25	; 0x05
+ 704:	84 83       	std	Z+4, r24	; 0x04
+ 706:	3f d0       	rcall	.+126    	; 0x786 <OSEnableHook>
+ 708:	44 d0       	rcall	.+136    	; 0x792 <OSDispatch>
+ 70a:	38 d0       	rcall	.+112    	; 0x77c <OSDisableHook>
+ 70c:	e0 91 6a 00 	lds	r30, 0x006A
+ 710:	f0 91 6b 00 	lds	r31, 0x006B
+ 714:	80 81       	ld	r24, Z
+ 716:	80 77       	andi	r24, 0x70	; 112
+ 718:	80 35       	cpi	r24, 0x50	; 80
+ 71a:	49 f4       	brne	.+18     	; 0x72e <OSSched+0x1cc>
+ 71c:	63 e7       	ldi	r22, 0x73	; 115
+ 71e:	70 e0       	ldi	r23, 0x00	; 0
+ 720:	8e 2f       	mov	r24, r30
+ 722:	9f 2f       	mov	r25, r31
+ 724:	93 de       	rcall	.-730    	; 0x44c <OSInsPrioQ>
+ 726:	03 c0       	rjmp	.+6      	; 0x72e <OSSched+0x1cc>
+ 728:	2e d0       	rcall	.+92     	; 0x786 <OSEnableHook>
+ 72a:	27 d0       	rcall	.+78     	; 0x77a <OSIdlingHook>
+ 72c:	27 d0       	rcall	.+78     	; 0x77c <OSDisableHook>
+ 72e:	2b d0       	rcall	.+86     	; 0x786 <OSEnableHook>
+ 730:	df 91       	pop	r29
+ 732:	cf 91       	pop	r28
+ 734:	1f 91       	pop	r17
+ 736:	0f 91       	pop	r16
+ 738:	08 95       	ret
+
+0000073a <OSTimer>:
+ 73a:	80 91 75 00 	lds	r24, 0x0075
+ 73e:	90 91 76 00 	lds	r25, 0x0076
+ 742:	a0 91 77 00 	lds	r26, 0x0077
+ 746:	b0 91 78 00 	lds	r27, 0x0078
+ 74a:	01 96       	adiw	r24, 0x01	; 1
+ 74c:	a1 1d       	adc	r26, r1
+ 74e:	b1 1d       	adc	r27, r1
+ 750:	80 93 75 00 	sts	0x0075, r24
+ 754:	90 93 76 00 	sts	0x0076, r25
+ 758:	a0 93 77 00 	sts	0x0077, r26
+ 75c:	b0 93 78 00 	sts	0x0078, r27
+ 760:	80 91 72 00 	lds	r24, 0x0072
+ 764:	8f 3f       	cpi	r24, 0xFF	; 255
+ 766:	19 f4       	brne	.+6      	; 0x76e <OSTimer+0x34>
+ 768:	81 e0       	ldi	r24, 0x01	; 1
+ 76a:	90 e0       	ldi	r25, 0x00	; 0
+ 76c:	08 95       	ret
+ 76e:	8f 5f       	subi	r24, 0xFF	; 255
+ 770:	80 93 72 00 	sts	0x0072, r24
+ 774:	80 e0       	ldi	r24, 0x00	; 0
+ 776:	90 e0       	ldi	r25, 0x00	; 0
+ 778:	08 95       	ret
+
+0000077a <OSIdlingHook>:
+ 77a:	08 95       	ret
+
+0000077c <OSDisableHook>:
+ 77c:	8f b7       	in	r24, 0x3f	; 63
+ 77e:	f8 94       	cli
+ 780:	80 93 69 00 	sts	0x0069, r24
+ 784:	08 95       	ret
+
+00000786 <OSEnableHook>:
+ 786:	80 91 69 00 	lds	r24, 0x0069
+ 78a:	8f bf       	out	0x3f, r24	; 63
+ 78c:	08 95       	ret
+
+0000078e <OSClrWDTHook>:
+ 78e:	a8 95       	wdr
+ 790:	08 95       	ret
+
+00000792 <OSDispatch>:
+ 792:	cf 93       	push	r28
+ 794:	df 93       	push	r29
+ 796:	cd b7       	in	r28, 0x3d	; 61
+ 798:	de b7       	in	r29, 0x3e	; 62
+ 79a:	c0 93 6e 00 	sts	0x006E, r28
+ 79e:	d0 93 6f 00 	sts	0x006F, r29
+ 7a2:	e0 91 6a 00 	lds	r30, 0x006A
+ 7a6:	f0 91 6b 00 	lds	r31, 0x006B
+ 7aa:	01 80       	ldd	r0, Z+1	; 0x01
+ 7ac:	c0 19       	sub	r28, r0
+ 7ae:	d1 09       	sbc	r29, r1
+ 7b0:	0f b6       	in	r0, 0x3f	; 63
+ 7b2:	f8 94       	cli
+ 7b4:	de bf       	out	0x3e, r29	; 62
+ 7b6:	0f be       	out	0x3f, r0	; 63
+ 7b8:	cd bf       	out	0x3d, r28	; 61
+ 7ba:	02 80       	ldd	r0, Z+2	; 0x02
+ 7bc:	f3 81       	ldd	r31, Z+3	; 0x03
+ 7be:	e0 2d       	mov	r30, r0
+ 7c0:	09 94       	ijmp
+
+000007c2 <OSCtxSw>:
+ 7c2:	e0 91 6a 00 	lds	r30, 0x006A
+ 7c6:	f0 91 6b 00 	lds	r31, 0x006B
+ 7ca:	9f 91       	pop	r25
+ 7cc:	8f 91       	pop	r24
+ 7ce:	82 83       	std	Z+2, r24	; 0x02
+ 7d0:	93 83       	std	Z+3, r25	; 0x03
+ 7d2:	80 91 6e 00 	lds	r24, 0x006E
+ 7d6:	90 91 6f 00 	lds	r25, 0x006F
+ 7da:	a8 2f       	mov	r26, r24
+ 7dc:	b9 2f       	mov	r27, r25
+ 7de:	cd b7       	in	r28, 0x3d	; 61
+ 7e0:	de b7       	in	r29, 0x3e	; 62
+ 7e2:	8c 1b       	sub	r24, r28
+ 7e4:	9d 0b       	sbc	r25, r29
+ 7e6:	81 83       	std	Z+1, r24	; 0x01
+
+000007e8 <OSCtxSwRtn>:
+ 7e8:	0f b6       	in	r0, 0x3f	; 63
+ 7ea:	f8 94       	cli
+ 7ec:	be bf       	out	0x3e, r27	; 62
+ 7ee:	0f be       	out	0x3f, r0	; 63
+ 7f0:	ad bf       	out	0x3d, r26	; 61
+ 7f2:	df 91       	pop	r29
+ 7f4:	cf 91       	pop	r28
+ 7f6:	08 95       	ret
+
+000007f8 <OSReturn>:
+ 7f8:	af 91       	pop	r26
+ 7fa:	af 91       	pop	r26
+ 7fc:	a0 91 6e 00 	lds	r26, 0x006E
+ 800:	b0 91 6f 00 	lds	r27, 0x006F
+ 804:	f1 cf       	rjmp	.-30     	; 0x7e8 <OSCtxSwRtn>
+
+00000806 <OSDelPrioQ>:
+ 806:	cf 93       	push	r28
+ 808:	df 93       	push	r29
+ 80a:	28 2f       	mov	r18, r24
+ 80c:	39 2f       	mov	r19, r25
+ 80e:	46 2f       	mov	r20, r22
+ 810:	57 2f       	mov	r21, r23
+ 812:	b7 2f       	mov	r27, r23
+ 814:	a6 2f       	mov	r26, r22
+ 816:	ed 91       	ld	r30, X+
+ 818:	fc 91       	ld	r31, X
+ 81a:	d9 2f       	mov	r29, r25
+ 81c:	c8 2f       	mov	r28, r24
+ 81e:	ac 81       	ldd	r26, Y+4	; 0x04
+ 820:	bd 81       	ldd	r27, Y+5	; 0x05
+ 822:	80 e0       	ldi	r24, 0x00	; 0
+ 824:	90 e0       	ldi	r25, 0x00	; 0
+ 826:	21 c0       	rjmp	.+66     	; 0x86a <OSDelPrioQ+0x64>
+ 828:	e2 17       	cp	r30, r18
+ 82a:	f3 07       	cpc	r31, r19
+ 82c:	c9 f4       	brne	.+50     	; 0x860 <OSDelPrioQ+0x5a>
+ 82e:	00 97       	sbiw	r24, 0x00	; 0
+ 830:	29 f4       	brne	.+10     	; 0x83c <OSDelPrioQ+0x36>
+ 832:	f5 2f       	mov	r31, r21
+ 834:	e4 2f       	mov	r30, r20
+ 836:	b1 83       	std	Z+1, r27	; 0x01
+ 838:	a0 83       	st	Z, r26
+ 83a:	04 c0       	rjmp	.+8      	; 0x844 <OSDelPrioQ+0x3e>
+ 83c:	d9 2f       	mov	r29, r25
+ 83e:	c8 2f       	mov	r28, r24
+ 840:	bd 83       	std	Y+5, r27	; 0x05
+ 842:	ac 83       	std	Y+4, r26	; 0x04
+ 844:	40 57       	subi	r20, 0x70	; 112
+ 846:	50 40       	sbci	r21, 0x00	; 0
+ 848:	a9 f4       	brne	.+42     	; 0x874 <OSDelPrioQ+0x6e>
+ 84a:	10 97       	sbiw	r26, 0x00	; 0
+ 84c:	99 f0       	breq	.+38     	; 0x874 <OSDelPrioQ+0x6e>
+ 84e:	db 2f       	mov	r29, r27
+ 850:	ca 2f       	mov	r28, r26
+ 852:	8a 85       	ldd	r24, Y+10	; 0x0a
+ 854:	f3 2f       	mov	r31, r19
+ 856:	e2 2f       	mov	r30, r18
+ 858:	92 85       	ldd	r25, Z+10	; 0x0a
+ 85a:	89 0f       	add	r24, r25
+ 85c:	8a 87       	std	Y+10, r24	; 0x0a
+ 85e:	0a c0       	rjmp	.+20     	; 0x874 <OSDelPrioQ+0x6e>
+ 860:	8e 2f       	mov	r24, r30
+ 862:	9f 2f       	mov	r25, r31
+ 864:	04 80       	ldd	r0, Z+4	; 0x04
+ 866:	f5 81       	ldd	r31, Z+5	; 0x05
+ 868:	e0 2d       	mov	r30, r0
+ 86a:	30 97       	sbiw	r30, 0x00	; 0
+ 86c:	e9 f6       	brne	.-70     	; 0x828 <OSDelPrioQ+0x22>
+ 86e:	81 e0       	ldi	r24, 0x01	; 1
+ 870:	90 e0       	ldi	r25, 0x00	; 0
+ 872:	02 c0       	rjmp	.+4      	; 0x878 <OSDelPrioQ+0x72>
+ 874:	80 e0       	ldi	r24, 0x00	; 0
+ 876:	90 e0       	ldi	r25, 0x00	; 0
+ 878:	df 91       	pop	r29
+ 87a:	cf 91       	pop	r28
+ 87c:	08 95       	ret
+
+0000087e <OSDelDelayQ>:
+ 87e:	cf 93       	push	r28
+ 880:	df 93       	push	r29
+ 882:	d9 2f       	mov	r29, r25
+ 884:	c8 2f       	mov	r28, r24
+ 886:	e0 91 70 00 	lds	r30, 0x0070
+ 88a:	f0 91 71 00 	lds	r31, 0x0071
+ 88e:	a8 85       	ldd	r26, Y+8	; 0x08
+ 890:	b9 85       	ldd	r27, Y+9	; 0x09
+ 892:	80 e0       	ldi	r24, 0x00	; 0
+ 894:	90 e0       	ldi	r25, 0x00	; 0
+ 896:	1e c0       	rjmp	.+60     	; 0x8d4 <OSDelDelayQ+0x56>
+ 898:	ec 17       	cp	r30, r28
+ 89a:	fd 07       	cpc	r31, r29
+ 89c:	b1 f4       	brne	.+44     	; 0x8ca <OSDelDelayQ+0x4c>
+ 89e:	00 97       	sbiw	r24, 0x00	; 0
+ 8a0:	29 f4       	brne	.+10     	; 0x8ac <OSDelDelayQ+0x2e>
+ 8a2:	b0 93 71 00 	sts	0x0071, r27
+ 8a6:	a0 93 70 00 	sts	0x0070, r26
+ 8aa:	04 c0       	rjmp	.+8      	; 0x8b4 <OSDelDelayQ+0x36>
+ 8ac:	f9 2f       	mov	r31, r25
+ 8ae:	e8 2f       	mov	r30, r24
+ 8b0:	b1 87       	std	Z+9, r27	; 0x09
+ 8b2:	a0 87       	std	Z+8, r26	; 0x08
+ 8b4:	10 97       	sbiw	r26, 0x00	; 0
+ 8b6:	31 f0       	breq	.+12     	; 0x8c4 <OSDelDelayQ+0x46>
+ 8b8:	fb 2f       	mov	r31, r27
+ 8ba:	ea 2f       	mov	r30, r26
+ 8bc:	82 85       	ldd	r24, Z+10	; 0x0a
+ 8be:	9a 85       	ldd	r25, Y+10	; 0x0a
+ 8c0:	89 0f       	add	r24, r25
+ 8c2:	82 87       	std	Z+10, r24	; 0x0a
+ 8c4:	80 e0       	ldi	r24, 0x00	; 0
+ 8c6:	90 e0       	ldi	r25, 0x00	; 0
+ 8c8:	09 c0       	rjmp	.+18     	; 0x8dc <OSDelDelayQ+0x5e>
+ 8ca:	8e 2f       	mov	r24, r30
+ 8cc:	9f 2f       	mov	r25, r31
+ 8ce:	00 84       	ldd	r0, Z+8	; 0x08
+ 8d0:	f1 85       	ldd	r31, Z+9	; 0x09
+ 8d2:	e0 2d       	mov	r30, r0
+ 8d4:	30 97       	sbiw	r30, 0x00	; 0
+ 8d6:	01 f7       	brne	.-64     	; 0x898 <OSDelDelayQ+0x1a>
+ 8d8:	81 e0       	ldi	r24, 0x01	; 1
+ 8da:	90 e0       	ldi	r25, 0x00	; 0
+ 8dc:	df 91       	pop	r29
+ 8de:	cf 91       	pop	r28
+ 8e0:	08 95       	ret
+
+000008e2 <_exit>:
+ 8e2:	f8 94       	cli
+
+000008e4 <__stop_program>:
+ 8e4:	ff cf       	rjmp	.-2      	; 0x8e4 <__stop_program>

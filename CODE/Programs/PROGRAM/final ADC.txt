@@ -1,0 +1,29 @@
+#include<avr/interrupt.h>
+//#define ECPU 12000000U
+
+int main(void)
+{
+
+// char is used as we use only one byte data of one register only.
+
+char i;
+
+//a cleared DDR(data direction register) means that the port is set as input port.
+
+DDRC=0XFF;	//OUTPUT PORT (all bits set)
+
+ADMUX=0b00100000;
+
+SFIOR=0x00;
+
+ADCSRA=0b11100101;
+
+//polling
+while(1)
+{
+		i=ADCH;
+		i=i>>2;	//DUMP THE LAST TWO BITS OF ADCH.
+		i=i<<2;	//LEFT ADJUST THE VALUES.
+		PORTC=i;
+}
+}

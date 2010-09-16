@@ -1,0 +1,24 @@
+#include<avr/interrupt.h>
+#define ECPU 12000000U
+void main(void)
+{
+
+int i;
+//PORTC=0xFF;
+//a cleared ddr means that the port is set as input port.
+
+DDRC=0XFF;	//OUTPUT PORT
+ADMUX=0b00100000;
+SFIOR=0x00;
+ADCSRA=0b11100101;
+
+while(1)
+{
+		i=ADCH;
+		i=i>>2;	//DUMP THE LAST TWO BITS OF ADCH.
+		i=i<<2;	//LEFT ADJUST THE VALUES.
+		//PORTD=i;
+		PORTC=i;
+}
+
+}

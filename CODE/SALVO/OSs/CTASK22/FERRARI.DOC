@@ -1,0 +1,180 @@
+
+                     Ferrari electronic GmbH
+
+
+Ferrari electronic GmbH provides standard software and hardware 
+tools as well as customer specific solutions. 
+
+For customer specific and OEM developments, we can offer you com-
+plete turnkey systems, or work with you in all steps of product 
+development, from the specification through hardware and software 
+implementation. We provide consulting, CAD schematic design, CAD 
+layout services, and small to medium volume manufacuturing on the 
+hardware side, as well as consulting, design, and implementation 
+of complete software systems or single modules. 
+
+Although Ferrari electronic is a young company, all members of 
+our team have years of experience in hardware and software deve-
+lopment. Our main field of work is telecommunications, with cur-
+rent developments ranging from Fax G3 and G4, through Modems and 
+Teletex equipment, to ISDN solutions. We are also pursuing the 
+growing SCSI market with our current FSC-series of host adapters, 
+and with planned new SCSI based products. We can supply you with 
+SCSI drivers, and SCSI designs, both for target and initiator 
+applications. 
+
+For more information, call or write:
+
+        Ferrari electronic Gmbh
+        Beusselstrasse 27
+        D-1000 Berlin 21
+        Germany
+
+        Phone: (+49 30) 396 50 21
+        Fax:   (+49 30) 396 80 20
+
+
+Our own standard tools include:
+
+
+                          Software Tools
+
+
+FSYS - An MS-DOS compatible file system for embedded systems.
+
+   FSYS is a complete emulation of the MS-DOS file system (except 
+   for FCB operations). All directory operations, volume labels, 
+   FAT, BPB (including DOS 4.0 extended BPB), and DOS 4.0 
+   compatible large partitions are supported. Block devices are 
+   interfaced through DOS-compatible device drivers or simplified 
+   device driver modules. Interface is through C function calls 
+   for high speed operation. Implemented mainly in C, compatible 
+   with Turbo C and Microsoft C. 
+
+   Requires Turbo C 2.0 or later, or Microsoft C 5.1 or later, 
+   plus MASM 5.1 or later, or TASM 1.0 or later. 
+
+   Price: DM 450 (US$ 280) for binary only version (includes 
+          sample device driver sources).
+
+          DM 1200 (US$ 750) for full source code.
+         
+   No royalty payments required for systems embodying FSYS. 
+
+
+                            FAX Products
+
+
+FFP - Ferrari Fax Processor
+
+   Processor-based fax card/fax box. Can operate in PC/XT/AT bus
+   computers (up to four cards per bus) and as stand-alone serial fax
+   box. A 16-bit processor, 512k RAM, and FIFO bus interface for high
+   speed data exchange minimize host processor loading, and allow
+   minimal TSR size (approx. 30k) while supporting full background
+   send and receive without disturbing foreground applications.
+   G3 standard, 9600 bps with fallback to 7200, 4800, and 2400 bps.
+   Also supports connection to Sotec ISDN-board for G3-fax over ISDN
+   lines.
+
+   Standard DOS software includes an easy to use send/receive
+   interface, a Windows 3.0 printer driver to allow sending from any
+   Windows application, plus a DOS printer driver emulating an Epson
+   printer for compatibility to most DOS-based word processing and
+   graphics software. In addition, all CAS-based software packages
+   (PC-Tools 6.0, Fax-It for Windows, etc.) can be used with the
+   supplied CAS driver.
+
+   A low-cost toolkit for system developers is available.
+   UNIX-based software will be available 1Q 1991.
+
+   The card has passed postal certification for Germany. Other
+   certifications will follow soon.
+
+   Price: DM 1495 (US$ 935).
+
+
+                            SCSI Products
+
+
+FSC-800 - SCSI Host Adapter for IBM PC/XT/AT.
+
+   High performance SCSI host adapter for the ISA bus. On-board 
+   BIOS supports up to seven fixed disk drives, and capacities up 
+   to four Gigabyte with Drive join and Drive split. Menu driven 
+   low-level formatter and configuration utility on board, no 
+   additional software required. NCR compatible driver interface. 
+   Short card, includes standard 50-pin external connector. Does 
+   not use DMA or IRQ lines, can co-exist with other fixed disk 
+   adapters.
+
+   Price: DM 285 (US$ 180).
+
+
+FSC-810 - SCSI Host Adapter and Floppy Disk controller
+
+   Same as FSC-800, plus standard IBM-compatible floppy disk 
+   controller. Two connectors support up to four flexible disk 
+   drives. 
+
+   Price: DM 385 (US$ 240).
+
+
+HTB-120 - SCSI Breakout Box
+
+   Decodes all SCSI bus signals, displays bus state, and data bus 
+   contents. Decoded signals and main bus lines available on test 
+   pods.
+
+   Price: DM 550 (US$ 340).
+
+
+                        Device Programming
+
+
+HTB - Series of device programming adapters
+
+   The HTB series of DIP to FP, PLCC and LCC converters permits 
+   programming of SMD devices in standard DIP-socket programmers. 
+   High quality Yamaichi ZIF-sockets ensure long life for both 
+   device and adapter. Current adapters support 20 and 28 pin PAL 
+   and GAL devices, 28 pin Flat-Pack PROM, 32 pin PLCC and LCC, 
+   and 44 pin PLCC PROM, 44 pin PLCC 87C51, and 28 pin PLCC EP610. 
+
+   Prices from DM 168 to DM 298 (US$ 105 to 185).
+
+
+                        Other Hardware Tools
+
+
+V25-SBC - NEC V25 Single Board Computer
+
+   Eurocard-sized single board computer with large prototyping 
+   area, NEC V25, two 32-pin RAM sockets with battery back-up, 
+   one 32-pin ROM socket, Real Time Clock, and V.24 interface. 
+   Ideal for prototyping V25-based systems.
+
+   Price: DM 525 (US$ 330) fully populated (64k RAM).
+
+
+Prices and availability subject to change without notice. Please call
+or write for current pricing. All US$ prices are estimates only.
+Prices do not include shipping and handling, add local taxes where
+applicable. Prices stated are end-user single unit prices, dealer and
+distributor enquiries invited.
+
+   
+Additionally, we supply
+
+ - the K&C interface converter, breakout box, and protocol tester 
+   line (authorized distributor for Germany),
+   
+ - the OrCAD line of schematic design, layout, and PLD 
+   development tools (authorized dealer),
+
+ - Mitsubishi scanners (authorized dealer),
+   
+ - the EXPRO-60 universal device programmer,
+
+ - complete PC-based solutions, from XT to 386 systems.
+
