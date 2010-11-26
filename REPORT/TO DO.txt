@@ -1,0 +1,6 @@
+UART - python
+MCU power consumption graphs
+
+
+SPI (miso mosi ss ..)
+I2c

@@ -1,0 +1,534 @@
+From: "Saved by Windows Internet Explorer 8"
+Subject: Serial I/O (RS232)
+Date: Mon, 15 Mar 2010 00:21:27 +0530
+MIME-Version: 1.0
+Content-Type: text/html;
+	charset="Windows-1252"
+Content-Transfer-Encoding: quoted-printable
+Content-Location: http://mc-computing.com/Languages/SerialIO.htm
+X-MimeOLE: Produced By Microsoft MimeOLE V6.1.7600.16385
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD><TITLE>Serial I/O (RS232)</TITLE>
+<META content=3D"text/html; charset=3Dwindows-1252" =
+http-equiv=3DContent-Type>
+<META name=3Ddescription=20
+content=3D"This page demonstrates how to &#13;&#10;              perform =
+Serial I/O via RS232&#13;&#10;              using various computer =
+languages and compilers&#13;&#10;              (C++, Pascal/Delphi, =
+Basic).&#13;&#10;              Last Modified 08-08-02 ">
+<META name=3Dkeywords=20
+content=3D"Serial I/O (RS232),&#13;&#10;              C++, c++, cpp, =
+Pascal, pascal, Delphi, delphi,&#13;&#10;              Basic, basic, =
+Visual Basic, visual basic">
+<META name=3D"Revision history"=20
+content=3D"05-27-99&#13;&#10;              09-14-99 - added Revision =
+history section&#13;&#10;              03-14-00, 03-23-00 - fixed and =
+added references&#13;&#10;              04-16-01 - added test software =
+link&#13;&#10;              09-04-01 - added epanorama&#13;&#10;         =
+     09-24-01 - added 2 references for _bios_serialcom&#13;&#10;         =
+     10-26-01 - added optoisolated schematic reference&#13;&#10;         =
+     06-20-02 - added MS Access info to VB section&#13;&#10;             =
+ 08-07-02 - added MSComm32.ocx memory leak link&#13;&#10;              =
+08-08-02 - Moved most of the Delphi material to&#13;&#10;                =
+         Delphi/Delphi_SerialIO.htm"=20
+? deleted was Delphi to pertained that history old The>
+<META name=3DGENERATOR content=3D"MSHTML 8.00.7600.16490"></HEAD>
+<BODY><A name=3DIntro>
+<CENTER>
+<H3>Serial I/O (RS232) </H3></CENTER></A>All Intel PCs have one or two =
+serial=20
+ports usually referred to as Com1 and Com2. These comm ports provide =
+voltages=20
+and pin outs consistent with RS-232C. Normally, these ports are used for =
+mice,=20
+modems, printers, and the like.=20
+<P>Under DOS, it was possible to directly access these ports. However, =
+Windows=20
+95 and above forbid direct hardware access. Therefore, this page exists =
+to help=20
+get around windows.=20
+<P>
+<CENTER><A=20
+href=3D"http://mc-computing.com/Languages/SerialIO.htm#references">Generi=
+c=20
+References</A> | <A=20
+href=3D"http://mc-computing.com/Languages/SerialIO.htm#VisualBasic">Visua=
+l=20
+Basic</A> | <A=20
+href=3D"http://mc-computing.com/Languages/SerialIO.htm#MS_Access">MS =
+Access</A> |=20
+<A =
+href=3D"http://mc-computing.com/Languages/SerialIO.htm#Delphi">Delphi</A>=
+ | <A=20
+href=3D"http://mc-computing.com/Languages/SerialIO.htm#C++Builder">C++ =
+Builder</A>=20
+| <A =
+href=3D"http://mc-computing.com/Languages/SerialIO.htm#WindowsAPI">Window=
+s=20
+API</A> </CENTER>
+<P><A name=3Dreferences>
+<HR>
+<! ********************************************************>
+<CENTER>
+<H3>Generic References </H3></CENTER></A>Most of this was gathered by =
+searching=20
+Altavista for <B>rs232</B> (notice that I used lower case).=20
+<UL>
+  <LI>I suggest starting with this good <A=20
+  href=3D"http://www.arcelect.com/rs232.htm">Tutorial</A>.=20
+  <LI>Here is the <A=20
+  =
+href=3D"http://www.camiresearch.com/Data_Com_Basics/RS232_standard.html">=
+complete=20
+  standard</A> including the pin out, timing, and signal descriptions.=20
+  <LI><A href=3D"http://www.rs485.com/rs485spec.html">Voltage Specs</A>=20
+  <LI><A href=3D"http://www.windmill.co.uk/rs232.html">Free Application=20
+  Software</A>=20
+  <LI>Did you know that <A =
+href=3D"http://www.integrityusa.com/spec.htm">RS</A>=20
+  means <B>Recommended Standard</B>? This site also compares=20
+  <B>Simplex/Duplex</B> and <B>DTE/DCE</B>. <A=20
+  href=3D"http://www.integrityusa.com/software.htm">Free software</A> =
+shows how to=20
+  write Windows 95 programs which access the serial port - <A=20
+  =
+href=3D"http://www.integrityusa.com/com32.zip">comm32.zip/comm32.cpp</A> =
+(4kb)=20
+  <LI>The Visual Basic help file explains how to use Comm.drv to access =
+serial=20
+  ports. (Search on <B>serial</B>.) <PRE>    ' Open the serial port
+  MSComm1.CommPort =3D 2              ' Set the port number
+  MSComm1.Settings =3D "56000,N,8,1"  ' Set UART parameters
+  MSComm1.PortOpen =3D True           ' Required, might lock port
+  MsComm1.Output =3D "Text string"    ' Send data
+  Buffer$ =3D Buffer$ &amp; MSComm1.Input ' Read data
+     </PRE>
+  <LI>Another <A =
+href=3D"http://www.taltech.com/introserial.htmfs">tutorial</A>=20
+  and <A href=3D"http://www.taltech.com/links.htm">links</A> to various =
+rs232=20
+  related sites.=20
+  <LI><A href=3D"http://lvr.com/">Books</A> and lots of very good links. =
+
+  <LI>While Windows does not normally allow you to directly access the =
+hardware,=20
+  <A =
+href=3D"ftp://ftp.softcircuits.com/tools/win95io.zip">WIN95IO.dll</A>=20
+  privides a simple work around. Unfortunately, the distribution package =
+does=20
+  not provide any examples, just 4 function prototypes. The following 2 =
+examples=20
+  may help.=20
+  <UL>vbOut &amp;H378, MyData% <BR>temp% =3D vbInp &amp;H378</UL>See <A=20
+  href=3D"http://www.softcircuits.com/">http://www.softcircuits.com/</A> =
+and <A=20
+  =
+href=3D"http://www.planet-source-code.com/vb">www.planet-source-code.com/=
+vb</A>=20
+  for VB tips.=20
+  <LI>Many hints are available from <A=20
+  =
+href=3D"news://comp.lang.basic.visual.misc/">comp.lang.basic.visual.misc<=
+/A>.=20
+  <LI>Hardware kits and book are available from <A=20
+  href=3D"http://www.phanderson.com/ordering.html">Peter Anderson</A>.=20
+  <LI>The <A=20
+  =
+href=3D"http://users.desupernet.com/sokos/CAH21.HTM">comp.arch.hobbyist =
+FAQ</A>=20
+  contains many links on how to interface to the <A=20
+  href=3D"http://users.desupernet.com/sokos/CAH21.HTM#2.4">Serial Port, =
+Parallel=20
+  Printer, and Joystick</A>, as well as links to information on <A=20
+  href=3D"http://users.desupernet.com/sokos/CAH21.HTM#2.16">IR =
+Standards</A>.=20
+  <LI><A href=3D"http://www.boondog.com/">Boondog Automation</A> =
+provides a number=20
+  of related <A=20
+  href=3D"http://www.boondog.com/tutorials/tutorials.htm">tutorials</A> =
+describing=20
+  how to build your own hardware interfaces and how to write interface =
+software.=20
+  They also sell a parallel I/O, 8255-based ISA card - either as a kit =
+or=20
+  assembled.=20
+  <LI><A =
+href=3D"http://www.xs4all.nl/~ganswijk/chipdir/uart.htm">Information on=20
+  various UARTs</A>, includes links, pin-outs, and an overview. <! added =
+3-14-00 >
+  <LI><A href=3D"http://www.marshallsoft.com/">MarshallSoft</A> provides =
+<A=20
+  href=3D"http://www.marshallsoft.com/rs232.htm">a good FAQ explaining =
+the=20
+  UART</A> with links to vendor specs. They also provide shareware =
+libraries for=20
+  a number of programming languages. <! modified 3-23-00 ><! added =
+6-28-00 >
+  <LI>This <A=20
+  =
+href=3D"http://mc-computing.com/Languages/serialport1.txt"><B>system.ini<=
+/B>=20
+  patch</A> from <B>Newsgroups: microsoft.public.win95.msdosapps</B> may =
+help=20
+  you run DOS applications under Windows 95 et al. <! added 4-16-01 >
+  <LI><A=20
+  =
+href=3D"http://www.sysinternals.com/ntw2k/freeware/portmon.shtml">Portmon=
+</A> is=20
+  a free GUI/device driver combination that monitors and displays all =
+serial and=20
+  parallel port activity on a system. <! added 4-19-01 >
+  <LI><A href=3D"http://www.rentron.com/">Reynolds Electronics</A> =
+appears to be a=20
+  basic PC hobby store. It has all sorts of Basic Stamp, PIC, and data=20
+  aquisition info. <! added 4-19-01 >
+  <LI><A href=3D"http://www.bb-elec.com/">B&amp;B Electronics</A> =
+provides a=20
+  variety of serial I/O devices (including a <A=20
+  =
+href=3D"http://www.bb-elec.com/product.asp?sku=3DUD128A8D&amp;pathid=3D29=
+8&amp;altsku=3Ddaq">USB=20
+  Data Acquisition Module</A> - 8s/4d 12-bit ADC, 4 10-bit DAC, 8 =
+digital I/Os,=20
+  and software), books, and a pretty good free <A=20
+  href=3D"http://www.bb-elec.com/technical_library.asp">Technical =
+Library</A>. <! added 9-04-01 >
+  <LI><A =
+href=3D"http://www.epanorama.net/pc/interface.html">ePanorama.net</A>=20
+  provides a large number of links to all kinds of useful information - =
+serial,=20
+  parallel, IR, usb, firewire, keyboard, mouse, joystick. <! added =
+10-26-01 >
+  <LI><A =
+href=3D"http://www.kmitl.ac.th/~kswichit/Rs232_web/Rs232.html">Isolated=20
+  Full Duplex RS232C Interface</A> provides schematics and a PC board =
+for a self=20
+  powered interface circuit the optically isolates the TxD and RxD lines =
+from=20
+  the PC serial port. </LI></UL>
+<P><A name=3DVisualBasic>
+<HR>
+<! ********************************************************>
+<CENTER>
+<H3>Visual Basic 6.0 </H3></CENTER></A>You will use Comm.drv, =
+MSComm.ocx, or=20
+MSComm32.ocx, depending on which compiler you are using. For example, in =
+
+VisualBasic 6.0 Professional or Enterprise editions, first add the =
+MSComm32.ocx=20
+to the Toolbox (add the <B>Microsoft Comm Control 6.0</B> component), =
+then add=20
+the control to your form and press F1 (Help).=20
+<P><B>Visual Basic Programmers Guide to Serial Communications</B> by =
+Richard=20
+Grier. <A=20
+href=3D"http://ourworld.compuserve.com/homepages/richard_grier/">Richard'=
+s</A>=20
+page provides free ActiveX serial components for those that don't have=20
+MSComm32.ocx.=20
+<P>VB 6.0 provides <B>VBTerm</B>, a sample terminal emulation =
+application under=20
+..\samples\VB98\MSCOMM.=20
+<P>You can open a port as a file. This example, from <A=20
+href=3D"news://comp.lang.basic.visual.misc/">comp.lang.basic.visual.misc<=
+/A>,=20
+opens the printer=20
+<UL><PRE>    Open "LPT1" For Output As #1
+    Print #1, "Text" &amp; chr$(ascii char)
+    Close #1
+</PRE></UL>
+<P><A name=3DMS_Access>
+<HR>
+<! ********************************************************>
+<CENTER>
+<H3>MS Access 97 SR-2 </H3></CENTER></A>I developed the following code =
+to read=20
+barcodes from a reader connected to the serial port. This first section =
+is an=20
+attempt to open the port as a file (this works with most languages - but =
+not=20
+with MS Access); the second section is based on <A=20
+href=3D"http://www.cpcug.org/user/clemenzi/technical/Databases/MSAccess/A=
+ctiveX.html">MSCOMM32.ocx</A>=20
+(which mostly works). This discussion is included here because MS Access =
+uses=20
+VBA - Visual Basic for Applictions.=20
+<P><A name=3DVB_Access_f><! added 06-20-02 >
+<HR width=3D"60%">
+<! ******************************>
+<CENTER>
+<H3>MS Access 97 SR-2 - Fails </H3></CENTER></A>
+<P>On my system, the following code causes Access to hang.=20
+<UL><PRE>Private Sub ReadPort_UIButton_Click()
+Dim temp As String
+ Open "com1:" For Input As #1 Len =3D 3
+ Input #1, temp                       ' This line hangs
+ Close #1
+End Sub
+</PRE></UL>I tested several variations with the same result=20
+<UL>
+  <LI>Without <B>Len =3D 3</B>=20
+  <LI>With <B>temp</B> as a variant=20
+  <LI>Both "com1" and "com1:"=20
+  <LI>Both <B>Input</B> and <B>Binary</B> </LI></UL>
+<P><A name=3DVB_Access_w><! added 06-20-02 >
+<HR width=3D"60%">
+<! ******************************>
+<CENTER>
+<H3>MS Access 97 SR-2 - Works </H3></CENTER></A>On the other hand, this =
+works=20
+... sort of.=20
+<UL><PRE>Private Sub OpenPort_UIButton_Click()
+  ComPort_ActiveXCtl.CommPort =3D 1
+    ' 9600 baud, no parity, 8 data, and 1 stop bit.
+  ComPort_ActiveXCtl.Settings =3D "9600,N,8,1"
+  ComPort_ActiveXCtl.InputLen =3D 0         ' Read entire buffer
+  ComPort_ActiveXCtl.PortOpen =3D True      ' Opens the port
+  ComPort_ActiveXCtl.RThreshold =3D 12
+End Sub
+
+Private Sub Form_Unload(Cancel As Integer)
+  If ComPort_ActiveXCtl.PortOpen =3D True Then
+    ComPort_ActiveXCtl.PortOpen =3D False
+  End If
+End Sub
+
+Private Sub ComPort_ActiveXCtl_OnComm()
+  Select Case ComPort_ActiveXCtl.CommEvent
+
+    Case comEvReceive   ' Received RThreshold # of chars.
+              Test_UIEdit =3D ComPort_ActiveXCtl.Input
+  End Select
+End Sub
+</PRE></UL>The trick is to know that <B>ControlName_OnComm()</B> is =
+called when=20
+<B>RThreshold</B> is not zero. Unfortunately, this doesn't work so well =
+because=20
+barcodes came in various length and <B>RThreshold=3D12</B> only works =
+with=20
+12-character barcodes. With these modification, any length barcode will =
+work.=20
+<UL>
+  <LI>Set the threshold to one (1)=20
+  <LI>When the first character is read, set a timer and add the =
+character to the=20
+  barcode=20
+  <LI>As each additional character is read, re-start the timer=20
+  <LI>When the timer expires, call the function of your choice and pass =
+the=20
+  completed barcode. (The example below just writes it to a component.)=20
+  <LI>Finally, stop the timer and clear the string <B>Barcode</B> =
+</LI></UL>
+<UL><PRE>' Global Variables for the Barcode Scanner
+Dim Global_Barcode As String
+Dim Start_Time As Date
+
+'********************************************
+
+'  Start of Barcode reader code
+
+Private Sub Form_Load()
+  Start_Time =3D 0
+  Global_Barcode =3D ""
+  ComPort_ActiveXCtl.CommPort =3D 1
+    ' 9600 baud, no parity, 8 data, and 1 stop bit.
+  ComPort_ActiveXCtl.Settings =3D "9600,N,8,1"
+  ComPort_ActiveXCtl.InputLen =3D 0         ' Read entire buffer
+  ComPort_ActiveXCtl.PortOpen =3D True      ' Opens the port
+  ComPort_ActiveXCtl.RThreshold =3D 1       ' Call **_OnComm
+                                          '   for each character
+End Sub
+
+Private Sub ComPort_ActiveXCtl_OnComm()
+  Select Case ComPort_ActiveXCtl.CommEvent
+
+    Case comEvReceive   ' Received RThreshold # of chars.
+        If Start_Time =3D 0 Then
+          Start_Time =3D Timer
+        Else
+          If Timer - Start_Time &gt; 200 Then ' in case of failure
+            Form_Timer
+            Exit Sub
+          End If
+        End If
+        Global_Barcode =3D Global_Barcode &amp; ComPort_ActiveXCtl.Input
+        TimerInterval =3D 80   ' call Form_Timer 80 ms
+                             '   after last character
+  End Select
+End Sub
+
+Private Sub Form_Timer()
+  TimerInterval =3D 0    ' Disable the timer
+  Start_Time =3D 0
+  Barcode_UIEdit =3D Global_Barcode
+  Global_Barcode =3D ""
+ =20
+  Barcode_UIEdit_Change
+End Sub
+
+Private Sub Form_Unload(Cancel As Integer)
+  If ComPort_ActiveXCtl.PortOpen =3D True Then
+    ComPort_ActiveXCtl.PortOpen =3D False
+  End If
+End Sub
+
+'  End of Barcode reader code
+
+'********************************************
+</PRE></UL><B>Notes:</B>=20
+<UL>
+  <LI>In the help, the case statement has many options. To simplify this =
+
+  example, I removed all but the one that reads the data.=20
+  <LI>The only available timer is attached to the form. Therefore, it is =
+hard to=20
+  encapsulate this in a library.=20
+  <LI>MS Access 97 SR-2 will not display the MSComm help when you click =
+on a=20
+  command and press F1 ... unless you FIRST locate and open=20
+  "C:\WIN98\HELP\COMCTL2.HLP". (Your path may be different.)=20
+  <LI>This code requires that MSCOMM32.ocx is installed on every machine =
+that=20
+  uses this feature. Simply copying the file is NOT sufficient. There =
+are no=20
+  instructions on how to do it correctly. Copying it installs the =
+TypeLib=20
+  resistry key, but not the several CLSID's or the License.=20
+  <LI>I had everything working perfect. When I tried to demonstrate the =
+code to=20
+  my boss, NONE of the <B>case</B> constants were defined ... Well they =
+were 2=20
+  hours before! (And they work fine now.) </LI></UL>
+<P><A name=3DDelphi>
+<HR>
+<! ********************************************************>
+<CENTER>
+<H3>Delphi=20
+</H3></CENTER></A><! The data in this secion was moved on 08-08-02 >Due =
+to their=20
+size, the <A=20
+href=3D"http://mc-computing.com/Languages/Delphi/Delphi_SerialIO.htm">Del=
+phi notes=20
+are here</A>.=20
+<P><A name=3DC++Builder>
+<HR>
+<! ********************************************************>
+<CENTER>
+<H3>C++ Builder </H3></CENTER></A>C++ Builder <A=20
+href=3D"http://mc-computing.com/Languages/Delphi/Delphi_SerialIO.htm#Delp=
+hi">uses=20
+the same API calls as Delphi</A>. In addition, the it uses the came =
+components.=20
+<P><A name=3D_bios_serialcom>
+<HR width=3D"60%">
+<! ******************************>
+<CENTER>
+<H3>_bios_serialcom </H3></CENTER></A>With Borland C, you can use=20
+<B>_bios_serialcom()</B> in <B>bios.h</B> to perform serial I/O.=20
+<UL><PRE>#include &lt;bios.h&gt;
+  unsigned temp;
+    // Open serial port at 1200 baud, 8 data bits,=20
+    //  No parity, 1 stop bit=20
+  temp =3D _bios_serialcom(_COM_INIT, 0,
+              _COM_CHR8 | _COM_NOPARITY | _COM_STOP1 | _COM_1200);
+  temp =3D _bios_serialcom(_COM_RECEIVE, 0,  0);   // Read a character
+  temp =3D _bios_serialcom(_COM_SEND   , 0, '*');  // Write a character
+</PRE></UL><!-- Modified 9-24-01 -->It is unclear which compilers =
+provide=20
+<B>bios.h</B>. On 9-24-01, I found references that both <A=20
+href=3D"http://support.microsoft.com/support/kb/articles/Q39/5/01.asp">Mi=
+crosoft=20
+Visual C++</A> and Watcom C++ also claim to support =
+<B>_bios_serialcom()</B>.=20
+However, a search of my Visual C++ 6 system found neither <B>bios.h</B> =
+nor=20
+<B>_bios_serialcom()</B>. Therefore, I assume that Microsoft has dropped =
+the=20
+support.=20
+<P>At any rate, I will NOT provide copies of <B>bios.h</B> to anyone.=20
+<P><A href=3D"http://rs232pro.tripod.com/builder_stop.htm">Virtual =
+Integrated=20
+Design</A> provides various RS-232 circuits and free software examples.=20
+<P><! added 9-24-01 ><A=20
+href=3D"http://www.metlin.f2s.com/pgms/rs232.html">Accessing the RS232 =
+Port in DOS=20
+using BIOS.H functions</A> provides a summary of the allowed =
+options/contants.=20
+There is also a program showing how to use <B>bioscom</B> to access =
+ports.=20
+<P><! added 9-24-01 >Microsoft provides a <A=20
+href=3D"http://support.microsoft.com/support/kb/articles/Q39/5/01.asp">Si=
+mple=20
+Example Using _bios_serialcom()</A>. The article states that this =
+interface=20
+tends to loose data. In order to improve the reliability, the comport =
+needs to=20
+call an interrupt routine which moves the data to a buffer. This was =
+easy under=20
+DOS, but generally not allowed under Windows.=20
+<P><A name=3DWindowsAPI>
+<HR>
+<! ********************************************************>
+<CENTER>
+<H3>Windows API </H3></CENTER></A>Search the SDK help for =
+<B>Communications</B>=20
+(I used the SDK that came with Delphi 5).=20
+<P>Use <B>CreateFile</B> to open a handle to a communications resource, =
+such as=20
+<B>com1</B> or <B>lpt1</B>.=20
+<P>Test the returned handle to verify that the port is not locked by =
+another=20
+process.=20
+<P>Use <B>GetCommState</B> to determine the current settings,=20
+<B>SetCommState</B> to change the settings.=20
+<P>You can use <B>BuildCommDCB</B> to pass common parameters (baud, =
+parity,=20
+etc.) to the DCB as a string. But you'll still need <B>SetCommState</B> =
+to=20
+actually change the settings.=20
+<P>See the DCB help for the supported constants.=20
+<P>Some additional commands - <B>TransmitCommChar</B>, <B>PurgeComm</B>, =
+
+<B>FlushFileBuffers</B>=20
+<P><! added 5-11-01 >Microsoft Platform SDK - <A=20
+href=3D"http://msdn.microsoft.com/library/psdk/winbase/commun_4m7n.htm">C=
+ommunication=20
+Overview</A>, <A=20
+href=3D"http://msdn.microsoft.com/library/psdk/winbase/commun_6g37.htm">C=
+ommunication=20
+Functions</A>=20
+<P>The only property which is remembered between disconnects is the =
+<B>Baud=20
+Rate</B>. <B>Parity</B>, <B>StopBits</B> and the like are reset each =
+time the=20
+connection is opened. Unfortunately, both <B>SetCommState</B> and=20
+<B>SetCommConfig</B> are extremely slow. As a result, it is not =
+practical to=20
+disconnect the comport between uses.=20
+<P><A name=3Dmore><! added 08-07-02 >
+<HR width=3D"60%">
+<! ******************************>
+<CENTER>
+<H3>Warning </H3></CENTER></A>Some versions of <A=20
+href=3D"http://support.microsoft.com/default.aspx?scid=3Dkb;en-us;Q171472=
+">MSComm32.ocx=20
+leak memory</A>.=20
+<P>
+<HR>
+<! ********************************************************><A =
+name=3D""></A>
+<ADDRESS>Author: Robert Clemenzi - <A=20
+href=3D"mailto:clemenzi@cpcug.org?subject=3DLanguages - =
+SerialIO.htm">mailto:clemenzi@cpcug.org?subject=3DLanguages=20
+- SerialIO.htm</A> </ADDRESS>
+<H5>URL: http:// <A href=3D"http://cpcug.org/">cpcug.org</A> / <A=20
+href=3D"http://cpcug.org/user/">user</A> / <A=20
+href=3D"http://cpcug.org/user/clemenzi/index.html">clemenzi</A> / <A=20
+href=3D"http://cpcug.org/user/clemenzi/technical/index.html">technical</A=
+> / <A=20
+href=3D"http://cpcug.org/user/clemenzi/technical/Languages/">Languages</A=
+> / <A=20
+href=3D"http://cpcug.org/user/clemenzi/technical/Languages/SerialIO.htm">=
+SerialIO.htm</A>=20
+</H5></BODY></HTML>
